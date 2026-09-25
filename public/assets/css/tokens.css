@@ -1,0 +1,144 @@
+/* ===========================================================================
+   Dar Al Saffar — design tokens
+   ---------------------------------------------------------------------------
+   The palette is taken from the brand mark itself: a deep emerald field with a
+   warm cream lockup. Emerald is the signature and carries the brand moments;
+   champagne gold is an accent only — a hairline, a rule, a price, never a fill.
+   Everything else is charcoal, ivory and negative space.
+   =========================================================================== */
+
+:root {
+  /* ---- brand ------------------------------------------------------------ */
+  --emerald-900: #00301d;
+  --emerald-800: #004a2c;
+  --emerald-700: #00603a;   /* the logo green, sampled from the artwork */
+  --emerald-600: #0a7146;
+  --emerald-500: #178556;
+  --emerald-050: #eef4f0;
+
+  --cream-500: #f3e8c8;     /* the logo cream */
+  --cream-400: #f7f0dc;
+
+  /* ---- neutrals --------------------------------------------------------- */
+  --ink-900: #0e100f;       /* near-black, used for type and dark sections */
+  --ink-800: #191c1a;
+  --ink-700: #2a2e2b;
+  --ink-500: #5d635f;
+  --ink-400: #6e7570;       /* soft grey — darkened to clear 4.5:1 on ivory */
+  --ink-300: #b4b9b5;
+  --ink-200: #dcdedb;
+  --ink-100: #ebe9e4;
+
+  --ivory-100: #ffffff;
+  --ivory-200: #fdfbf7;     /* warm ivory — the default page ground */
+  --ivory-300: #f7f3ea;
+  --ivory-400: #efe8da;     /* warm beige */
+
+  --brown-700: #3a2e25;     /* dark brown */
+
+  --gold-600: #8f6e31;      /* text-safe champagne: 4.5:1 on ivory */
+  --gold-500: #c2a36a;      /* champagne — accent only */
+  --gold-300: #e0cfa8;
+
+  --danger: #8f2f2f;
+  --success: var(--emerald-700);
+
+  /* ---- semantic --------------------------------------------------------- */
+  --surface: var(--ivory-200);
+  --surface-raised: var(--ivory-100);
+  --surface-sunken: var(--ivory-300);
+  --surface-inverse: var(--ink-900);
+  --surface-brand: var(--emerald-700);
+
+  --text-primary: var(--ink-900);
+  --text-secondary: var(--ink-500);
+  --text-muted: var(--ink-400);
+  --text-on-dark: var(--cream-400);
+  --text-on-dark-muted: #a9b3ad;
+
+  --line: var(--ink-200);
+  --line-soft: var(--ink-100);
+  --line-gold: var(--gold-300);
+  --line-on-dark: rgba(243, 232, 200, 0.18);
+
+  /* ---- type ------------------------------------------------------------- */
+  --font-display: "Amiri", "Cormorant Garamond", "Times New Roman", serif;
+  --font-sans: "IBM Plex Sans Arabic", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-latin-display: "Cormorant Garamond", "Amiri", serif;
+
+  /* A fluid scale: cinematic at the top, tight and readable at the bottom. */
+  --step-hero: clamp(2.5rem, 1.5rem + 4.2vw, 5.25rem);
+  --step-display: clamp(2.1rem, 1.35rem + 3.4vw, 4rem);
+  --step-title: clamp(1.6rem, 1.2rem + 1.8vw, 2.5rem);
+  --step-heading: clamp(1.25rem, 1.08rem + 0.8vw, 1.6rem);
+  --step-subhead: clamp(1.05rem, 0.98rem + 0.35vw, 1.2rem);
+  --step-body: 1rem;
+  --step-small: 0.875rem;
+  --step-micro: 0.75rem;
+
+  --leading-tight: 1.15;
+  --leading-snug: 1.35;
+  --leading-normal: 1.7;
+  --leading-relaxed: 1.9;
+
+  --tracking-wide: 0.08em;
+  --tracking-wider: 0.16em;
+  --tracking-widest: 0.28em;
+
+  /* ---- space ------------------------------------------------------------ */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-9: 6rem;
+  --space-10: 8rem;
+
+  --section-y: clamp(3.5rem, 2rem + 6vw, 7.5rem);
+  --gutter: clamp(1rem, 0.4rem + 2.4vw, 3rem);
+  --measure: 62ch;
+  --container: 1440px;
+  --container-narrow: 940px;
+
+  /* ---- form ------------------------------------------------------------- */
+  /* Restraint: square-ish corners, hairline rules, almost no shadow. */
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
+  --radius-pill: 999px;
+
+  --shadow-sm: 0 1px 2px rgba(14, 16, 15, 0.05);
+  --shadow-md: 0 8px 28px -18px rgba(14, 16, 15, 0.35);
+  --shadow-lg: 0 24px 60px -32px rgba(14, 16, 15, 0.42);
+
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 160ms;
+  --dur: 280ms;
+  --dur-slow: 520ms;
+
+  --header-h: 72px;
+  --z-header: 100;
+  --z-overlay: 200;
+  --z-drawer: 300;
+  --z-modal: 400;
+}
+
+@media (min-width: 1024px) {
+  :root { --header-h: 92px; }
+}
+
+/* Motion is decoration here; when it is unwelcome, remove it entirely. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

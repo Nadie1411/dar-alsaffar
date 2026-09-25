@@ -1,0 +1,884 @@
+/* ===========================================================================
+   Components — header, navigation, cards, overlays
+   =========================================================================== */
+
+/* ---- announcement ------------------------------------------------------- */
+
+.announce {
+  background: var(--ink-900);
+  color: var(--text-on-dark);
+  font-size: var(--step-micro);
+  letter-spacing: var(--tracking-wide);
+  text-align: center;
+  padding-block: var(--space-2);
+}
+.announce a { color: var(--gold-300); text-decoration: underline; text-underline-offset: 3px; }
+
+/* ---- header ------------------------------------------------------------- */
+
+.header {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: var(--z-header);
+  background: var(--surface);
+  border-block-end: 1px solid transparent;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease),
+              box-shadow var(--dur) var(--ease);
+}
+
+/* Over a hero image the header starts transparent and inverted, then resolves
+   into the solid ivory bar once the page scrolls. */
+.header--overlay {
+  position: fixed;
+  inset-inline: 0;
+  background: transparent;
+  color: var(--cream-400);
+}
+
+.header--overlay .header__inner { border-block-end: 1px solid rgba(243, 232, 200, 0.14); }
+
+.header.is-stuck {
+  background: rgba(253, 251, 247, 0.92);
+  backdrop-filter: blur(12px);
+  border-block-end-color: var(--line-soft);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+}
+.header.is-stuck .header__inner { border-block-end-color: transparent; }
+.header.is-stuck .header__logo-cream { display: none; }
+.header.is-stuck .header__logo-emerald { display: block; }
+
+.header__logo-emerald { display: block; }
+.header--overlay .header__logo-emerald { display: none; }
+.header--overlay .header__logo-cream { display: block; }
+.header__logo-cream { display: none; }
+
+.header__inner {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--space-4);
+  min-block-size: var(--header-h);
+}
+
+.header__brand { display: inline-flex; align-items: center; gap: var(--space-3); }
+.header__brand img { block-size: clamp(34px, 3.2vw, 46px); inline-size: auto; }
+
+.header__nav { display: none; }
+
+@media (min-width: 1024px) {
+  .header__nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(var(--space-4), 1.8vw, var(--space-6));
+    /* The mega panel is anchored to the nav, not to one item, so a menu near
+       the edge of the bar cannot push the document wider than the viewport. */
+    position: relative;
+  }
+}
+
+.header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  justify-self: end;
+}
+
+/* ---- primary nav -------------------------------------------------------- */
+
+.nav__item { position: static; }
+
+.nav__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding-block: var(--space-3);
+  font-size: var(--step-small);
+  letter-spacing: var(--tracking-wide);
+  color: inherit;
+  white-space: nowrap;
+  position: relative;
+}
+
+.nav__link::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 6px;
+  block-size: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: inline-start;
+  transition: transform var(--dur) var(--ease);
+}
+
+.nav__link:hover::after,
+.nav__link:focus-visible::after,
+.nav__item[aria-current] > .nav__link::after,
+.nav__link[aria-current="page"]::after { transform: scaleX(1); }
+
+.nav__link .chev { transition: transform var(--dur-fast) var(--ease); }
+.nav__item:hover .chev, .nav__item:focus-within .chev { transform: rotate(180deg); }
+
+/* ---- mega menu ---------------------------------------------------------- */
+
+.mega {
+  position: absolute;
+  inset-block-start: calc(100% + 10px);
+  inset-inline-start: 50%;
+  transform: translateX(-50%) translateY(-6px);
+  inline-size: min(880px, calc(100vw - 2 * var(--gutter)));
+  padding: var(--space-6);
+  background: var(--surface-raised);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: var(--space-6);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease), visibility var(--dur);
+  color: var(--text-primary);
+}
+
+.nav__item:hover > .mega,
+.nav__item:focus-within > .mega {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+.mega__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2) var(--space-5);
+  align-content: start;
+}
+
+.mega__link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-block: var(--space-2);
+  font-size: var(--step-small);
+  border-block-end: 1px solid transparent;
+  transition: border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.mega__link:hover { border-block-end-color: var(--gold-500); color: var(--emerald-700); }
+.mega__link span:last-child { color: var(--text-muted); font-size: var(--step-micro); }
+
+.mega__feature {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  min-block-size: 240px;
+  display: flex;
+  align-items: flex-end;
+  padding: var(--space-5);
+  color: var(--cream-400);
+  isolation: isolate;
+}
+.mega__feature img {
+  position: absolute; inset: 0;
+  inline-size: 100%; block-size: 100%;
+  object-fit: cover;
+  z-index: -2;
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+.mega__feature::after {
+  content: "";
+  position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(to top, rgba(14,16,15,0.78), rgba(14,16,15,0.12));
+}
+.mega__feature:hover img { transform: scale(1.05); }
+
+/* ---- mobile nav --------------------------------------------------------- */
+
+.burger { display: inline-flex; }
+@media (min-width: 1024px) { .burger { display: none; } }
+
+.burger__lines { inline-size: 20px; block-size: 12px; position: relative; }
+.burger__lines span {
+  position: absolute;
+  inset-inline: 0;
+  block-size: 1.5px;
+  background: currentColor;
+  transition: transform var(--dur) var(--ease), opacity var(--dur-fast) var(--ease);
+}
+.burger__lines span:nth-child(1) { inset-block-start: 0; }
+.burger__lines span:nth-child(2) { inset-block-start: 5px; }
+.burger__lines span:nth-child(3) { inset-block-start: 10px; }
+
+[aria-expanded="true"] .burger__lines span:nth-child(1) { transform: translateY(5px) rotate(45deg); }
+[aria-expanded="true"] .burger__lines span:nth-child(2) { opacity: 0; }
+[aria-expanded="true"] .burger__lines span:nth-child(3) { transform: translateY(-5px) rotate(-45deg); }
+
+/* ---- scrim shared by drawers and overlays ------------------------------- */
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  background: rgba(14, 16, 15, 0.45);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--dur) var(--ease), visibility var(--dur);
+}
+.scrim[data-shown] { opacity: 1; visibility: visible; }
+
+/* ---- drawer ------------------------------------------------------------- */
+
+.drawer {
+  position: fixed;
+  inset-block: 0;
+  inset-inline-end: 0;
+  z-index: var(--z-drawer);
+  inline-size: min(440px, 100vw);
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-raised);
+  /* Closed panels are hidden with visibility, never display: a transition
+     cannot start on an element that was display:none a moment ago, which
+     leaves the panel frozen off-screen. */
+  visibility: hidden;
+  pointer-events: none;
+  transition: transform var(--dur-slow) var(--ease-out), visibility var(--dur-slow);
+  box-shadow: var(--shadow-lg);
+}
+
+/* transform is physical, so the off-screen direction is stated per writing
+   direction rather than derived — the inline-end edge is right in LTR and
+   left in RTL. */
+[dir="ltr"] .drawer { transform: translateX(100%); }
+[dir="rtl"] .drawer { transform: translateX(-100%); }
+
+.drawer--start { inset-inline-end: auto; inset-inline-start: 0; }
+[dir="ltr"] .drawer--start { transform: translateX(-100%); }
+[dir="rtl"] .drawer--start { transform: translateX(100%); }
+
+[dir] .drawer[data-shown] { transform: translateX(0); visibility: visible; pointer-events: auto; }
+
+.drawer__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-5) var(--space-4);
+  border-block-end: 1px solid var(--line-soft);
+  flex: none;
+}
+.drawer__title { font-size: var(--step-heading); }
+.drawer__body { flex: 1; overflow-y: auto; overscroll-behavior: contain; padding: var(--space-5); }
+.drawer__foot {
+  flex: none;
+  padding: var(--space-5);
+  border-block-start: 1px solid var(--line-soft);
+  background: var(--surface-raised);
+}
+
+/* ---- mobile menu list --------------------------------------------------- */
+
+.mnav__link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-block: var(--space-4);
+  border-block-end: 1px solid var(--line-soft);
+  font-family: var(--font-display);
+  font-size: var(--step-heading);
+}
+.mnav__sub { padding-inline-start: var(--space-4); }
+.mnav__sub a {
+  display: block;
+  padding-block: var(--space-2);
+  font-size: var(--step-small);
+  color: var(--text-secondary);
+}
+
+/* ---- search overlay ----------------------------------------------------- */
+
+.search-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-12px);
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease-out), visibility var(--dur);
+}
+.search-overlay[data-shown] { opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(0); }
+
+.search-overlay__head { border-block-end: 1px solid var(--line-soft); flex: none; }
+.search-overlay__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-block-size: var(--header-h);
+}
+.search-overlay__input {
+  flex: 1;
+  min-inline-size: 0;
+  border: 0;
+  background: none;
+  font-family: var(--font-display);
+  font-size: var(--step-title);
+  padding-block: var(--space-4);
+}
+.search-overlay__input:focus { outline: none; }
+/* The overlay has its own close control; WebKit's native clear glyph only
+   adds a second, differently-styled ✕ beside it. */
+.search-overlay__input::-webkit-search-cancel-button,
+.search-overlay__input::-webkit-search-decoration { -webkit-appearance: none; appearance: none; }
+.search-overlay__input::placeholder { color: var(--ink-300); }
+.search-overlay__body { flex: 1; overflow-y: auto; padding-block: var(--space-6); }
+
+.search-chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  font-size: var(--step-small);
+  color: var(--text-secondary);
+  transition: border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease),
+              background var(--dur-fast) var(--ease);
+}
+.chip:hover { border-color: var(--emerald-700); color: var(--emerald-700); }
+.chip[aria-pressed="true"], .chip.is-active {
+  background: var(--ink-900); border-color: var(--ink-900); color: var(--cream-400);
+}
+
+.search-result {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding-block: var(--space-3);
+  border-block-end: 1px solid var(--line-soft);
+}
+.search-result__img {
+  inline-size: 64px; block-size: 80px;
+  object-fit: cover;
+  background: var(--surface-sunken);
+  border-radius: var(--radius-sm);
+  flex: none;
+}
+.search-result__name { font-size: var(--step-small); }
+.search-result__meta { font-size: var(--step-micro); color: var(--text-muted); }
+
+/* ---- product card ------------------------------------------------------- */
+
+.product-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  /* No box, no shadow — the photograph is the card. */
+  background: none;
+}
+
+.product-card__media {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: var(--surface-sunken);
+  border-radius: var(--radius-sm);
+}
+
+.product-card__img {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  transition: transform var(--dur-slow) var(--ease-out), opacity var(--dur) var(--ease);
+}
+
+.product-card__img--hover { opacity: 0; }
+
+/* The main image only fades when there is a second one to cross-fade to.
+   Without the :has() guard a single-image product — which is most of the
+   catalogue — simply goes blank on hover. */
+.product-card:hover:has(.product-card__img--hover) .product-card__img--hover { opacity: 1; }
+.product-card:hover:has(.product-card__img--hover) .product-card__img--main { opacity: 0; }
+
+.product-card:hover .product-card__img { transform: scale(1.04); }
+
+/* Fallback for engines without :has(): never hide the only image. */
+@supports not selector(:has(*)) {
+  .product-card:hover .product-card__img--main { opacity: 1; }
+}
+
+.product-card__flags {
+  position: absolute;
+  inset-block-start: var(--space-3);
+  inset-inline-start: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  align-items: flex-start;
+  z-index: 2;
+}
+
+.product-card__wish {
+  position: absolute;
+  inset-block-start: var(--space-2);
+  inset-inline-end: var(--space-2);
+  z-index: 2;
+  inline-size: 40px; block-size: 40px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-pill);
+  background: rgba(253, 251, 247, 0.88);
+  color: var(--ink-700);
+  backdrop-filter: blur(6px);
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease),
+              transform var(--dur-fast) var(--ease);
+}
+.product-card__wish:hover { background: var(--ivory-100); transform: scale(1.06); }
+.product-card__wish[aria-pressed="true"] { color: var(--danger); }
+.product-card__wish[aria-pressed="true"] svg { fill: currentColor; }
+
+/* The add-to-cart reveals on hover on pointer devices, and is always present
+   on touch — where hover does not exist. */
+.product-card__reveal {
+  position: absolute;
+  inset-inline: var(--space-2);
+  inset-block-end: var(--space-2);
+  z-index: 2;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease-out);
+}
+
+@media (hover: hover) and (min-width: 768px) {
+  .product-card__reveal { opacity: 0; transform: translateY(8px); }
+  .product-card:hover .product-card__reveal,
+  .product-card:focus-within .product-card__reveal { opacity: 1; transform: translateY(0); }
+}
+
+.product-card__body { padding-block-start: var(--space-3); }
+
+.product-card__kicker {
+  font-size: var(--step-micro);
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.product-card__name {
+  font-family: var(--font-display);
+  font-size: var(--step-subhead);
+  line-height: var(--leading-snug);
+  margin-block: var(--space-1) var(--space-2);
+}
+.product-card__name a::after { content: ""; position: absolute; inset: 0; z-index: 1; }
+
+.product-card__soldout {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(253, 251, 247, 0.72);
+  z-index: 3;
+  font-size: var(--step-small);
+  letter-spacing: var(--tracking-wide);
+}
+
+/* ---- product grid ------------------------------------------------------- */
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5) var(--space-4);
+}
+
+@media (min-width: 768px)  { .product-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-6) var(--space-5); } }
+@media (min-width: 1280px) { .product-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+.product-grid--3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (min-width: 768px) { .product-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+/* A horizontal rail on small screens beats a cramped grid. */
+.rail {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 62vw;
+  gap: var(--space-4);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  padding-inline: var(--gutter);
+  margin-inline: calc(var(--gutter) * -1);
+  padding-block-end: var(--space-2);
+}
+.rail::-webkit-scrollbar { display: none; }
+.rail > * { scroll-snap-align: start; }
+
+@media (min-width: 640px) { .rail { grid-auto-columns: 40vw; } }
+@media (min-width: 1024px) {
+  .rail {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    overflow: visible;
+    padding-inline: 0;
+    margin-inline: 0;
+    gap: var(--space-6) var(--space-5);
+  }
+}
+
+/* ---- collection card ---------------------------------------------------- */
+
+.collection-card {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  min-block-size: clamp(260px, 38vw, 460px);
+  padding: var(--space-5);
+  color: var(--cream-400);
+  isolation: isolate;
+}
+.collection-card img {
+  position: absolute; inset: 0; z-index: -2;
+  inline-size: 100%; block-size: 100%;
+  object-fit: cover;
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+.collection-card::after {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(to top, rgba(14,16,15,0.82) 0%, rgba(14,16,15,0.28) 45%, rgba(14,16,15,0.05) 100%);
+  transition: background var(--dur) var(--ease);
+}
+.collection-card:hover img { transform: scale(1.06); }
+.collection-card:hover::after { background: linear-gradient(to top, rgba(0,48,29,0.88) 0%, rgba(14,16,15,0.3) 50%, rgba(14,16,15,0.05) 100%); }
+
+.collection-card__name { font-size: var(--step-heading); color: var(--cream-400); }
+.collection-card__count { font-size: var(--step-micro); color: var(--gold-300); letter-spacing: var(--tracking-wide); }
+.collection-card__name a::after { content: ""; position: absolute; inset: 0; }
+
+.collection-card--tall { min-block-size: clamp(340px, 52vw, 620px); }
+
+/* ---- empty state -------------------------------------------------------- */
+
+.empty {
+  text-align: center;
+  padding-block: var(--space-9);
+  max-inline-size: 48ch;
+  margin-inline: auto;
+}
+.empty__icon { color: var(--ink-300); margin-inline: auto; margin-block-end: var(--space-4); }
+.empty__title { font-size: var(--step-heading); margin-block-end: var(--space-2); }
+.empty__text { color: var(--text-secondary); margin-block-end: var(--space-5); }
+
+/* ---- skeleton ----------------------------------------------------------- */
+
+.skeleton {
+  background: linear-gradient(100deg, var(--surface-sunken) 30%, var(--ivory-400) 50%, var(--surface-sunken) 70%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite linear;
+  border-radius: var(--radius-sm);
+}
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+/* ---- scroll reveal ------------------------------------------------------ */
+
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity var(--dur-slow) var(--ease-out), transform var(--dur-slow) var(--ease-out);
+}
+[data-reveal].is-visible { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] { opacity: 1; transform: none; }
+}
+
+/* ---- toast -------------------------------------------------------------- */
+
+.toast-stack {
+  position: fixed;
+  inset-block-end: var(--space-5);
+  inset-inline-start: 50%;
+  transform: translateX(-50%);
+  z-index: calc(var(--z-modal) + 5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  inline-size: min(420px, calc(100vw - 2rem));
+  pointer-events: none;
+}
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--ink-900);
+  color: var(--cream-400);
+  border-radius: var(--radius-md);
+  font-size: var(--step-small);
+  box-shadow: var(--shadow-lg);
+  pointer-events: auto;
+  animation: toast-in var(--dur) var(--ease-out);
+}
+.toast--error { background: var(--danger); }
+@keyframes toast-in { from { opacity: 0; transform: translateY(12px); } }
+
+/* ---- promotion progress ------------------------------------------------- */
+
+.promo-meter {
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+}
+.promo-meter + .promo-meter { margin-block-start: var(--space-3); }
+
+.promo-meter--unlocked {
+  border-color: var(--emerald-700);
+  background: var(--emerald-050);
+}
+
+.promo-meter__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-block-end: var(--space-3);
+}
+.promo-meter__icon { flex: none; color: var(--gold-600); }
+.promo-meter--unlocked .promo-meter__icon { color: var(--emerald-700); }
+
+.promo-meter__text { flex: 1; min-inline-size: 0; }
+.promo-meter__title {
+  font-size: var(--step-small);
+  font-weight: 500;
+  line-height: var(--leading-snug);
+}
+.promo-meter__note { font-size: var(--step-micro); color: var(--text-secondary); }
+
+/* The bar is progress, not decoration — the figure is always in the text too,
+   so it never carries meaning by colour or width alone. */
+.promo-meter__track {
+  block-size: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--ivory-400);
+  overflow: hidden;
+}
+.promo-meter__fill {
+  display: block;
+  block-size: 100%;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(to inline-end, var(--gold-500), var(--emerald-700));
+  transition: inline-size var(--dur-slow) var(--ease-out);
+}
+.promo-meter--unlocked .promo-meter__fill { background: var(--emerald-700); }
+
+.promo-meter__gift {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-block-start: var(--space-3);
+  padding-block-start: var(--space-3);
+  border-block-start: 1px dashed var(--line);
+}
+.promo-meter__gift img {
+  inline-size: 40px; block-size: 50px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  flex: none;
+}
+
+/* ---- gift celebration --------------------------------------------------- */
+
+/* A short, contained burst when a gift unlocks. It fires once, sits behind the
+   content, and is skipped entirely under reduced-motion. */
+.celebrate { position: relative; }
+.celebrate__burst {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  inline-size: 6px;
+  block-size: 6px;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+}
+.celebrate.is-firing .celebrate__burst {
+  animation: spark 900ms var(--ease-out) forwards;
+}
+
+@keyframes spark {
+  0%   { opacity: 1; transform: translate(-50%, -50%) scale(0.4); }
+  70%  { opacity: 1; }
+  100% {
+    opacity: 0;
+    transform:
+      translate(calc(-50% + var(--dx, 0px)), calc(-50% + var(--dy, 0px)))
+      scale(0.9);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .celebrate.is-firing .celebrate__burst { animation: none; opacity: 0; }
+}
+
+/* ---- offer strip -------------------------------------------------------- */
+
+.offer-strip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  padding: var(--space-3) var(--gutter);
+  background: var(--emerald-700);
+  color: var(--cream-400);
+  font-size: var(--step-small);
+  text-align: center;
+}
+.offer-strip__code {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 2px var(--space-3);
+  border: 1px dashed var(--gold-300);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  letter-spacing: var(--tracking-wide);
+}
+
+/* ---- promo popup -------------------------------------------------------- */
+
+.promo-popup {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: grid;
+  place-items: center;
+  padding: var(--gutter);
+  background: rgba(14, 16, 15, 0.55);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity var(--dur) var(--ease), visibility var(--dur);
+}
+.promo-popup[data-shown] { opacity: 1; visibility: visible; pointer-events: auto; }
+
+.promo-popup__card {
+  position: relative;
+  inline-size: min(480px, 100%);
+  max-block-size: 90svh;
+  overflow-y: auto;
+  background: var(--surface-raised);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(14px) scale(0.98);
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+.promo-popup[data-shown] .promo-popup__card { transform: none; }
+
+.promo-popup__media { aspect-ratio: 16 / 9; overflow: hidden; background: var(--surface-sunken); }
+.promo-popup__media img { inline-size: 100%; block-size: 100%; object-fit: cover; }
+.promo-popup__body { padding: var(--space-6); text-align: center; }
+.promo-popup__title { font-size: var(--step-title); margin-block-end: var(--space-3); }
+.promo-popup__text { color: var(--text-secondary); margin-block-end: var(--space-5); }
+.promo-popup__close {
+  position: absolute;
+  inset-block-start: var(--space-3);
+  inset-inline-end: var(--space-3);
+  inline-size: 36px; block-size: 36px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: rgba(253, 251, 247, 0.9);
+  color: var(--ink-900);
+}
+
+/* ---- install / add to home screen --------------------------------------- */
+
+.install-card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+}
+.install-card__icon {
+  inline-size: 44px; block-size: 44px;
+  border-radius: 10px;
+  flex: none;
+  object-fit: cover;
+}
+.install-steps { counter-reset: step; }
+.install-steps li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding-block: var(--space-3);
+  font-size: var(--step-small);
+  border-block-end: 1px solid var(--line-soft);
+}
+.install-steps li::before {
+  counter-increment: step;
+  content: counter(step);
+  flex: none;
+  inline-size: 24px; block-size: 24px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: var(--emerald-700);
+  color: var(--cream-400);
+  font-size: var(--step-micro);
+  font-variant-numeric: tabular-nums;
+}
+
+/* A collection with no photograph in the dashboard gets a deliberate brand
+   panel rather than a grey gap — and reads as intentional until artwork
+   is uploaded. */
+.collection-card--bare {
+  background:
+    radial-gradient(120% 90% at 70% 10%, rgba(194, 163, 106, 0.22), transparent 60%),
+    linear-gradient(160deg, var(--emerald-800), var(--emerald-900));
+}
+.collection-card--bare::after { background: none; }
+.collection-card--bare::before {
+  content: "";
+  position: absolute;
+  inset-block-start: -10%;
+  inset-inline-end: -12%;
+  inline-size: 62%;
+  aspect-ratio: 1;
+  background: url("/assets/brand/logo-mark-cream.png") center / contain no-repeat;
+  opacity: 0.07;
+  pointer-events: none;
+}
+
+/* A category showing a borrowed product shot: those are cut-out PNGs with no
+   background of their own, so the card supplies a warm ground and lets the
+   bottle sit whole rather than cropping it like a photograph. */
+.collection-card--product-shot {
+  background:
+    radial-gradient(90% 70% at 50% 25%, rgba(194, 163, 106, 0.20), transparent 70%),
+    linear-gradient(165deg, var(--brown-700), var(--ink-900));
+}
+.collection-card--product-shot img {
+  object-fit: contain;
+  padding: clamp(var(--space-5), 8%, var(--space-8));
+  padding-block-end: clamp(var(--space-8), 22%, var(--space-10));
+}
+.collection-card--product-shot::after {
+  background: linear-gradient(to top, rgba(14, 16, 15, 0.85) 0%, rgba(14, 16, 15, 0.1) 55%, transparent 100%);
+}

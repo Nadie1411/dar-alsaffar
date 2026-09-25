@@ -1,0 +1,23 @@
+{
+  "name": "دار الصفار للعطور",
+  "short_name": "دار الصفار",
+  "description": "بيت عطور كويتي يقدّم تشكيلة من العطور والعود والبخور والمرشات.",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/ar-KW?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fdfbf7",
+  "theme_color": "#00603a",
+  "icons": [
+    { "src": "/assets/brand/icon-192-maskable.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/assets/brand/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/assets/brand/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ],
+  "shortcuts": [
+    { "name": "العطور",     "url": "/ar-KW/products" },
+    { "name": "العروض",     "url": "/ar-KW/offers" },
+    { "name": "سلة التسوق", "url": "/ar-KW/cart" }
+  ]
+}

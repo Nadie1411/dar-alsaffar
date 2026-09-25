@@ -1,0 +1,166 @@
+/* ===========================================================================
+   Store control panel
+   ---------------------------------------------------------------------------
+   Built mobile-first: the team edits this from a phone far more often than a
+   desk, so every control is a full-width block with a 48px target, and the
+   layout only widens into columns once there is room.
+   =========================================================================== */
+
+.admin { background: var(--surface-sunken); }
+
+/* ---- sign in ------------------------------------------------------------ */
+
+.admin-auth {
+  min-block-size: 100svh;
+  display: grid;
+  place-items: center;
+  padding: var(--gutter);
+}
+
+.admin-auth__card {
+  inline-size: min(400px, 100%);
+  padding: var(--space-6);
+  background: var(--surface-raised);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  text-align: center;
+}
+
+.admin-auth__logo { block-size: 56px; inline-size: auto; margin: 0 auto var(--space-4); }
+.admin-auth__title { font-size: var(--step-heading); margin-block-end: var(--space-2); }
+
+/* ---- top bar ------------------------------------------------------------ */
+
+.admin-bar {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 10;
+  background: var(--surface-raised);
+  border-block-end: 1px solid var(--line-soft);
+}
+
+.admin-bar__inner {
+  max-inline-size: 760px;
+  margin-inline: auto;
+  padding: var(--space-3) var(--gutter);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.admin-bar__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--step-small);
+  font-weight: 500;
+}
+.admin-bar__brand img { block-size: 30px; inline-size: auto; }
+
+.admin-bar__actions { display: flex; align-items: center; gap: var(--space-2); }
+
+/* ---- content ------------------------------------------------------------ */
+
+.admin-main {
+  max-inline-size: 760px;
+  margin-inline: auto;
+  padding: var(--space-5) var(--gutter) var(--space-9);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.admin-card {
+  padding: var(--space-5);
+  background: var(--surface-raised);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-md);
+}
+
+.admin-card__title { font-size: var(--step-subhead); margin-block-end: var(--space-2); }
+.admin-card__hint {
+  font-size: var(--step-small);
+  color: var(--text-secondary);
+  line-height: var(--leading-snug);
+  margin-block-end: var(--space-4);
+}
+
+.admin-card .field + .field,
+.admin-card .field + .admin-grid,
+.admin-card .admin-toggle + .field { margin-block-start: var(--space-4); }
+
+/* A switch-sized target: comfortable on a phone, obvious when on. */
+.admin-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-block-size: 48px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: var(--step-small);
+}
+.admin-toggle:has(input:checked) {
+  border-color: var(--emerald-700);
+  background: var(--emerald-050);
+  font-weight: 500;
+}
+.admin-toggle input {
+  inline-size: 22px; block-size: 22px;
+  accent-color: var(--emerald-700);
+  flex: none;
+  cursor: pointer;
+}
+
+.admin-grid { display: grid; gap: var(--space-4); }
+@media (min-width: 620px) { .admin-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.admin-offer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding-block: var(--space-3);
+  border-block-end: 1px solid var(--line-soft);
+  font-size: var(--step-small);
+}
+.admin-offer:last-child { border-block-end: 0; }
+
+.admin-empty {
+  padding: var(--space-5);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-md);
+  text-align: center;
+  font-size: var(--step-small);
+  color: var(--text-secondary);
+}
+
+.admin-thumb {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-block-end: var(--space-3);
+  flex-wrap: wrap;
+}
+.admin-thumb img {
+  inline-size: 160px;
+  block-size: 90px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line-soft);
+}
+
+.admin-card input[type="file"] { padding-block: var(--space-2); }
+
+/* The save action stays within thumb reach on a phone. */
+.admin-save {
+  position: sticky;
+  inset-block-end: 0;
+  padding-block: var(--space-3);
+  padding-block-end: max(var(--space-3), env(safe-area-inset-bottom));
+  background: linear-gradient(to top, var(--surface-sunken) 65%, transparent);
+  z-index: 5;
+}
