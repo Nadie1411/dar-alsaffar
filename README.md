@@ -67,6 +67,25 @@ Sign-in is rate limited per IP (5 attempts a minute by default,
 Leaving the pop-up title empty makes it mirror whatever offer is live, so it
 needs no editing between campaigns.
 
+### Order alert
+
+`/admin/orders` polls the store's order feed and rings continuously until
+someone presses "Seen". The tone is synthesised with the Web Audio API — no
+audio file to ship, and it loops cleanly.
+
+Two constraints worth knowing, both browser-imposed rather than ours: audio
+cannot start without a user gesture, so the page arms the sound on an explicit
+press; and it only rings while the page is open. The tab title blinks as well,
+and the banner pulses, so the alert never depends on sound alone. For alerts
+that reach a phone, use Overzaki's WhatsApp order notifications.
+
+The "seen" marker is stored server side, so acknowledging on one device
+silences the others.
+
+> This reads `/orders/search`, which Overzaki currently serves **without
+> authentication**. That is a flaw in their platform worth reporting; if they
+> close it, this screen needs proper API credentials and `/orders/all`.
+
 Settings are stored in `storage/app/storefront-settings.json` — one file, no
 migration to run, easy to back up. Uploaded pop-up images go to
 `public/uploads/` with randomised filenames.

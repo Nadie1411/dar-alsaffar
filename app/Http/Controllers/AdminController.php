@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Overzaki\OrdersMonitor;
 use App\Services\Overzaki\PromotionService;
 use App\Services\Settings;
 use Illuminate\Http\Request;
@@ -17,6 +18,7 @@ class AdminController extends Controller
     public function __construct(
         protected Settings $settings,
         protected PromotionService $promotions,
+        protected OrdersMonitor $orders,
     ) {}
 
     public function showLogin()
@@ -74,6 +76,47 @@ class AdminController extends Controller
         ]);
     }
 
+    /**
+     * The live order board. Rings until someone acknowledges it.
+     */
+    public function orders()
+    {
+        return view('admin.orders', [
+            'orders' => $this->orders->recent(20),
+            'unseenCount' => count($this->orders->unseen(20)),
+            'pollSeconds' => $this->orders->pollSeconds(),
+            'alertEnabled' => $this->orders->alertEnabled(),
+        ]);
+    }
+
+    /** Polled by the order board; deliberately uncacheable. */
+    public function ordersFeed()
+    {
+        $recent = $this->orders->recent(20);
+        $unseen = $this->orders->unseen(20);
+
+        return response()
+            ->json([
+                'orders' => $recent,
+                'unseen' => count($unseen),
+                'unseenIds' => array_column($unseen, 'id'),
+                'alert' => $this->orders->alertEnabled(),
+                'serverTime' => time(),
+            ])
+            ->header('Cache-Control', 'no-store, private');
+    }
+
+    public function acknowledgeOrders(Request $request)
+    {
+        $this->orders->acknowledge();
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json(['ok' => true, 'unseen' => 0]);
+        }
+
+        return back()->with('status', __('storefront.admin.ordersAcknowledged'));
+    }
+
     public function update(Request $request)
     {
         $validated = $request->validate([
@@ -87,6 +130,8 @@ class AdminController extends Controller
             'popup_snooze_days' => ['nullable', 'integer', 'min:0', 'max:365'],
             'install_enabled' => ['nullable', 'boolean'],
             'install_delay' => ['nullable', 'integer', 'min:0', 'max:300'],
+            'orders_alert' => ['nullable', 'boolean'],
+            'orders_poll' => ['nullable', 'integer', 'min:10', 'max:600'],
             'popup_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'remove_image' => ['nullable', 'boolean'],
         ]);
@@ -115,6 +160,8 @@ class AdminController extends Controller
             'popup.snooze_days' => $validated['popup_snooze_days'] ?? 7,
             'install.enabled' => $request->boolean('install_enabled'),
             'install.delay' => $validated['install_delay'] ?? 12,
+            'orders.alert' => $request->boolean('orders_alert'),
+            'orders.poll' => $validated['orders_poll'] ?? 30,
         ]);
 
         return back()->with('status', __('storefront.admin.saved'));

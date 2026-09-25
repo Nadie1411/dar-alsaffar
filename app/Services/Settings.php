@@ -36,6 +36,9 @@ class Settings
         'install.enabled' => 'bool',
         'install.delay' => 'int',
         'announcement' => 'string',
+        'orders.alert' => 'bool',
+        'orders.poll' => 'int',
+        'orders.last_seen_at' => 'int',
     ];
 
     public function all(): array

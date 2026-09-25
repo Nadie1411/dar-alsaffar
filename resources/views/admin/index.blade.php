@@ -10,6 +10,7 @@
         </span>
 
         <span class="admin-bar__actions">
+            <a class="btn btn--sm" href="/admin/orders">{{ __('storefront.admin.ordersNav') }}</a>
             <a class="btn btn--ghost btn--sm" href="/ar-KW" target="_blank" rel="noopener">
                 {{ __('storefront.admin.viewSite') }}
             </a>
@@ -149,6 +150,24 @@
                            value="{{ old('popup_snooze_days', $settings->int('popup.snooze_days', 7)) }}">
                 </label>
             </div>
+        </section>
+
+        {{-- ----------------------------------------------- order alert --}}
+        <section class="admin-card">
+            <h2 class="admin-card__title">{{ __('storefront.admin.ordersSection') }}</h2>
+            <p class="admin-card__hint">{{ __('storefront.admin.ordersTabHint') }}</p>
+
+            <label class="admin-toggle">
+                <input type="checkbox" name="orders_alert" value="1"
+                       @checked($settings->bool('orders.alert'))>
+                <span>{{ __('storefront.admin.ordersAlert') }}</span>
+            </label>
+
+            <label class="field" style="max-inline-size:220px">
+                <span class="field__label">{{ __('storefront.admin.ordersPoll') }}</span>
+                <input class="input" type="number" name="orders_poll" min="10" max="600" inputmode="numeric"
+                       value="{{ old('orders_poll', $settings->int('orders.poll', 30)) }}">
+            </label>
         </section>
 
         {{-- --------------------------------------------- install prompt --}}

@@ -44,6 +44,10 @@ Route::prefix('admin')->group(function () {
         Route::get('/', [AdminController::class, 'index'])->name('admin.index');
         Route::post('/', [AdminController::class, 'update'])->name('admin.update');
         Route::post('/cache', [AdminController::class, 'clearCache'])->name('admin.cache');
+
+        Route::get('/orders', [AdminController::class, 'orders'])->name('admin.orders');
+        Route::get('/orders/feed', [AdminController::class, 'ordersFeed'])->name('admin.orders.feed');
+        Route::post('/orders/seen', [AdminController::class, 'acknowledgeOrders'])->name('admin.orders.seen');
     });
 });
 
