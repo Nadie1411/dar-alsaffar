@@ -1,0 +1,49 @@
+name: Deploy production
+
+# dev  → CI only (ci.yml)
+# main → CI, then deploy to https://dar-alsaffar.bluecodekw.com
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    needs: ci
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://dar-alsaffar.bluecodekw.com
+    steps:
+      - name: Configure SSH
+        env:
+          SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          HOST: ${{ secrets.VPS_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts
+
+      - name: Deploy
+        env:
+          HOST: ${{ secrets.VPS_HOST }}
+          USER: ${{ secrets.VPS_USER }}
+        run: |
+          ssh -i ~/.ssh/deploy_key "$USER@$HOST" bash -s -- "$GITHUB_SHA" <<'EOF'
+            set -euo pipefail
+            cd ~/apps/dar-alsaffar
+            git fetch --prune origin main
+            git reset --hard "$1"
+            ./scripts/deploy.sh "$1"
+          EOF
+
+      - name: Smoke test
+        run: curl -fsS -o /dev/null -w '%{http_code}\n' https://dar-alsaffar.bluecodekw.com/up
