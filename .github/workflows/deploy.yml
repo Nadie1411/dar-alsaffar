@@ -1,7 +1,7 @@
 name: Deploy production
 
 # dev  → CI only (ci.yml)
-# main → CI, then deploy to https://dar-alsaffar.bluecodekw.com
+# main → CI, then deploy to https://daralsaffar.shop
 on:
   push:
     branches: [main]
@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: production
-      url: https://dar-alsaffar.bluecodekw.com
+      url: https://daralsaffar.shop
     steps:
       - name: Configure SSH
         env:
@@ -46,4 +46,4 @@ jobs:
           EOF
 
       - name: Smoke test
-        run: curl -fsS -o /dev/null -w '%{http_code}\n' https://dar-alsaffar.bluecodekw.com/up
+        run: curl -fsS -o /dev/null -w '%{http_code}\n' https://daralsaffar.shop/up
