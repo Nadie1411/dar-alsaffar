@@ -170,6 +170,18 @@
             </label>
         </section>
 
+        {{-- ------------------------------------------ cash on delivery --}}
+        <section class="admin-card">
+            <h2 class="admin-card__title">{{ __('storefront.admin.codSection') }}</h2>
+            <p class="admin-card__hint">{{ __('storefront.admin.codHint') }}</p>
+
+            <label class="admin-toggle">
+                <input type="checkbox" name="cod_enabled" value="1"
+                       @checked($settings->bool('checkout.cod'))>
+                <span>{{ __('storefront.admin.codEnabled') }}</span>
+            </label>
+        </section>
+
         {{-- --------------------------------------------- install prompt --}}
         <section class="admin-card">
             <h2 class="admin-card__title">{{ __('storefront.admin.installSection') }}</h2>

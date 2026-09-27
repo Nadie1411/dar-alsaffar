@@ -113,11 +113,13 @@
                     <span class="icon-btn__badge" data-wishlist-count @if (! $wishCount) hidden @endif>{{ $wishCount }}</span>
                 </a>
 
-                <button type="button" class="icon-btn" data-open="cart"
-                        aria-label="{{ __('storefront.actions.cart') }}">
+                {{-- A link, not a button: the script intercepts it to open the
+                     drawer, and without JavaScript it still reaches the cart. --}}
+                <a class="icon-btn" href="{{ Nav::url('cart') }}" data-open="cart"
+                   aria-label="{{ __('storefront.actions.cart') }}">
                     <x-icon name="bag"/>
                     <span class="icon-btn__badge" data-cart-count @if (! $cartCount) hidden @endif>{{ $cartCount }}</span>
-                </button>
+                </a>
 
                 <span class="lang" style="margin-inline-start:var(--space-2)">
                     <a href="{{ Nav::switchTo('ar-KW') }}" hreflang="ar"

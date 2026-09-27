@@ -15,11 +15,24 @@
             <h1 class="page-head__title">{{ __('storefront.checkout.title') }}</h1>
         </div>
 
-        <ol class="steps">
-            <li class="step is-active"><span class="step__num">1</span>{{ __('storefront.checkout.customer') }}</li>
-            <li class="step is-active"><span class="step__num">2</span>{{ __('storefront.checkout.address') }}</li>
-            <li class="step is-active"><span class="step__num">3</span>{{ __('storefront.checkout.payment') }}</li>
-        </ol>
+        {{-- Everything is on one page, so these jump to the section rather
+             than pretending to be a multi-page wizard. --}}
+        <nav class="steps" aria-label="{{ __('storefront.checkout.title') }}">
+            <ol class="steps__list">
+                @foreach ([
+                    'customer' => 'step-customer',
+                    'address'  => 'step-address',
+                    'payment'  => 'step-payment',
+                ] as $key => $anchor)
+                    <li class="step">
+                        <a class="step__link" href="#{{ $anchor }}">
+                            <span class="step__num">{{ $loop->iteration }}</span>
+                            <span class="step__label">{{ __('storefront.checkout.'.$key) }}</span>
+                        </a>
+                    </li>
+                @endforeach
+            </ol>
+        </nav>
 
         @if ($errors->has('checkout'))
             <p class="alert alert--error" role="alert">
@@ -44,7 +57,7 @@
 
             <div>
                 {{-- ------------------------------------------ customer --}}
-                <fieldset class="fieldset">
+                <fieldset class="fieldset" id="step-customer">
                     <legend class="fieldset__legend">
                         <span class="step__num">1</span>{{ __('storefront.checkout.customer') }}
                     </legend>
@@ -62,12 +75,14 @@
 
                         <label class="field">
                             <span class="field__label">
-                                {{ __('storefront.checkout.email') }}<span class="field__required">*</span>
+                                {{ __('storefront.checkout.email') }}
                             </span>
-                            <input class="input" type="email" name="email" required autocomplete="email"
+                            <input class="input" type="email" name="email" autocomplete="email"
                                    inputmode="email" dir="ltr"
                                    value="{{ $old('email', $customer['email'] ?? '') }}"
-                                   @error('email') aria-invalid="true" aria-describedby="err-email" @enderror>
+                                   aria-describedby="hint-email @error('email') err-email @enderror"
+                                   @error('email') aria-invalid="true" @enderror>
+                            <span class="field__hint" id="hint-email">{{ __('storefront.checkout.emailHint') }}</span>
                             @error('email')<span class="field__error" id="err-email">{{ $message }}</span>@enderror
                         </label>
 
@@ -92,7 +107,7 @@
                 </fieldset>
 
                 {{-- ------------------------------------------- address --}}
-                <fieldset class="fieldset">
+                <fieldset class="fieldset" id="step-address">
                     <legend class="fieldset__legend">
                         <span class="step__num">2</span>{{ __('storefront.checkout.address') }}
                     </legend>
@@ -137,13 +152,29 @@
                         </label>
 
                         <label class="field">
+                            <span class="field__label">
+                                {{ __('storefront.checkout.avenue') }}
+                                <span class="field__optional">({{ __('storefront.checkout.optional') }})</span>
+                            </span>
+                            <input class="input" type="text" name="avenue" value="{{ $old('avenue') }}">
+                        </label>
+
+                        <label class="field">
                             <span class="field__label">{{ __('storefront.checkout.building') }}</span>
                             <input class="input" type="text" name="building" value="{{ $old('building') }}">
                         </label>
 
                         <label class="field">
-                            <span class="field__label">{{ __('storefront.checkout.floor') }}</span>
+                            <span class="field__label">
+                                {{ __('storefront.checkout.floor') }}
+                                <span class="field__optional">({{ __('storefront.checkout.optional') }})</span>
+                            </span>
                             <input class="input" type="text" name="floor" value="{{ $old('floor') }}">
+                        </label>
+
+                        <label class="field">
+                            <span class="field__label">{{ __('storefront.checkout.apartment') }}</span>
+                            <input class="input" type="text" name="apartment" value="{{ $old('apartment') }}">
                         </label>
 
                         <label class="field span-2">
@@ -162,7 +193,7 @@
                 ])
 
                 {{-- ------------------------------------------- payment --}}
-                <fieldset class="fieldset">
+                <fieldset class="fieldset" id="step-payment">
                     <legend class="fieldset__legend">
                         <span class="step__num">3</span>{{ __('storefront.checkout.payment') }}
                     </legend>
@@ -189,7 +220,7 @@
                             @error('paymentMethod')<span class="field__error">{{ $message }}</span>@enderror
                         </div>
 
-                        @if ($quote->supportsCashOnDelivery())
+                        @if ($codEnabled)
                             <label class="choice">
                                 <input type="radio" name="payment" value="cod" data-payment
                                        @checked($old('payment') === 'cod')>
@@ -204,17 +235,7 @@
                             </label>
                         @endif
                     </div>
-
-                    <label class="checkbox" style="margin-block-start:var(--space-5)">
-                        <input type="checkbox" name="policy" value="1" required @checked($old('policy'))>
-                        <span>
-                            {!! __('storefront.checkout.policy', [
-                                'terms'   => '<a class="link-underline" href="'.Nav::url('terms').'" target="_blank">'.e(__('storefront.content.termsTitle')).'</a>',
-                                'privacy' => '<a class="link-underline" href="'.Nav::url('privacy').'" target="_blank">'.e(__('storefront.content.privacyTitle')).'</a>',
-                            ]) !!}
-                        </span>
-                    </label>
-                    @error('policy')<span class="field__error">{{ $message }}</span>@enderror
+                    @error('payment')<span class="field__error">{{ $message }}</span>@enderror
                 </fieldset>
             </div>
 
@@ -283,7 +304,15 @@
                         </button>
                     </div>
 
+                    {{-- Stated rather than gated: nothing to tick before ordering. --}}
                     <p class="field__hint center" style="margin-block-start:var(--space-3)">
+                        {!! __('storefront.checkout.policyNote', [
+                            'terms'   => '<a class="link-underline" href="'.Nav::url('terms').'" target="_blank" rel="noopener">'.e(__('storefront.content.termsTitle')).'</a>',
+                            'privacy' => '<a class="link-underline" href="'.Nav::url('privacy').'" target="_blank" rel="noopener">'.e(__('storefront.content.privacyTitle')).'</a>',
+                        ]) !!}
+                    </p>
+
+                    <p class="field__hint center" style="margin-block-start:var(--space-2)">
                         <x-icon name="shield" size="14" style="display:inline-block;vertical-align:-2px"/>
                         {{ __('storefront.values.secure') }}
                     </p>

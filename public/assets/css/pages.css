@@ -575,15 +575,41 @@
 
 /* ---- checkout ----------------------------------------------------------- */
 
-.steps { display: flex; align-items: center; gap: var(--space-2); margin-block-end: var(--space-6); flex-wrap: wrap; }
-.step {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--step-micro);
-  letter-spacing: var(--tracking-wide);
-  color: var(--text-muted);
+.steps { margin-block-end: var(--space-7); }
+.steps__list {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
+.step { position: relative; }
+
+/* The rail runs from this step's marker back to the previous one, behind both,
+   so the row reads as one connected track at any width. */
+.step + .step::before {
+  content: "";
+  position: absolute;
+  inset-block-start: 15px;
+  inset-inline-end: calc(50% + 23px);
+  inline-size: calc(100% - 46px);
+  block-size: 1px;
+  background: var(--line);
+}
+
+.step__link {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: var(--space-2);
+  padding-inline: var(--space-1);
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+.step__link:hover,
+.step__link:focus-visible { color: var(--text-primary); }
+
 .step__num {
   inline-size: 26px; block-size: 26px;
   display: grid; place-items: center;
@@ -592,10 +618,21 @@
   font-variant-numeric: tabular-nums;
   flex: none;
 }
-.step.is-active { color: var(--text-primary); }
-.step.is-active .step__num { border-color: var(--emerald-700); background: var(--emerald-700); color: var(--cream-400); }
-.step.is-done .step__num { border-color: var(--emerald-700); color: var(--emerald-700); }
-.step + .step::before { content: ""; inline-size: 24px; block-size: 1px; background: var(--line); }
+.steps .step__num {
+  inline-size: 30px; block-size: 30px;
+  border-color: var(--emerald-700);
+  background: var(--emerald-700);
+  color: var(--cream-400);
+  font-size: var(--step-micro);
+}
+
+.step__label {
+  font-size: var(--step-micro);
+  letter-spacing: var(--tracking-wide);
+  line-height: 1.4;
+  text-align: center;
+  text-wrap: balance;
+}
 
 .fieldset { border: 0; padding: 0; margin-block-end: var(--space-7); }
 .fieldset__legend {

@@ -130,6 +130,7 @@ class AdminController extends Controller
             'popup_snooze_days' => ['nullable', 'integer', 'min:0', 'max:365'],
             'install_enabled' => ['nullable', 'boolean'],
             'install_delay' => ['nullable', 'integer', 'min:0', 'max:300'],
+            'cod_enabled' => ['nullable', 'boolean'],
             'orders_alert' => ['nullable', 'boolean'],
             'orders_poll' => ['nullable', 'integer', 'min:10', 'max:600'],
             'popup_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
@@ -160,6 +161,7 @@ class AdminController extends Controller
             'popup.snooze_days' => $validated['popup_snooze_days'] ?? 7,
             'install.enabled' => $request->boolean('install_enabled'),
             'install.delay' => $validated['install_delay'] ?? 12,
+            'checkout.cod' => $request->boolean('cod_enabled'),
             'orders.alert' => $request->boolean('orders_alert'),
             'orders.poll' => $validated['orders_poll'] ?? 30,
         ]);

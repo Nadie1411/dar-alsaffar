@@ -36,6 +36,7 @@ class Settings
         'install.enabled' => 'bool',
         'install.delay' => 'int',
         'announcement' => 'string',
+        'checkout.cod' => 'bool',
         'orders.alert' => 'bool',
         'orders.poll' => 'int',
         'orders.last_seen_at' => 'int',

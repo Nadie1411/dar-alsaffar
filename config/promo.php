@@ -40,6 +40,13 @@ return [
         'except' => ['cart', 'checkout', 'login', 'register', 'account'],
     ],
 
+    'checkout' => [
+        // Whether to offer cash on delivery. Overzaki has the final say: when
+        // the store has COD switched off there, the option stays hidden
+        // whatever this says.
+        'cod' => env('CHECKOUT_COD', true),
+    ],
+
     'install' => [
         // The add-to-home-screen prompt.
         'enabled' => env('PROMO_INSTALL', true),
