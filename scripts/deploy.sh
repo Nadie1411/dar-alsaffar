@@ -21,6 +21,10 @@ log() { printf '\n\033[1;32m==> %s\033[0m\n' "$*"; }
 mkdir -p storage/app/public storage/framework/{cache/data,sessions,views} storage/logs public/uploads
 [ -f storage/database.sqlite ] || touch storage/database.sqlite
 
+# The container runs as uid 1000; when the deploy runs as another user (e.g. root),
+# hand it ownership of the bind-mounted paths so it can write DB, logs and uploads.
+chown -R 1000:1000 storage public/uploads .env 2>/dev/null || true
+
 log "Building image dar-alsaffar:$TAG"
 docker build --pull -t "dar-alsaffar:$TAG" -t dar-alsaffar:latest .
 
