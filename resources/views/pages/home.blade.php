@@ -5,7 +5,6 @@
 @section('overlay-header', true)
 
 @php
-    use App\Support\Asset;
     use App\Support\Nav;
 
     // The hero leans on the store's own photography. Incense carries the most
@@ -14,12 +13,6 @@
     $heroCollection = collect($collections)->first(fn ($c) => in_array($c['slug'], ['Incense', 'Perfumes'], true) && $c['image'])
         ?? collect($collections)->first(fn ($c) => ! empty($c['image']));
     $heroImage = $heroCollection['image'] ?? $heroProduct?->image();
-
-    // The brand supplied a filmed hero in place of the still photograph. The
-    // still stays on as the <video>'s poster and as the fallback if the file
-    // is ever removed, so the section never breaks.
-    $heroVideoPath = 'assets/video/hero-eidan.mp4';
-    $heroVideo = is_file(public_path($heroVideoPath)) ? Asset::url($heroVideoPath) : null;
 @endphp
 
 @section('content')
@@ -27,15 +20,7 @@
     {{-- ------------------------------------------------------------ hero --}}
     <section class="hero">
         <div class="hero__media">
-            @if ($heroVideo)
-                <video autoplay muted loop playsinline aria-hidden="true"
-                       poster="{{ $heroImage }}" width="1080" height="1920">
-                    <source src="{{ $heroVideo }}" type="video/mp4">
-                    @if ($heroImage)
-                        <img src="{{ $heroImage }}" alt="" width="1920" height="1080" decoding="async">
-                    @endif
-                </video>
-            @elseif ($heroImage)
+            @if ($heroImage)
                 <img src="{{ $heroImage }}" alt="" width="1920" height="1080"
                      fetchpriority="high" decoding="async">
             @endif
