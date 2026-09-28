@@ -42,7 +42,7 @@ jobs:
             cd ~/apps/dar-alsaffar
             git fetch --prune origin main
             git reset --hard "$1"
-            ./scripts/deploy.sh "$1"
+            bash scripts/deploy.sh "$1"
           EOF
 
       - name: Smoke test

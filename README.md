@@ -273,7 +273,7 @@ updates itself** (build, migrate, health-check, auto-rollback).
 
 Quick facts:
 
-- Live at https://dar-alsaffar.bluecodekw.com — served over **HTTPS** (required
+- Live at https://daralsaffar.shop — served over **HTTPS** (required
   for the service worker and the install prompt).
 - CI runs on `dev` and every PR; merging to `main` triggers the deploy
   (`.github/workflows/deploy.yml`).
