@@ -110,8 +110,8 @@
 }
 
 .split__media { position: relative; overflow: hidden; border-radius: var(--radius-md); }
-.split__media img { inline-size: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
-.split__media--wide img { aspect-ratio: 3 / 2; }
+.split__media img, .split__media video { inline-size: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
+.split__media--wide img, .split__media--wide video { aspect-ratio: 3 / 2; }
 
 /* ---- marquee of values -------------------------------------------------- */
 

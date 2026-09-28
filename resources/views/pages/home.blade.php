@@ -5,6 +5,7 @@
 @section('overlay-header', true)
 
 @php
+    use App\Support\Asset;
     use App\Support\Nav;
 
     // The hero leans on the store's own photography. Incense carries the most
@@ -13,6 +14,13 @@
     $heroCollection = collect($collections)->first(fn ($c) => in_array($c['slug'], ['Incense', 'Perfumes'], true) && $c['image'])
         ?? collect($collections)->first(fn ($c) => ! empty($c['image']));
     $heroImage = $heroCollection['image'] ?? $heroProduct?->image();
+
+    // The brand supplied filmed footage for the story teaser below, in place
+    // of the still product shot. The still stays on as the <video>'s poster
+    // and as the fallback if the file is ever removed, so the section never
+    // breaks.
+    $storyVideoPath = 'assets/video/eidan.mp4';
+    $storyVideo = is_file(public_path($storyVideoPath)) ? Asset::url($storyVideoPath) : null;
 @endphp
 
 @section('content')
@@ -118,7 +126,16 @@
                 </div>
 
                 <div class="split__media" data-reveal data-reveal-delay="90">
-                    @if ($heroProduct?->image())
+                    @if ($storyVideo)
+                        <video autoplay muted loop playsinline aria-hidden="true"
+                               poster="{{ $heroProduct?->image() }}">
+                            <source src="{{ $storyVideo }}" type="video/mp4">
+                            @if ($heroProduct?->image())
+                                <img src="{{ $heroProduct->image() }}" alt="{{ $heroProduct->name() }}"
+                                     loading="lazy" decoding="async" width="800" height="1000">
+                            @endif
+                        </video>
+                    @elseif ($heroProduct?->image())
                         <img src="{{ $heroProduct->image() }}" alt="{{ $heroProduct->name() }}"
                              loading="lazy" decoding="async" width="800" height="1000">
                     @endif
