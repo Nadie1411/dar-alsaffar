@@ -130,10 +130,26 @@ class AdminController extends Controller
             'popup_snooze_days' => ['nullable', 'integer', 'min:0', 'max:365'],
             'install_enabled' => ['nullable', 'boolean'],
             'install_delay' => ['nullable', 'integer', 'min:0', 'max:300'],
+            'cod_enabled' => ['nullable', 'boolean'],
             'orders_alert' => ['nullable', 'boolean'],
             'orders_poll' => ['nullable', 'integer', 'min:10', 'max:600'],
             'popup_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'remove_image' => ['nullable', 'boolean'],
+            'hero_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:6144'],
+            'remove_hero_image' => ['nullable', 'boolean'],
+            'hero_video' => ['nullable', 'file', 'mimes:mp4', 'max:51200'],
+            'remove_hero_video' => ['nullable', 'boolean'],
+            'about_story_ar' => ['nullable', 'string', 'max:2000'],
+            'about_story_en' => ['nullable', 'string', 'max:2000'],
+            'about_philosophy_ar' => ['nullable', 'string', 'max:2000'],
+            'about_philosophy_en' => ['nullable', 'string', 'max:2000'],
+            'about_quality_ar' => ['nullable', 'string', 'max:2000'],
+            'about_quality_en' => ['nullable', 'string', 'max:2000'],
+            'contact_phone' => ['nullable', 'string', 'max:20'],
+            'contact_whatsapp' => ['nullable', 'string', 'max:20', 'regex:/^[0-9]*$/'],
+            'contact_email' => ['nullable', 'email:rfc', 'max:190'],
+            'social_instagram' => ['nullable', 'url', 'max:200'],
+            'social_tiktok' => ['nullable', 'url', 'max:200'],
         ]);
 
         $image = $this->settings->get('popup.image', '');
@@ -148,6 +164,30 @@ class AdminController extends Controller
             $image = $this->storeUpload($request->file('popup_image'));
         }
 
+        $heroImage = $this->settings->get('hero.image', '');
+
+        if ($request->boolean('remove_hero_image')) {
+            $this->deleteUpload($heroImage);
+            $heroImage = '';
+        }
+
+        if ($request->hasFile('hero_image')) {
+            $this->deleteUpload($heroImage);
+            $heroImage = $this->storeUpload($request->file('hero_image'));
+        }
+
+        $heroVideo = $this->settings->get('hero.video', '');
+
+        if ($request->boolean('remove_hero_video')) {
+            $this->deleteUpload($heroVideo);
+            $heroVideo = '';
+        }
+
+        if ($request->hasFile('hero_video')) {
+            $this->deleteUpload($heroVideo);
+            $heroVideo = $this->storeUpload($request->file('hero_video'));
+        }
+
         $this->settings->save([
             'strip.enabled' => $request->boolean('strip_enabled'),
             'popup.enabled' => $request->boolean('popup_enabled'),
@@ -160,8 +200,22 @@ class AdminController extends Controller
             'popup.snooze_days' => $validated['popup_snooze_days'] ?? 7,
             'install.enabled' => $request->boolean('install_enabled'),
             'install.delay' => $validated['install_delay'] ?? 12,
+            'checkout.cod' => $request->boolean('cod_enabled'),
             'orders.alert' => $request->boolean('orders_alert'),
             'orders.poll' => $validated['orders_poll'] ?? 30,
+            'hero.image' => $heroImage,
+            'hero.video' => $heroVideo,
+            'about.story_ar' => $validated['about_story_ar'] ?? '',
+            'about.story_en' => $validated['about_story_en'] ?? '',
+            'about.philosophy_ar' => $validated['about_philosophy_ar'] ?? '',
+            'about.philosophy_en' => $validated['about_philosophy_en'] ?? '',
+            'about.quality_ar' => $validated['about_quality_ar'] ?? '',
+            'about.quality_en' => $validated['about_quality_en'] ?? '',
+            'contact.phone' => $validated['contact_phone'] ?? '',
+            'contact.whatsapp' => $validated['contact_whatsapp'] ?? '',
+            'contact.email' => $validated['contact_email'] ?? '',
+            'social.instagram' => $validated['social_instagram'] ?? '',
+            'social.tiktok' => $validated['social_tiktok'] ?? '',
         ]);
 
         return back()->with('status', __('storefront.admin.saved'));

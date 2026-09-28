@@ -61,11 +61,16 @@ Sign-in is rate limited per IP (5 attempts a minute by default,
 | العروض الفعّالة الآن | A live read of offers running in Overzaki — read only |
 | شريط العروض | Show/hide the announcement bar |
 | النافذة المنبثقة | Title, body, image, button label and destination, delay, snooze |
+| الدفع عند الاستلام | Show/hide cash on delivery at checkout |
 | إضافة الموقع للهاتف | Show/hide the install prompt, and its delay |
 | تحديث بيانات المتجر | Clears the catalogue cache after a price edit upstream |
 
 Leaving the pop-up title empty makes it mirror whatever offer is live, so it
 needs no editing between campaigns.
+
+Cash on delivery is offered only when this switch **and** Overzaki's own
+`availableCashOnDelivery` agree — offering it when the platform has it off
+would fail the order after the shopper had picked it.
 
 ### Order alert
 
@@ -260,16 +265,22 @@ whole catalogue still loads in about a second.
 
 ## Deployment
 
-Point the web root at `public/`, set `APP_ENV=production`, `APP_DEBUG=false`,
-then:
+The production site runs in **Docker** on the VPS behind the host's nginx, and
+deploys automatically: **push to `dev`, open a PR, merge into `main` → the VPS
+updates itself** (build, migrate, health-check, auto-rollback).
 
-```bash
-composer install --no-dev --optimize-autoloader
-php artisan config:cache && php artisan route:cache && php artisan view:cache
-```
+**➡️ Full workflow, server operations and env reference: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**
 
-The site must be served over **HTTPS** — the service worker and the install
-prompt do not run otherwise.
+Quick facts:
 
-Going live means pointing `dar-alsaffar.net` at this application instead of
-Vercel. Until that DNS change, the current storefront keeps serving.
+- Live at https://dar-alsaffar.bluecodekw.com — served over **HTTPS** (required
+  for the service worker and the install prompt).
+- CI runs on `dev` and every PR; merging to `main` triggers the deploy
+  (`.github/workflows/deploy.yml`).
+- Persistent, never overwritten: `.env`, `storage/` (SQLite DB), `public/uploads/`.
+- Never edit code directly on the server — the next deploy overwrites it.
+
+For a plain (non-Docker) host, the app is a standard Laravel deployment: point
+the web root at `public/`, set `APP_ENV=production` and `APP_DEBUG=false`, then
+`composer install --no-dev --optimize-autoloader` and
+`php artisan config:cache && php artisan route:cache && php artisan view:cache`.

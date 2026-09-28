@@ -354,6 +354,12 @@ p { text-wrap: pretty; }
 }
 
 .field__required { color: var(--danger); margin-inline-start: 2px; }
+.field__optional {
+  margin-inline-start: 4px;
+  color: var(--text-muted);
+  text-transform: none;
+  letter-spacing: 0;
+}
 
 .input,
 .select,

@@ -67,9 +67,9 @@
                     <x-icon name="whatsapp" size="18" style="color:var(--emerald-700)"/>
                     <span>
                         <span class="order-row__label">{{ __('storefront.content.whatsapp') }}</span>
-                        <a class="link-underline" href="https://wa.me/{{ config('brand.contact.whatsapp') }}"
+                        <a class="link-underline" href="https://wa.me/{{ $contact['whatsapp'] }}"
                            target="_blank" rel="noopener" dir="ltr">
-                            +{{ config('brand.contact.whatsapp') }}
+                            +{{ $contact['whatsapp'] }}
                         </a>
                     </span>
                 </li>
@@ -77,11 +77,22 @@
                     <x-icon name="phone" size="18" style="color:var(--emerald-700)"/>
                     <span>
                         <span class="order-row__label">{{ __('storefront.content.callUs') }}</span>
-                        <a class="link-underline" href="tel:{{ config('brand.contact.phone') }}" dir="ltr">
-                            {{ config('brand.contact.phone') }}
+                        <a class="link-underline" href="tel:{{ $contact['phone'] }}" dir="ltr">
+                            {{ $contact['phone'] }}
                         </a>
                     </span>
                 </li>
+                @if ($contact['email'])
+                    <li>
+                        <x-icon name="mail" size="18" style="color:var(--emerald-700)"/>
+                        <span>
+                            <span class="order-row__label">{{ __('storefront.content.emailUs') }}</span>
+                            <a class="link-underline" href="mailto:{{ $contact['email'] }}" dir="ltr">
+                                {{ $contact['email'] }}
+                            </a>
+                        </span>
+                    </li>
+                @endif
                 <li>
                     <x-icon name="pin" size="18" style="color:var(--emerald-700)"/>
                     <span>
@@ -95,11 +106,11 @@
                 {{ __('storefront.content.followUs') }}
             </h3>
             <div class="socials" style="margin:0">
-                <a href="{{ config('brand.social.instagram') }}" target="_blank" rel="noopener"
+                <a href="{{ $social['instagram'] }}" target="_blank" rel="noopener"
                    aria-label="Instagram" style="border-color:var(--line);color:var(--text-secondary)">
                     <x-icon name="instagram" size="18"/>
                 </a>
-                <a href="{{ config('brand.social.tiktok') }}" target="_blank" rel="noopener"
+                <a href="{{ $social['tiktok'] }}" target="_blank" rel="noopener"
                    aria-label="TikTok" style="border-color:var(--line);color:var(--text-secondary)">
                     <x-icon name="tiktok" size="18"/>
                 </a>

@@ -37,7 +37,7 @@
     <link rel="preconnect" href="https://overzaki.fra1.cdn.digitaloceanspaces.com" crossorigin>
     <link rel="dns-prefetch" href="https://overzaki.fra1.cdn.digitaloceanspaces.com">
     <link
-        href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:wght@300;400;500&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:wght@300;400;500&family=Tajawal:wght@400;500;700&display=swap"
         rel="stylesheet">
 
     <link rel="stylesheet" href="{{ \App\Support\Asset::url('assets/css/tokens.css') }}">
@@ -54,9 +54,9 @@
         'name'     => __('storefront.brand.name'),
         'url'      => url('/'.$localeCode),
         'logo'     => asset(config('brand.logo.full_emerald')),
-        'telephone'=> config('brand.contact.phone'),
+        'telephone'=> $contact['phone'],
         'address'  => ['@type' => 'PostalAddress', 'addressCountry' => 'KW'],
-        'sameAs'   => array_values(array_filter(config('brand.social'))),
+        'sameAs'   => array_values(array_filter($social)),
     ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
     </script>
     @stack('schema')
@@ -84,7 +84,7 @@
     <div class="scrim" data-scrim hidden></div>
     <div class="toast-stack" data-toasts aria-live="polite" aria-atomic="false"></div>
 
-    <a class="wa-float" href="https://wa.me/{{ config('brand.contact.whatsapp') }}"
+    <a class="wa-float" href="https://wa.me/{{ $contact['whatsapp'] }}"
        target="_blank" rel="noopener" aria-label="{{ __('storefront.content.whatsapp') }}">
         <x-icon name="whatsapp" size="24"/>
     </a>
@@ -104,6 +104,8 @@
             i18n: {
                 added:     @json(__('storefront.actions.added')),
                 adding:    @json(__('storefront.actions.adding')),
+                cartAdded: @json(__('storefront.cart.added')),
+                viewCart:  @json(__('storefront.actions.cart')),
                 wishAdd:   @json(__('storefront.wishlist.added')),
                 wishRemove:@json(__('storefront.wishlist.removed')),
                 error:     @json(__('storefront.errors.generic')),

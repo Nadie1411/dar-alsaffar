@@ -1,10 +1,12 @@
 /* ===========================================================================
-   Order board — polls for new orders and rings until acknowledged.
+   Order board — polls for new orders, rings and pops a notification until
+   acknowledged.
    ---------------------------------------------------------------------------
    The tone is synthesised with the Web Audio API rather than shipped as a
    file: nothing to download, it loops seamlessly, and it keeps working
-   offline. Browsers refuse to start audio without a gesture, so the page
-   arms the sound on an explicit press and says so plainly.
+   offline. Browsers refuse to start audio — or to ask for notification
+   permission — without a gesture, so the page arms both on one explicit
+   press and says so plainly.
    =========================================================================== */
 
 (() => {
@@ -41,6 +43,40 @@
     // Resuming inside the click is what satisfies the autoplay policy.
     if (audio.state === 'suspended') audio.resume();
     return true;
+  }
+
+  // -------------------------------------------------------- notifications
+
+  // The OS-level popup, for when this tab is open but not the one in front
+  // — a second background tab, another window, another space. It cannot
+  // reach past the browser being closed entirely; ordersTabHint says so.
+  let lastNotification = null;
+  let lastNotifiedLabel = null;
+
+  function armNotifications() {
+    if (!('Notification' in window)) return;
+    if (Notification.permission === 'default') Notification.requestPermission();
+  }
+
+  function notify(bodyText) {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    try {
+      lastNotification?.close();
+      lastNotification = new Notification(cfg.i18n.notifyTitle, {
+        body: bodyText,
+        icon: cfg.icon,
+        tag: 'dar-alsaffar-order-alert',
+        renotify: true,
+      });
+      lastNotification.onclick = () => { window.focus(); lastNotification?.close(); };
+    } catch {
+      // Some platforms (iOS Safari, permission mid-flight) refuse silently.
+    }
+  }
+
+  function closeNotification() {
+    lastNotification?.close();
+    lastNotification = null;
   }
 
   /** One two-tone chime. Short, clear, and not painful on repeat. */
@@ -82,6 +118,7 @@
 
   armBtn?.addEventListener('click', () => {
     if (!armAudio()) return;
+    armNotifications();
     armBtn.hidden = true;
     if (armedTag) armedTag.hidden = false;
     chime();                       // confirm it works
@@ -143,11 +180,18 @@
         ? cfg.i18n.one
         : (cfg.i18n.many || '').replace('%n', unseen);
       if (countEl) countEl.textContent = label;
+      const wasHidden = banner.hidden;
       banner.hidden = false;
       startRinging();
+      // Only on the transition to unseen, and again if the count moves —
+      // not on every 30-second poll while the same orders sit unseen.
+      if (wasHidden || label !== lastNotifiedLabel) notify(label);
+      lastNotifiedLabel = label;
     } else {
       banner.hidden = true;
       stopRinging();
+      closeNotification();
+      lastNotifiedLabel = null;
     }
 
     paint(data.orders || [], data.unseenIds || []);
@@ -178,6 +222,8 @@
   seenForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
     stopRinging();
+    closeNotification();
+    lastNotifiedLabel = null;
     banner.hidden = true;
 
     try {

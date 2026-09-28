@@ -24,29 +24,34 @@ class OrderService
     /** Kuwait governorates with their areas, for the address form. */
     public function deliveryLocations(): array
     {
-        return Cache::remember('ovz:areas', config('overzaki.cache.taxonomy'), function () {
+        // Only the raw response is cached. Caching the localised shape meant
+        // whichever language warmed the cache first was served to everyone —
+        // Arabic shoppers were picking their governorate from an English list.
+        $cities = Cache::remember('ovz:areas:v2', config('overzaki.cache.taxonomy'), function () {
             $response = $this->client->get(
                 config('overzaki.endpoints.citiesWithAreas').config('overzaki.country_id')
             );
 
-            return collect($response['cities'] ?? [])
-                ->map(fn ($city) => [
-                    'id' => (string) ($city['cityId'] ?? ''),
-                    'name' => Loc::text($city['cityName'] ?? null),
-                    'areas' => collect($city['areas'] ?? [])
-                        ->filter(fn ($area) => $area['isActive'] ?? true)
-                        ->map(fn ($area) => [
-                            'id' => (string) ($area['_id'] ?? ''),
-                            'name' => Loc::text($area['name'] ?? null),
-                        ])
-                        ->sortBy('name')
-                        ->values()
-                        ->all(),
-                ])
-                ->filter(fn ($city) => $city['id'] !== '' && $city['areas'] !== [])
-                ->values()
-                ->all();
+            return $response['cities'] ?? [];
         });
+
+        return collect(is_array($cities) ? $cities : [])
+            ->map(fn ($city) => [
+                'id' => (string) ($city['cityId'] ?? ''),
+                'name' => Loc::text($city['cityName'] ?? null),
+                'areas' => collect($city['areas'] ?? [])
+                    ->filter(fn ($area) => $area['isActive'] ?? true)
+                    ->map(fn ($area) => [
+                        'id' => (string) ($area['_id'] ?? ''),
+                        'name' => Loc::text($area['name'] ?? null),
+                    ])
+                    ->sortBy('name', SORT_NATURAL | SORT_FLAG_CASE)
+                    ->values()
+                    ->all(),
+            ])
+            ->filter(fn ($city) => $city['id'] !== '' && $city['areas'] !== [])
+            ->values()
+            ->all();
     }
 
     /**
@@ -124,10 +129,13 @@ class OrderService
      */
     public function place(array $input): array
     {
+        // Option choices travel with the line: a gift set priced by what the
+        // shopper picked is a different order line from the same set empty.
         $items = array_values(array_map(fn ($item) => array_filter([
             'productId' => $item['productId'],
             'quantity' => $item['quantity'],
             'varientId' => $item['varientId'] ?: null,
+            'options' => $item['options'] ?: null,
         ], fn ($value) => $value !== null), $this->cart->items()));
 
         if ($items === []) {
@@ -136,14 +144,20 @@ class OrderService
 
         $isCod = ($input['payment'] ?? null) === 'cod';
 
+        // Email is optional, and the key has to be absent rather than empty:
+        // Overzaki answers an empty string with "email cannot be empty".
+        $customer = array_filter([
+            'fullName' => $input['fullName'],
+            'email' => $input['email'] ?? null,
+            // Overzaki validates E.164; the form collects 8 local digits.
+            'phoneNumber' => $this->e164($input['phone']),
+            'countryPrefixNumber' => config('brand.country.dial'),
+        ], fn ($value) => $value !== null && $value !== '');
+
+        // The order DTO rejects any property it does not know with a 422, so
+        // this payload carries nothing beyond the keys it whitelists.
         $payload = array_filter([
-            'customer' => [
-                'fullName' => $input['fullName'],
-                'email' => $input['email'],
-                // Overzaki validates E.164; the form collects 8 local digits.
-                'phoneNumber' => $this->e164($input['phone']),
-                'countryPrefixNumber' => config('brand.country.dial'),
-            ],
+            'customer' => $customer,
             'items' => $items,
             'address' => array_filter([
                 'type' => 'home',
@@ -152,21 +166,20 @@ class OrderService
                 'area' => $input['area'],
                 'block' => $input['block'] ?? null,
                 'street' => $input['street'] ?? null,
+                'avenue' => $input['avenue'] ?? null,
                 'building' => $input['building'] ?? null,
                 'floor' => $input['floor'] ?? null,
                 'apartment' => $input['apartment'] ?? null,
             ], fn ($value) => $value !== null && $value !== ''),
             'isCashOnDelivery' => $isCod,
             'isStorePickup' => false,
-            'policy' => true,
-            'platform' => 'website',
             'note' => $input['notes'] ?? null,
             'voucher' => $input['voucher'] ?? null,
-            'selectedServiceAddons' => $input['addons'] ?? null,
+            'selectedServiceAddonIds' => $input['addons'] ?? null,
         ] + ($isCod ? [] : [
             'paymentIntegrationId' => config('overzaki.payment.integration_id'),
             'paymentSrcId' => $input['paymentMethod'] ?? null,
-        ]), fn ($value) => $value !== null && $value !== '');
+        ]), fn ($value) => $value !== null && $value !== '' && $value !== []);
 
         $endpoint = AuthService::check()
             ? config('overzaki.endpoints.orderForCustomer')

@@ -8,8 +8,10 @@
 @if (count($addons))
     <fieldset class="fieldset">
         <legend class="fieldset__legend">
-            <x-icon name="gift" size="20"/>
-            {{ __('storefront.addon.title') }}
+            <span class="fieldset__legend-inner">
+                <x-icon name="gift" size="20"/>
+                {{ __('storefront.addon.title') }}
+            </span>
         </legend>
 
         <p class="muted" style="margin-block-start:calc(var(--space-5) * -1 + var(--space-2));margin-block-end:var(--space-4);font-size:var(--step-small)">

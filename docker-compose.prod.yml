@@ -1,0 +1,16 @@
+name: dar-alsaffar
+
+services:
+  app:
+    image: dar-alsaffar:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    mem_limit: 384m
+    memswap_limit: 384m
+    ports:
+      - "127.0.0.1:${APP_PORT:-8095}:8080"
+    # No env_file on purpose: real env vars would shadow .env, and
+    # `php artisan store:password` edits .env at runtime.
+    volumes:
+      - ./.env:/app/.env                  # store:password writes its hash here
+      - ./storage:/app/storage            # SQLite DB, settings JSON, logs
+      - ./public/uploads:/app/public/uploads

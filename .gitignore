@@ -31,3 +31,5 @@ Thumbs.db
 /database/*.sqlite-journal
 /storage/app/storefront-settings.json
 /public/uploads
+/storage/database.sqlite*
+/.deployed_tag

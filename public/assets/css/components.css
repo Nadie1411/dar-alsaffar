@@ -634,6 +634,19 @@
   animation: toast-in var(--dur) var(--ease-out);
 }
 .toast--error { background: var(--danger); }
+.toast__text { flex: 1; min-inline-size: 0; }
+.toast__action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  inline-size: 32px;
+  block-size: 32px;
+  border-radius: var(--radius-pill);
+  color: inherit;
+  transition: background var(--dur-fast) var(--ease);
+}
+.toast__action:hover { background: rgba(243, 232, 200, 0.12); }
 @keyframes toast-in { from { opacity: 0; transform: translateY(12px); } }
 
 /* ---- promotion progress ------------------------------------------------- */
@@ -881,4 +894,55 @@
 }
 .collection-card--product-shot::after {
   background: linear-gradient(to top, rgba(14, 16, 15, 0.85) 0%, rgba(14, 16, 15, 0.1) 55%, transparent 100%);
+}
+
+/* ---- order success mark -------------------------------------------------- */
+
+.success-mark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  inline-size: 96px;
+  block-size: 96px;
+  margin-inline: auto;
+  color: var(--emerald-700);
+}
+
+.success-mark__ring { position: relative; z-index: 1; }
+
+.success-mark__circle {
+  stroke-dasharray: 277;
+  stroke-dashoffset: 277;
+  animation: success-circle var(--dur-slow) var(--ease-out) forwards;
+}
+.success-mark__check {
+  stroke-dasharray: 62;
+  stroke-dashoffset: 62;
+  animation: success-check var(--dur) var(--ease-out) 420ms forwards;
+}
+@keyframes success-circle { to { stroke-dashoffset: 0; } }
+@keyframes success-check  { to { stroke-dashoffset: 0; } }
+
+.success-mark__burst { position: absolute; inset: 0; pointer-events: none; }
+.success-mark__spark {
+  position: absolute;
+  inset-inline-start: 50%;
+  inset-block-start: 50%;
+  inline-size: 6px;
+  block-size: 6px;
+  margin: -3px;
+  border-radius: var(--radius-pill);
+  background: var(--spark-color, var(--gold-500));
+  opacity: 0;
+  animation: success-spark 760ms var(--ease-out) 260ms both;
+}
+@keyframes success-spark {
+  0%   { opacity: 1; transform: rotate(var(--angle)) translateX(4px) scale(0.6); }
+  70%  { opacity: 1; }
+  100% { opacity: 0; transform: rotate(var(--angle)) translateX(58px) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .success-mark__circle, .success-mark__check { animation: none; stroke-dashoffset: 0; }
+  .success-mark__spark { animation: none; opacity: 0; }
 }

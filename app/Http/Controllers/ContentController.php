@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\Overzaki\CatalogService;
 use App\Services\Overzaki\OverzakiClient;
+use App\Services\Settings;
 use Illuminate\Http\Request;
 
 class ContentController extends Controller
@@ -11,12 +12,14 @@ class ContentController extends Controller
     public function __construct(
         protected OverzakiClient $client,
         protected CatalogService $catalog,
+        protected Settings $settings,
     ) {}
 
     public function about()
     {
         return view('pages.about', [
             'collections' => $this->catalog->categoriesWithCounts(),
+            'settings' => $this->settings,
         ]);
     }
 

@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Http\Middleware\SetLocale;
+use App\Services\Settings;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -27,6 +28,39 @@ class AppServiceProvider extends ServiceProvider
             'isRtl' => true,
             'altLocaleCode' => 'en-KW',
         ]);
+
+        // Published contact points, admin-editable with the site's own
+        // config as the fallback — computed once per request, the first
+        // time a view actually renders, so the layout, the footer and the
+        // contact page all read the same values.
+        //
+        // A composer, not View::share() at boot: share() would run this on
+        // every application bootstrap, including `artisan package:discover`
+        // during `composer install`/`composer dump-autoload` — a point
+        // where there is no .env yet and no database file on disk. Settings
+        // reads through the cache, which defaults to the database driver,
+        // so that eager read crashed the Composer install step outright.
+        View::composer('*', function ($view): void {
+            static $shared = null;
+
+            if ($shared === null) {
+                $settings = $this->app->make(Settings::class);
+
+                $shared = [
+                    'contact' => [
+                        'phone' => $settings->get('contact.phone', config('brand.contact.phone')),
+                        'whatsapp' => $settings->get('contact.whatsapp', config('brand.contact.whatsapp')),
+                        'email' => $settings->get('contact.email', config('brand.contact.email')),
+                    ],
+                    'social' => [
+                        'instagram' => $settings->get('social.instagram', config('brand.social.instagram')),
+                        'tiktok' => $settings->get('social.tiktok', config('brand.social.tiktok')),
+                    ],
+                ];
+            }
+
+            $view->with($shared);
+        });
 
         Paginator::defaultView('vendor.pagination.darsaffar');
     }
