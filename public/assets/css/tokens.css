@@ -63,7 +63,10 @@
 
   /* ---- type ------------------------------------------------------------- */
   --font-display: "Amiri", "Cormorant Garamond", "Times New Roman", serif;
-  --font-sans: "IBM Plex Sans Arabic", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  /* Noto Naskh Arabic reads as a text-weight companion to the Amiri
+     headlines rather than a plain UI sans dropped in next to them — the
+     same naskh character at body sizes, not IBM Plex's geometric one. */
+  --font-sans: "Noto Naskh Arabic", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-latin-display: "Cormorant Garamond", "Amiri", serif;
 
   /* A fluid scale: cinematic at the top, tight and readable at the bottom. */

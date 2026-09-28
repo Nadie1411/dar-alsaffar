@@ -37,7 +37,7 @@
     <link rel="preconnect" href="https://overzaki.fra1.cdn.digitaloceanspaces.com" crossorigin>
     <link rel="dns-prefetch" href="https://overzaki.fra1.cdn.digitaloceanspaces.com">
     <link
-        href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:wght@300;400;500&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:wght@300;400;500&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap"
         rel="stylesheet">
 
     <link rel="stylesheet" href="{{ \App\Support\Asset::url('assets/css/tokens.css') }}">
