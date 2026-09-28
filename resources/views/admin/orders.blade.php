@@ -44,8 +44,9 @@
         </form>
     </div>
 
-    {{-- Browsers refuse to play audio until the page has been interacted with,
-         so the sound has to be armed by hand once per session. --}}
+    {{-- Browsers refuse to play audio — and to ask about notifications —
+         until the page has been interacted with, so both are armed by hand
+         once per session. --}}
     <div class="admin-card" data-arm-card>
         <div class="order-arm">
             <button class="btn" type="button" data-arm>
@@ -76,9 +77,11 @@
 <script>
 window.OrderBoard = {
     feed: '/admin/orders/feed',
+    icon: @json(asset('assets/brand/icon-192-maskable.png')),
     i18n: {
         one: @json(__('storefront.admin.ordersNewOne')),
         many: @json(__('storefront.admin.ordersNewCount', ['count' => '%n'])),
+        notifyTitle: @json(__('storefront.admin.ordersNotifyTitle')),
     },
 };
 </script>
