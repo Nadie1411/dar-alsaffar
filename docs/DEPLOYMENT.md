@@ -11,7 +11,7 @@ Read it once; after that, deployment fits in one sentence:
 
 | Item | Detail |
 |---|---|
-| Domain | https://dar-alsaffar.bluecodekw.com |
+| Domain | https://daralsaffar.shop |
 | Server (VPS) | `184.168.120.225` — Ubuntu 24.04 |
 | Application | Laravel (Overzaki storefront), running in **Docker** (FrankenPHP / PHP 8.4 image) |
 | Path on the server | `~/apps/dar-alsaffar` (user `bluecode`) |
@@ -62,7 +62,7 @@ Then on GitHub: **New Pull Request** (`dev` → `main`), wait for the green chec
    - runs migrations (`php artisan migrate --force`),
    - swaps the container,
    - **health-checks** `/up`; on failure → **automatic rollback** to the previous version + database restore.
-5. Confirms that https://dar-alsaffar.bluecodekw.com/up responds.
+5. Confirms that https://daralsaffar.shop/up responds.
 
 > ⚠️ **Never edit code directly on the server** — the next deployment erases it. Everything goes through Git.
 
@@ -133,7 +133,7 @@ git fetch origin main && git reset --hard origin/main
 ```dotenv
 APP_ENV=production
 APP_DEBUG=false
-APP_URL=https://dar-alsaffar.bluecodekw.com
+APP_URL=https://daralsaffar.shop
 DB_CONNECTION=sqlite
 DB_DATABASE=/app/storage/database.sqlite
 SESSION_SECURE_COOKIE=true
@@ -159,7 +159,7 @@ edit it on the server, then `docker compose -f docker-compose.prod.yml restart a
 | `scripts/deploy.sh` | Build + migrate + swap + health-check + rollback |
 | `.github/workflows/ci.yml` | Tests + build on `dev` and PRs |
 | `.github/workflows/deploy.yml` | Auto-deploy on merge to `main` |
-| `deploy/nginx/dar-alsaffar.bluecodekw.com.conf` | nginx vhost (proxy → 8095), already installed on the host |
+| `deploy/nginx/daralsaffar.shop.conf` | nginx vhost (proxy → 8095), already installed on the host |
 
 ---
 
@@ -171,10 +171,10 @@ Only replay this on a brand-new server:
 3. `./scripts/deploy.sh` (first build + migrations).
 4. **As root/sudo**: install the nginx vhost, then HTTPS —
    ```bash
-   cp deploy/nginx/dar-alsaffar.bluecodekw.com.conf /etc/nginx/sites-available/
-   ln -sf /etc/nginx/sites-available/dar-alsaffar.bluecodekw.com.conf /etc/nginx/sites-enabled/
+   cp deploy/nginx/daralsaffar.shop.conf /etc/nginx/sites-available/
+   ln -sf /etc/nginx/sites-available/daralsaffar.shop.conf /etc/nginx/sites-enabled/
    nginx -t && systemctl reload nginx
-   certbot --nginx -d dar-alsaffar.bluecodekw.com --redirect
+   certbot --nginx -d daralsaffar.shop --redirect
    ```
 5. Add the GitHub secrets (`VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY`).
 
