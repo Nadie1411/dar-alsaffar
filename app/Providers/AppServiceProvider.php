@@ -30,20 +30,37 @@ class AppServiceProvider extends ServiceProvider
         ]);
 
         // Published contact points, admin-editable with the site's own
-        // config as the fallback — shared once so the layout, the footer
-        // and the contact page all read the same values.
-        $settings = $this->app->make(Settings::class);
+        // config as the fallback — computed once per request, the first
+        // time a view actually renders, so the layout, the footer and the
+        // contact page all read the same values.
+        //
+        // A composer, not View::share() at boot: share() would run this on
+        // every application bootstrap, including `artisan package:discover`
+        // during `composer install`/`composer dump-autoload` — a point
+        // where there is no .env yet and no database file on disk. Settings
+        // reads through the cache, which defaults to the database driver,
+        // so that eager read crashed the Composer install step outright.
+        View::composer('*', function ($view): void {
+            static $shared = null;
 
-        View::share('contact', [
-            'phone' => $settings->get('contact.phone', config('brand.contact.phone')),
-            'whatsapp' => $settings->get('contact.whatsapp', config('brand.contact.whatsapp')),
-            'email' => $settings->get('contact.email', config('brand.contact.email')),
-        ]);
+            if ($shared === null) {
+                $settings = $this->app->make(Settings::class);
 
-        View::share('social', [
-            'instagram' => $settings->get('social.instagram', config('brand.social.instagram')),
-            'tiktok' => $settings->get('social.tiktok', config('brand.social.tiktok')),
-        ]);
+                $shared = [
+                    'contact' => [
+                        'phone' => $settings->get('contact.phone', config('brand.contact.phone')),
+                        'whatsapp' => $settings->get('contact.whatsapp', config('brand.contact.whatsapp')),
+                        'email' => $settings->get('contact.email', config('brand.contact.email')),
+                    ],
+                    'social' => [
+                        'instagram' => $settings->get('social.instagram', config('brand.social.instagram')),
+                        'tiktok' => $settings->get('social.tiktok', config('brand.social.tiktok')),
+                    ],
+                ];
+            }
+
+            $view->with($shared);
+        });
 
         Paginator::defaultView('vendor.pagination.darsaffar');
     }
