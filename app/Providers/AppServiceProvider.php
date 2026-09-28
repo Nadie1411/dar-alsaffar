@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Http\Middleware\SetLocale;
+use App\Services\Settings;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -26,6 +27,22 @@ class AppServiceProvider extends ServiceProvider
             'dir' => 'rtl',
             'isRtl' => true,
             'altLocaleCode' => 'en-KW',
+        ]);
+
+        // Published contact points, admin-editable with the site's own
+        // config as the fallback — shared once so the layout, the footer
+        // and the contact page all read the same values.
+        $settings = $this->app->make(Settings::class);
+
+        View::share('contact', [
+            'phone' => $settings->get('contact.phone', config('brand.contact.phone')),
+            'whatsapp' => $settings->get('contact.whatsapp', config('brand.contact.whatsapp')),
+            'email' => $settings->get('contact.email', config('brand.contact.email')),
+        ]);
+
+        View::share('social', [
+            'instagram' => $settings->get('social.instagram', config('brand.social.instagram')),
+            'tiktok' => $settings->get('social.tiktok', config('brand.social.tiktok')),
         ]);
 
         Paginator::defaultView('vendor.pagination.darsaffar');

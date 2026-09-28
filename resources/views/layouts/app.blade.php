@@ -54,9 +54,9 @@
         'name'     => __('storefront.brand.name'),
         'url'      => url('/'.$localeCode),
         'logo'     => asset(config('brand.logo.full_emerald')),
-        'telephone'=> config('brand.contact.phone'),
+        'telephone'=> $contact['phone'],
         'address'  => ['@type' => 'PostalAddress', 'addressCountry' => 'KW'],
-        'sameAs'   => array_values(array_filter(config('brand.social'))),
+        'sameAs'   => array_values(array_filter($social)),
     ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
     </script>
     @stack('schema')
@@ -84,7 +84,7 @@
     <div class="scrim" data-scrim hidden></div>
     <div class="toast-stack" data-toasts aria-live="polite" aria-atomic="false"></div>
 
-    <a class="wa-float" href="https://wa.me/{{ config('brand.contact.whatsapp') }}"
+    <a class="wa-float" href="https://wa.me/{{ $contact['whatsapp'] }}"
        target="_blank" rel="noopener" aria-label="{{ __('storefront.content.whatsapp') }}">
         <x-icon name="whatsapp" size="24"/>
     </a>

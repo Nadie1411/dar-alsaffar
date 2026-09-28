@@ -5,22 +5,30 @@
 @section('overlay-header', true)
 
 @php
+    use App\Services\Settings;
     use App\Support\Asset;
     use App\Support\Nav;
 
-    // The hero leans on the store's own photography. Incense carries the most
-    // atmospheric image in the catalogue — and its rising smoke echoes the
-    // wisp in the brand mark.
+    $settings = app(Settings::class);
+
+    // The hero leans on the store's own photography by default. An image
+    // uploaded from the admin panel takes over when there is one; uploads
+    // get a fresh random filename each time, so — unlike the hand-authored
+    // CSS/JS Asset::url() cache-busts — a plain asset() is enough.
     $heroCollection = collect($collections)->first(fn ($c) => in_array($c['slug'], ['Incense', 'Perfumes'], true) && $c['image'])
         ?? collect($collections)->first(fn ($c) => ! empty($c['image']));
-    $heroImage = $heroCollection['image'] ?? $heroProduct?->image();
+    $heroUpload = $settings->get('hero.image');
+    $heroImage = $heroUpload ? asset($heroUpload) : ($heroCollection['image'] ?? $heroProduct?->image());
 
-    // The brand supplied filmed footage for the story teaser below, in place
-    // of the still product shot. The still stays on as the <video>'s poster
-    // and as the fallback if the file is ever removed, so the section never
-    // breaks.
-    $storyVideoPath = 'assets/video/eidan.mp4';
-    $storyVideo = is_file(public_path($storyVideoPath)) ? Asset::url($storyVideoPath) : null;
+    // The story teaser below shows filmed footage in place of a still product
+    // shot, again admin-replaceable; the still stays on as the <video>'s
+    // poster and as the fallback if no video file exists at all, so the
+    // section never breaks. The shipped default keeps its own mtime-based
+    // cache-bust since, unlike an upload, it can change without a new name.
+    $videoUpload = $settings->get('hero.video');
+    $storyVideo = $videoUpload
+        ? (is_file(public_path($videoUpload)) ? asset($videoUpload) : null)
+        : (is_file(public_path('assets/video/eidan.mp4')) ? Asset::url('assets/video/eidan.mp4') : null);
 @endphp
 
 @section('content')

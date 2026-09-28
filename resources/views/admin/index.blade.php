@@ -152,6 +152,121 @@
             </div>
         </section>
 
+        {{-- -------------------------------------------------- homepage hero --}}
+        <section class="admin-card">
+            <h2 class="admin-card__title">{{ __('storefront.admin.heroSection') }}</h2>
+            <p class="admin-card__hint">{{ __('storefront.admin.heroHint') }}</p>
+
+            <div class="field">
+                <span class="field__label">{{ __('storefront.admin.heroImage') }}</span>
+
+                @if ($current = $settings->get('hero.image', ''))
+                    <div class="admin-thumb">
+                        <img src="{{ asset($current) }}" alt="" width="160" height="90">
+                        <label class="checkbox">
+                            <input type="checkbox" name="remove_hero_image" value="1">
+                            <span>{{ __('storefront.admin.removeImage') }}</span>
+                        </label>
+                    </div>
+                @endif
+
+                <input class="input" type="file" name="hero_image" accept="image/jpeg,image/png,image/webp">
+                <span class="field__hint">{{ __('storefront.admin.heroImageHint') }}</span>
+                @error('hero_image')<span class="field__error">{{ $message }}</span>@enderror
+            </div>
+
+            <div class="field">
+                <span class="field__label">{{ __('storefront.admin.heroVideo') }}</span>
+
+                @if ($currentVideo = $settings->get('hero.video', ''))
+                    <div class="admin-thumb">
+                        <video src="{{ asset($currentVideo) }}" muted playsinline></video>
+                        <label class="checkbox">
+                            <input type="checkbox" name="remove_hero_video" value="1">
+                            <span>{{ __('storefront.admin.removeVideo') }}</span>
+                        </label>
+                    </div>
+                @endif
+
+                <input class="input" type="file" name="hero_video" accept="video/mp4">
+                <span class="field__hint">{{ __('storefront.admin.heroVideoHint') }}</span>
+                @error('hero_video')<span class="field__error">{{ $message }}</span>@enderror
+            </div>
+        </section>
+
+        {{-- ---------------------------------------------- about page copy --}}
+        <section class="admin-card">
+            <h2 class="admin-card__title">{{ __('storefront.admin.aboutSection') }}</h2>
+            <p class="admin-card__hint">{{ __('storefront.admin.aboutHint') }}</p>
+
+            @foreach (['story' => 'storyTitle', 'philosophy' => 'philosophyTitle', 'quality' => 'qualityTitle'] as $field => $titleKey)
+                <div class="admin-grid">
+                    <label class="field">
+                        <span class="field__label">{{ __('storefront.content.'.$titleKey) }} — {{ __('storefront.admin.arabic') }}</span>
+                        <textarea class="textarea" name="about_{{ $field }}_ar" rows="3" maxlength="2000"
+                                  dir="rtl">{{ old('about_'.$field.'_ar', $settings->get('about.'.$field.'_ar', '')) }}</textarea>
+                        @error('about_'.$field.'_ar')<span class="field__error">{{ $message }}</span>@enderror
+                    </label>
+
+                    <label class="field">
+                        <span class="field__label">{{ __('storefront.content.'.$titleKey) }} — {{ __('storefront.admin.english') }}</span>
+                        <textarea class="textarea" name="about_{{ $field }}_en" rows="3" maxlength="2000"
+                                  dir="ltr">{{ old('about_'.$field.'_en', $settings->get('about.'.$field.'_en', '')) }}</textarea>
+                        @error('about_'.$field.'_en')<span class="field__error">{{ $message }}</span>@enderror
+                    </label>
+                </div>
+            @endforeach
+        </section>
+
+        {{-- ------------------------------------------------- contact details --}}
+        <section class="admin-card">
+            <h2 class="admin-card__title">{{ __('storefront.admin.contactSection') }}</h2>
+            <p class="admin-card__hint">{{ __('storefront.admin.contactHint') }}</p>
+
+            <div class="admin-grid">
+                <label class="field">
+                    <span class="field__label">{{ __('storefront.admin.contactPhone') }}</span>
+                    <input class="input" type="text" name="contact_phone" dir="ltr" maxlength="20"
+                           placeholder="{{ $contact['phone'] }}"
+                           value="{{ old('contact_phone', $settings->get('contact.phone', '')) }}">
+                    @error('contact_phone')<span class="field__error">{{ $message }}</span>@enderror
+                </label>
+
+                <label class="field">
+                    <span class="field__label">{{ __('storefront.admin.contactWhatsapp') }}</span>
+                    <input class="input" type="text" name="contact_whatsapp" dir="ltr" maxlength="20"
+                           placeholder="{{ $contact['whatsapp'] }}"
+                           value="{{ old('contact_whatsapp', $settings->get('contact.whatsapp', '')) }}">
+                    <span class="field__hint">{{ __('storefront.admin.contactWhatsappHint') }}</span>
+                    @error('contact_whatsapp')<span class="field__error">{{ $message }}</span>@enderror
+                </label>
+
+                <label class="field">
+                    <span class="field__label">{{ __('storefront.admin.contactEmail') }}</span>
+                    <input class="input" type="email" name="contact_email" dir="ltr" maxlength="190"
+                           placeholder="{{ __('storefront.admin.contactEmailPh') }}"
+                           value="{{ old('contact_email', $settings->get('contact.email', '')) }}">
+                    @error('contact_email')<span class="field__error">{{ $message }}</span>@enderror
+                </label>
+
+                <label class="field">
+                    <span class="field__label">{{ __('storefront.admin.socialInstagram') }}</span>
+                    <input class="input" type="url" name="social_instagram" dir="ltr" maxlength="200"
+                           placeholder="{{ $social['instagram'] }}"
+                           value="{{ old('social_instagram', $settings->get('social.instagram', '')) }}">
+                    @error('social_instagram')<span class="field__error">{{ $message }}</span>@enderror
+                </label>
+
+                <label class="field">
+                    <span class="field__label">{{ __('storefront.admin.socialTiktok') }}</span>
+                    <input class="input" type="url" name="social_tiktok" dir="ltr" maxlength="200"
+                           placeholder="{{ $social['tiktok'] }}"
+                           value="{{ old('social_tiktok', $settings->get('social.tiktok', '')) }}">
+                    @error('social_tiktok')<span class="field__error">{{ $message }}</span>@enderror
+                </label>
+            </div>
+        </section>
+
         {{-- ----------------------------------------------- order alert --}}
         <section class="admin-card">
             <h2 class="admin-card__title">{{ __('storefront.admin.ordersSection') }}</h2>
