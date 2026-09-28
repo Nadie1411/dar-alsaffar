@@ -635,16 +635,20 @@
 }
 
 .fieldset { border: 0; padding: 0; margin-block-end: var(--space-7); }
-.fieldset__legend {
+/* `display:flex` directly on a <legend> is inconsistently supported —
+   Safari in particular has misplaced it flush against the viewport edge,
+   ignoring the fieldset's own inline inset. The flex layout now lives on
+   a plain inner span instead, so the legend itself stays a normal,
+   unstyled block every browser positions the same way. */
+.fieldset__legend { display: block; margin-block-end: var(--space-5); inline-size: 100%; }
+.fieldset__legend-inner {
   display: flex;
   align-items: center;
   gap: var(--space-3);
   font-family: var(--font-display);
   font-size: var(--step-heading);
-  margin-block-end: var(--space-5);
-  inline-size: 100%;
 }
-.fieldset__legend::after { content: ""; flex: 1; block-size: 1px; background: var(--line-soft); }
+.fieldset__legend-inner::after { content: ""; flex: 1; block-size: 1px; background: var(--line-soft); }
 
 .grid-2 { display: grid; gap: var(--space-4); }
 @media (min-width: 640px) { .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

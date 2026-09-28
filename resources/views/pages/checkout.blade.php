@@ -59,7 +59,9 @@
                 {{-- ------------------------------------------ customer --}}
                 <fieldset class="fieldset" id="step-customer">
                     <legend class="fieldset__legend">
-                        <span class="step__num">1</span>{{ __('storefront.checkout.customer') }}
+                        <span class="fieldset__legend-inner">
+                            <span class="step__num">1</span>{{ __('storefront.checkout.customer') }}
+                        </span>
                     </legend>
 
                     <div class="grid-2">
@@ -71,19 +73,6 @@
                                    value="{{ $old('fullName', $customer['fullName'] ?? '') }}"
                                    @error('fullName') aria-invalid="true" aria-describedby="err-fullName" @enderror>
                             @error('fullName')<span class="field__error" id="err-fullName">{{ $message }}</span>@enderror
-                        </label>
-
-                        <label class="field">
-                            <span class="field__label">
-                                {{ __('storefront.checkout.email') }}
-                            </span>
-                            <input class="input" type="email" name="email" autocomplete="email"
-                                   inputmode="email" dir="ltr"
-                                   value="{{ $old('email', $customer['email'] ?? '') }}"
-                                   aria-describedby="hint-email @error('email') err-email @enderror"
-                                   @error('email') aria-invalid="true" @enderror>
-                            <span class="field__hint" id="hint-email">{{ __('storefront.checkout.emailHint') }}</span>
-                            @error('email')<span class="field__error" id="err-email">{{ $message }}</span>@enderror
                         </label>
 
                         <div class="field">
@@ -103,13 +92,28 @@
                             <span class="field__hint" id="hint-phone">{{ __('storefront.checkout.phoneHint') }}</span>
                             @error('phone')<span class="field__error" id="err-phone">{{ $message }}</span>@enderror
                         </div>
+
+                        <label class="field">
+                            <span class="field__label">
+                                {{ __('storefront.checkout.email') }}
+                            </span>
+                            <input class="input" type="email" name="email" autocomplete="email"
+                                   inputmode="email" dir="ltr"
+                                   value="{{ $old('email', $customer['email'] ?? '') }}"
+                                   aria-describedby="hint-email @error('email') err-email @enderror"
+                                   @error('email') aria-invalid="true" @enderror>
+                            <span class="field__hint" id="hint-email">{{ __('storefront.checkout.emailHint') }}</span>
+                            @error('email')<span class="field__error" id="err-email">{{ $message }}</span>@enderror
+                        </label>
                     </div>
                 </fieldset>
 
                 {{-- ------------------------------------------- address --}}
                 <fieldset class="fieldset" id="step-address">
                     <legend class="fieldset__legend">
-                        <span class="step__num">2</span>{{ __('storefront.checkout.address') }}
+                        <span class="fieldset__legend-inner">
+                            <span class="step__num">2</span>{{ __('storefront.checkout.address') }}
+                        </span>
                     </legend>
 
                     <div class="grid-2">
@@ -195,7 +199,9 @@
                 {{-- ------------------------------------------- payment --}}
                 <fieldset class="fieldset" id="step-payment">
                     <legend class="fieldset__legend">
-                        <span class="step__num">3</span>{{ __('storefront.checkout.payment') }}
+                        <span class="fieldset__legend-inner">
+                            <span class="step__num">3</span>{{ __('storefront.checkout.payment') }}
+                        </span>
                     </legend>
 
                     <div class="stack" style="--flow:var(--space-3)">
