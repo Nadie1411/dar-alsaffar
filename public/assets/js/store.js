@@ -561,5 +561,42 @@
     el.addEventListener('change', () => el.closest('form')?.submit());
   });
 
+  // -------------------------------------------------------- order success
+
+  // A one-off chime for the moment an order is confirmed — unlike the
+  // admin's repeating alert, this plays once and never needs an explicit
+  // arm. Browsers gate audio until a gesture; reaching this page by
+  // submitting the checkout form satisfies that in most browsers, but
+  // where it does not this just stays silent — the animation on screen
+  // never depends on it, so nothing is lost.
+  if ($('[data-celebrate]')) {
+    try {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (Ctx) {
+        const audio = new Ctx();
+        if (audio.state === 'suspended') audio.resume().catch(() => {});
+
+        const now = audio.currentTime;
+        [523.25, 659.25, 783.99].forEach((freq, i) => { // C5, E5, G5 — a small lift, not a fanfare
+          const osc = audio.createOscillator();
+          const gain = audio.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+
+          const start = now + i * 0.1;
+          gain.gain.setValueAtTime(0.0001, start);
+          gain.gain.exponentialRampToValueAtTime(0.24, start + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.5);
+
+          osc.connect(gain).connect(audio.destination);
+          osc.start(start);
+          osc.stop(start + 0.55);
+        });
+      }
+    } catch {
+      // A flourish, not the message — fail silent.
+    }
+  }
+
   window.StoreUI = { toast, open, close };
 })();
