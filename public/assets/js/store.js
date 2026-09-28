@@ -16,14 +16,33 @@
 
   // ------------------------------------------------------------------ toasts
 
-  function toast(message, variant) {
+  const BAG_ICON = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h12l1 12H5Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>';
+
+  /** `action`: optional { open: 'cart', label } — a small icon button that
+   *  jumps straight to that panel, for the cart-add toast specifically. */
+  function toast(message, variant, action) {
     const stack = $('[data-toasts]');
     if (!stack) return;
 
     const el = document.createElement('div');
     el.className = 'toast' + (variant === 'error' ? ' toast--error' : '');
     el.setAttribute('role', variant === 'error' ? 'alert' : 'status');
-    el.textContent = message;
+
+    const text = document.createElement('span');
+    text.className = 'toast__text';
+    text.textContent = message;
+    el.appendChild(text);
+
+    if (action?.open) {
+      const link = document.createElement('a');
+      link.className = 'toast__action';
+      link.href = cfg.routes.cartDrawer.replace('/drawer', '');
+      link.dataset.open = action.open;
+      link.setAttribute('aria-label', action.label || '');
+      link.innerHTML = BAG_ICON;
+      el.appendChild(link);
+    }
+
     stack.appendChild(el);
 
     setTimeout(() => {
@@ -257,7 +276,11 @@
       // A toast, not the drawer — popping the drawer open on every add
       // stopped anyone from adding a second, different item without it
       // shoving the grid aside first.
-      toast((cfg.i18n.cartAdded || '').replace(':name', btn.dataset.name || ''));
+      toast(
+        (cfg.i18n.cartAdded || '').replace(':name', btn.dataset.name || ''),
+        null,
+        { open: 'cart', label: cfg.i18n.viewCart }
+      );
       setTimeout(() => { btn.textContent = original; btn.disabled = false; }, 1400);
     } catch (err) {
       toast(err.payload?.message || cfg.i18n.error, 'error');

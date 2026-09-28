@@ -634,6 +634,19 @@
   animation: toast-in var(--dur) var(--ease-out);
 }
 .toast--error { background: var(--danger); }
+.toast__text { flex: 1; min-inline-size: 0; }
+.toast__action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  inline-size: 32px;
+  block-size: 32px;
+  border-radius: var(--radius-pill);
+  color: inherit;
+  transition: background var(--dur-fast) var(--ease);
+}
+.toast__action:hover { background: rgba(243, 232, 200, 0.12); }
 @keyframes toast-in { from { opacity: 0; transform: translateY(12px); } }
 
 /* ---- promotion progress ------------------------------------------------- */

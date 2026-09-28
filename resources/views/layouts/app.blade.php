@@ -105,6 +105,7 @@
                 added:     @json(__('storefront.actions.added')),
                 adding:    @json(__('storefront.actions.adding')),
                 cartAdded: @json(__('storefront.cart.added')),
+                viewCart:  @json(__('storefront.actions.cart')),
                 wishAdd:   @json(__('storefront.wishlist.added')),
                 wishRemove:@json(__('storefront.wishlist.removed')),
                 error:     @json(__('storefront.errors.generic')),
