@@ -254,7 +254,10 @@
 
       setCartCount(data.count);
       btn.textContent = cfg.i18n.added;
-      open('cart');
+      // A toast, not the drawer — popping the drawer open on every add
+      // stopped anyone from adding a second, different item without it
+      // shoving the grid aside first.
+      toast((cfg.i18n.cartAdded || '').replace(':name', btn.dataset.name || ''));
       setTimeout(() => { btn.textContent = original; btn.disabled = false; }, 1400);
     } catch (err) {
       toast(err.payload?.message || cfg.i18n.error, 'error');
