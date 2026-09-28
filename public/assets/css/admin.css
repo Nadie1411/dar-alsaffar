@@ -145,7 +145,7 @@
   margin-block-end: var(--space-3);
   flex-wrap: wrap;
 }
-.admin-thumb img {
+.admin-thumb img, .admin-thumb video {
   inline-size: 160px;
   block-size: 90px;
   object-fit: cover;

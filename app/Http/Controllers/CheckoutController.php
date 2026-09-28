@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Services\Overzaki\AuthService;
+use App\Services\Overzaki\CartQuote;
 use App\Services\Overzaki\CartService;
 use App\Services\Overzaki\OrderService;
+use App\Services\Settings;
 use App\Support\Nav;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -14,6 +16,7 @@ class CheckoutController extends Controller
     public function __construct(
         protected CartService $cart,
         protected OrderService $orders,
+        protected Settings $settings,
     ) {}
 
     public function index()
@@ -43,6 +46,7 @@ class CheckoutController extends Controller
             'dial' => config('brand.country.dial'),
             'addons' => $this->orders->addonsEnabled() ? $this->orders->serviceAddons() : [],
             'addonsRequired' => $this->orders->addonsRequired(),
+            'codEnabled' => $this->codOffered($quote),
         ]);
     }
 
@@ -57,27 +61,29 @@ class CheckoutController extends Controller
 
         $validated = $request->validate([
             'fullName' => ['required', 'string', 'min:2', 'max:120'],
-            'email' => ['required', 'email:rfc', 'max:190'],
+            // Optional: it is only used to send the shopper their order updates.
+            'email' => ['nullable', 'email:rfc', 'max:190'],
             // Kuwaiti mobile numbers are 8 digits and never start with 0.
             'phone' => ['required', 'string', 'regex:/^[1-9][0-9]{'.($phoneLen - 1).'}$/'],
             'city' => ['required', 'string', Rule::in($cities->pluck('id')->all())],
             'area' => ['required', 'string'],
             'block' => ['nullable', 'string', 'max:40'],
             'street' => ['nullable', 'string', 'max:120'],
+            'avenue' => ['nullable', 'string', 'max:60'],
             'building' => ['nullable', 'string', 'max:60'],
             'floor' => ['nullable', 'string', 'max:30'],
             'apartment' => ['nullable', 'string', 'max:30'],
             'notes' => ['nullable', 'string', 'max:500'],
-            'payment' => ['required', Rule::in(['cod', 'online'])],
+            'payment' => ['required', Rule::in(
+                $this->settings->bool('checkout.cod', true) ? ['cod', 'online'] : ['online']
+            )],
             'paymentMethod' => ['nullable', 'required_if:payment,online', Rule::in(
                 collect($this->orders->paymentMethods())->pluck('id')->all()
             )],
-            'policy' => ['accepted'],
             'addons' => ['nullable', 'array'],
             'addons.*' => ['nullable', 'string'],
         ], [
             'phone.regex' => __('storefront.checkout.phoneHint'),
-            'policy.accepted' => __('storefront.errors.required'),
         ]);
 
         // The chosen area must belong to the chosen governorate.
@@ -105,6 +111,16 @@ class CheckoutController extends Controller
         }
 
         return redirect(Nav::url('checkout/thanks/'.($result['orderId'] ?? '')));
+    }
+
+    /**
+     * Whether to offer cash on delivery. The shop can hide it from the panel,
+     * but it is never offered when Overzaki itself has it switched off — the
+     * order would be refused after the shopper had chosen it.
+     */
+    protected function codOffered(CartQuote $quote): bool
+    {
+        return $this->settings->bool('checkout.cod', true) && $quote->supportsCashOnDelivery();
     }
 
     /** Areas for the selected governorate, for the dependent select. */

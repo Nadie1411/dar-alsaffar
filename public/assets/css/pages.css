@@ -110,8 +110,8 @@
 }
 
 .split__media { position: relative; overflow: hidden; border-radius: var(--radius-md); }
-.split__media img { inline-size: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
-.split__media--wide img { aspect-ratio: 3 / 2; }
+.split__media img, .split__media video { inline-size: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
+.split__media--wide img, .split__media--wide video { aspect-ratio: 3 / 2; }
 
 /* ---- marquee of values -------------------------------------------------- */
 
@@ -575,15 +575,41 @@
 
 /* ---- checkout ----------------------------------------------------------- */
 
-.steps { display: flex; align-items: center; gap: var(--space-2); margin-block-end: var(--space-6); flex-wrap: wrap; }
-.step {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--step-micro);
-  letter-spacing: var(--tracking-wide);
-  color: var(--text-muted);
+.steps { margin-block-end: var(--space-7); }
+.steps__list {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
+.step { position: relative; }
+
+/* The rail runs from this step's marker back to the previous one, behind both,
+   so the row reads as one connected track at any width. */
+.step + .step::before {
+  content: "";
+  position: absolute;
+  inset-block-start: 15px;
+  inset-inline-end: calc(50% + 23px);
+  inline-size: calc(100% - 46px);
+  block-size: 1px;
+  background: var(--line);
+}
+
+.step__link {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: var(--space-2);
+  padding-inline: var(--space-1);
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+.step__link:hover,
+.step__link:focus-visible { color: var(--text-primary); }
+
 .step__num {
   inline-size: 26px; block-size: 26px;
   display: grid; place-items: center;
@@ -592,22 +618,37 @@
   font-variant-numeric: tabular-nums;
   flex: none;
 }
-.step.is-active { color: var(--text-primary); }
-.step.is-active .step__num { border-color: var(--emerald-700); background: var(--emerald-700); color: var(--cream-400); }
-.step.is-done .step__num { border-color: var(--emerald-700); color: var(--emerald-700); }
-.step + .step::before { content: ""; inline-size: 24px; block-size: 1px; background: var(--line); }
+.steps .step__num {
+  inline-size: 30px; block-size: 30px;
+  border-color: var(--emerald-700);
+  background: var(--emerald-700);
+  color: var(--cream-400);
+  font-size: var(--step-micro);
+}
+
+.step__label {
+  font-size: var(--step-micro);
+  letter-spacing: var(--tracking-wide);
+  line-height: 1.4;
+  text-align: center;
+  text-wrap: balance;
+}
 
 .fieldset { border: 0; padding: 0; margin-block-end: var(--space-7); }
-.fieldset__legend {
+/* `display:flex` directly on a <legend> is inconsistently supported —
+   Safari in particular has misplaced it flush against the viewport edge,
+   ignoring the fieldset's own inline inset. The flex layout now lives on
+   a plain inner span instead, so the legend itself stays a normal,
+   unstyled block every browser positions the same way. */
+.fieldset__legend { display: block; margin-block-end: var(--space-5); inline-size: 100%; }
+.fieldset__legend-inner {
   display: flex;
   align-items: center;
   gap: var(--space-3);
   font-family: var(--font-display);
   font-size: var(--step-heading);
-  margin-block-end: var(--space-5);
-  inline-size: 100%;
 }
-.fieldset__legend::after { content: ""; flex: 1; block-size: 1px; background: var(--line-soft); }
+.fieldset__legend-inner::after { content: ""; flex: 1; block-size: 1px; background: var(--line-soft); }
 
 .grid-2 { display: grid; gap: var(--space-4); }
 @media (min-width: 640px) { .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

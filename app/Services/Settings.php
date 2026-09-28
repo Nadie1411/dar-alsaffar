@@ -36,9 +36,31 @@ class Settings
         'install.enabled' => 'bool',
         'install.delay' => 'int',
         'announcement' => 'string',
+        'checkout.cod' => 'bool',
         'orders.alert' => 'bool',
         'orders.poll' => 'int',
         'orders.last_seen_at' => 'int',
+
+        // The homepage hero and story-section media. Empty means: keep the
+        // automatic pick from the catalogue / the shipped brand footage.
+        'hero.image' => 'string',
+        'hero.video' => 'string',
+
+        // The About page's three sections, which otherwise show a
+        // placeholder note until the brand supplies real copy.
+        'about.story_ar' => 'string',
+        'about.story_en' => 'string',
+        'about.philosophy_ar' => 'string',
+        'about.philosophy_en' => 'string',
+        'about.quality_ar' => 'string',
+        'about.quality_en' => 'string',
+
+        // Published contact points. Empty falls back to config/brand.php.
+        'contact.phone' => 'string',
+        'contact.whatsapp' => 'string',
+        'contact.email' => 'string',
+        'social.instagram' => 'string',
+        'social.tiktok' => 'string',
     ];
 
     public function all(): array

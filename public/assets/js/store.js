@@ -16,14 +16,33 @@
 
   // ------------------------------------------------------------------ toasts
 
-  function toast(message, variant) {
+  const BAG_ICON = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h12l1 12H5Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>';
+
+  /** `action`: optional { open: 'cart', label } — a small icon button that
+   *  jumps straight to that panel, for the cart-add toast specifically. */
+  function toast(message, variant, action) {
     const stack = $('[data-toasts]');
     if (!stack) return;
 
     const el = document.createElement('div');
     el.className = 'toast' + (variant === 'error' ? ' toast--error' : '');
     el.setAttribute('role', variant === 'error' ? 'alert' : 'status');
-    el.textContent = message;
+
+    const text = document.createElement('span');
+    text.className = 'toast__text';
+    text.textContent = message;
+    el.appendChild(text);
+
+    if (action?.open) {
+      const link = document.createElement('a');
+      link.className = 'toast__action';
+      link.href = cfg.routes.cartDrawer.replace('/drawer', '');
+      link.dataset.open = action.open;
+      link.setAttribute('aria-label', action.label || '');
+      link.innerHTML = BAG_ICON;
+      el.appendChild(link);
+    }
+
     stack.appendChild(el);
 
     setTimeout(() => {
@@ -254,7 +273,14 @@
 
       setCartCount(data.count);
       btn.textContent = cfg.i18n.added;
-      open('cart');
+      // A toast, not the drawer — popping the drawer open on every add
+      // stopped anyone from adding a second, different item without it
+      // shoving the grid aside first.
+      toast(
+        (cfg.i18n.cartAdded || '').replace(':name', btn.dataset.name || ''),
+        null,
+        { open: 'cart', label: cfg.i18n.viewCart }
+      );
       setTimeout(() => { btn.textContent = original; btn.disabled = false; }, 1400);
     } catch (err) {
       toast(err.payload?.message || cfg.i18n.error, 'error');
@@ -560,6 +586,43 @@
   $$('[data-autosubmit]').forEach((el) => {
     el.addEventListener('change', () => el.closest('form')?.submit());
   });
+
+  // -------------------------------------------------------- order success
+
+  // A one-off chime for the moment an order is confirmed — unlike the
+  // admin's repeating alert, this plays once and never needs an explicit
+  // arm. Browsers gate audio until a gesture; reaching this page by
+  // submitting the checkout form satisfies that in most browsers, but
+  // where it does not this just stays silent — the animation on screen
+  // never depends on it, so nothing is lost.
+  if ($('[data-celebrate]')) {
+    try {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (Ctx) {
+        const audio = new Ctx();
+        if (audio.state === 'suspended') audio.resume().catch(() => {});
+
+        const now = audio.currentTime;
+        [523.25, 659.25, 783.99].forEach((freq, i) => { // C5, E5, G5 — a small lift, not a fanfare
+          const osc = audio.createOscillator();
+          const gain = audio.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+
+          const start = now + i * 0.1;
+          gain.gain.setValueAtTime(0.0001, start);
+          gain.gain.exponentialRampToValueAtTime(0.24, start + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.5);
+
+          osc.connect(gain).connect(audio.destination);
+          osc.start(start);
+          osc.stop(start + 0.55);
+        });
+      }
+    } catch {
+      // A flourish, not the message — fail silent.
+    }
+  }
 
   window.StoreUI = { toast, open, close };
 })();

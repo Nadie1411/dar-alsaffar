@@ -27,7 +27,13 @@ class CatalogController extends Controller
 
         abort_if($category === null, 404);
 
-        $request->merge(['category' => [$slug]]);
+        // Land here with no filter of its own and default to this category;
+        // once the sidebar form has been submitted, its own selection —
+        // which may add or drop categories — takes over. Forcing $slug back
+        // in every time made every other checkbox in the group inert.
+        if (! $request->has('category')) {
+            $request->merge(['category' => [$slug]]);
+        }
 
         return $this->renderListing($request, [
             'title' => $category['name'],

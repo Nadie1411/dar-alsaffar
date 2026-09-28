@@ -1,8 +1,8 @@
 @php
     use App\Support\Nav;
     $categories = app(\App\Services\Overzaki\CatalogService::class)->categoriesWithCounts();
-    $phone = config('brand.contact.phone');
-    $whatsapp = config('brand.contact.whatsapp');
+    $phone = $contact['phone'];
+    $whatsapp = $contact['whatsapp'];
 @endphp
 
 <footer class="footer">
@@ -15,9 +15,9 @@
                 <p class="footer__about">{{ __('storefront.footer.about') }}</p>
 
                 <div class="socials">
-                    <a href="{{ config('brand.social.instagram') }}" target="_blank" rel="noopener"
+                    <a href="{{ $social['instagram'] }}" target="_blank" rel="noopener"
                        aria-label="Instagram"><x-icon name="instagram" size="18"/></a>
-                    <a href="{{ config('brand.social.tiktok') }}" target="_blank" rel="noopener"
+                    <a href="{{ $social['tiktok'] }}" target="_blank" rel="noopener"
                        aria-label="TikTok"><x-icon name="tiktok" size="18"/></a>
                     <a href="https://wa.me/{{ $whatsapp }}" target="_blank" rel="noopener"
                        aria-label="{{ __('storefront.content.whatsapp') }}"><x-icon name="whatsapp" size="18"/></a>

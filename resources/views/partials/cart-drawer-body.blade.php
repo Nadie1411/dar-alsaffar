@@ -113,7 +113,9 @@
 
         <div class="stack" style="--flow:var(--space-2);margin-block-start:var(--space-4)">
             <a class="btn btn--block" href="{{ Nav::url('checkout') }}">{{ __('storefront.actions.checkout') }}</a>
-            <a class="btn btn--ghost btn--block" href="{{ Nav::url('cart') }}">{{ __('storefront.cart.title') }}</a>
+            <button type="button" class="btn btn--ghost btn--block" data-close>
+                {{ __('storefront.actions.keepShopping') }}
+            </button>
         </div>
     </div>
 @endif

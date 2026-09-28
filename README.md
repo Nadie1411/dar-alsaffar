@@ -61,11 +61,16 @@ Sign-in is rate limited per IP (5 attempts a minute by default,
 | العروض الفعّالة الآن | A live read of offers running in Overzaki — read only |
 | شريط العروض | Show/hide the announcement bar |
 | النافذة المنبثقة | Title, body, image, button label and destination, delay, snooze |
+| الدفع عند الاستلام | Show/hide cash on delivery at checkout |
 | إضافة الموقع للهاتف | Show/hide the install prompt, and its delay |
 | تحديث بيانات المتجر | Clears the catalogue cache after a price edit upstream |
 
 Leaving the pop-up title empty makes it mirror whatever offer is live, so it
 needs no editing between campaigns.
+
+Cash on delivery is offered only when this switch **and** Overzaki's own
+`availableCashOnDelivery` agree — offering it when the platform has it off
+would fail the order after the shopper had picked it.
 
 ### Order alert
 

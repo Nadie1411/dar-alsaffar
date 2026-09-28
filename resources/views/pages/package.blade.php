@@ -76,7 +76,9 @@
                 </div>
 
                 <fieldset class="fieldset" style="margin-block-end:var(--space-6)">
-                    <legend class="fieldset__legend">{{ $group['name'] }}</legend>
+                    <legend class="fieldset__legend">
+                        <span class="fieldset__legend-inner">{{ $group['name'] }}</span>
+                    </legend>
 
                     <div class="product-grid" role="group"
                          aria-describedby="bundle-progress">

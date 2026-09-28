@@ -29,25 +29,36 @@
         </div>
     </section>
 
+    @php
+        // Real copy entered in the admin panel replaces the placeholder for
+        // that section only — the other two stay marked pending until they
+        // get their own. Nothing here is invented to fill the gap.
+        $aboutSections = [
+            'storyTitle' => $settings->get('about.story_'.$locale, ''),
+            'philosophyTitle' => $settings->get('about.philosophy_'.$locale, ''),
+            'qualityTitle' => $settings->get('about.quality_'.$locale, ''),
+        ];
+        $anyPending = in_array('', $aboutSections, true);
+    @endphp
+
     <div class="container container--narrow section">
 
-        {{-- The brand has not published a story, philosophy or quality
-             statement anywhere we can read. The layout is built and waiting;
-             nothing is invented to fill it. --}}
-        <p class="placeholder-note">
-            <x-icon name="info" size="18"/>
-            <span>{{ __('storefront.content.contentPending') }}</span>
-        </p>
+        @if ($anyPending)
+            <p class="placeholder-note">
+                <x-icon name="info" size="18"/>
+                <span>{{ __('storefront.content.contentPending') }}</span>
+            </p>
+        @endif
 
         <div class="prose">
-            <h2>{{ __('storefront.content.storyTitle') }}</h2>
-            <p class="muted"><em>{{ __('storefront.content.contentPending') }}</em></p>
-
-            <h2>{{ __('storefront.content.philosophyTitle') }}</h2>
-            <p class="muted"><em>{{ __('storefront.content.contentPending') }}</em></p>
-
-            <h2>{{ __('storefront.content.qualityTitle') }}</h2>
-            <p class="muted"><em>{{ __('storefront.content.contentPending') }}</em></p>
+            @foreach ($aboutSections as $titleKey => $body)
+                <h2>{{ __('storefront.content.'.$titleKey) }}</h2>
+                @if ($body)
+                    <p>{!! nl2br(e($body)) !!}</p>
+                @else
+                    <p class="muted"><em>{{ __('storefront.content.contentPending') }}</em></p>
+                @endif
+            @endforeach
         </div>
     </div>
 
