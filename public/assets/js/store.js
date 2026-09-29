@@ -257,7 +257,13 @@
     btn.textContent = cfg.i18n.adding;
 
     try {
-      const qtyInput = btn.closest('form, [data-product-scope]')?.querySelector('[data-qty-input]');
+      // A card in a listing is its own scope, with no qty input at all — 1
+      // is right there. The product page's sticky buy-bar button lives
+      // outside that scope entirely (it is a fixed-position bar, not part
+      // of the form it submits for), so it falls back to the page's one
+      // qty input, which is unambiguous on a page for a single product.
+      const qtyInput = btn.closest('form, [data-product-scope]')?.querySelector('[data-qty-input]')
+        || document.querySelector('[data-qty-input]');
       const data = await api(cfg.routes.cartAdd, {
         method: 'POST',
         body: JSON.stringify({
@@ -545,18 +551,6 @@
     revealables.forEach((el) => io.observe(el));
   } else {
     revealables.forEach((el) => el.classList.add('is-visible'));
-  }
-
-  // ------------------------------------------------------- sticky buy bar
-
-  const buyBar = $('[data-buy-bar]');
-  const buyAnchor = $('[data-buy-anchor]');
-  if (buyBar && buyAnchor && 'IntersectionObserver' in window) {
-    const io = new IntersectionObserver(
-      ([entry]) => buyBar.classList.toggle('is-visible', !entry.isIntersecting),
-      { rootMargin: '-120px 0px 0px 0px' }
-    );
-    io.observe(buyAnchor);
   }
 
   // ----------------------------------------------------------------- share

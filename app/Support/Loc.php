@@ -40,7 +40,15 @@ class Loc
         $text = trim(preg_replace('/\s+/u', ' ', $text) ?? '');
 
         if ($limit !== null && mb_strlen($text) > $limit) {
-            $text = mb_substr($text, 0, $limit).'…';
+            // A hard character cut landed mid-word (and, in Arabic, often
+            // right after a conjunction like "و") often enough to read as
+            // broken rather than trimmed. Back up to the last whole word.
+            $cut = mb_substr($text, 0, $limit);
+            $lastSpace = mb_strrpos($cut, ' ');
+            if ($lastSpace !== false && $lastSpace > 0) {
+                $cut = mb_substr($cut, 0, $lastSpace);
+            }
+            $text = rtrim($cut, ' ,.;:!?،؛؟-—').'…';
         }
 
         return $text;

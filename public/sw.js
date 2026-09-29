@@ -8,7 +8,15 @@
    checkout will not honour.
    =========================================================================== */
 
-const VERSION = 'das-v2';
+// Bumping this forces every returning visitor's shell cache to be thrown
+// away and rebuilt on the next activation (see the `activate` handler
+// below) — needed once, here, because Asset::url()'s version stamp was
+// stuck on the same value across every deploy until just now, so anyone
+// who had already loaded the site was holding a cache keyed by URLs that
+// were never going to change on their own. Going forward this should not
+// need bumping for an ordinary deploy — a real content change gets a real
+// new ?v= now, which is a cache miss on its own.
+const VERSION = 'das-v3';
 const SHELL = `${VERSION}-shell`;
 
 // Only assets that never change name are pre-cached. CSS and JS are requested

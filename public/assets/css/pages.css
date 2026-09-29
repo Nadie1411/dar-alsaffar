@@ -411,6 +411,13 @@
 
 /* ---- sticky mobile buy bar ---------------------------------------------- */
 
+/* One add-to-cart control on a phone, not two: the bar used to only slide
+   in once the inline button above had scrolled out of view, which meant
+   both existed on screen depending on scroll position. Now it is simply
+   the only one on mobile — always present, nothing to reveal — and the
+   inline button next to the quantity stepper is hidden at that width.
+   Desktop is unaffected: the bar stays display:none there and the inline
+   button is the only control, same as before. */
 .buy-bar {
   position: fixed;
   inset-inline: 0;
@@ -424,13 +431,15 @@
   background: rgba(253, 251, 247, 0.96);
   backdrop-filter: blur(10px);
   border-block-start: 1px solid var(--line-soft);
-  transform: translateY(100%);
-  transition: transform var(--dur) var(--ease-out);
 }
-.buy-bar.is-visible { transform: translateY(0); }
 @media (min-width: 900px) { .buy-bar { display: none; } }
 .buy-bar__price { flex: none; }
 .buy-bar .btn { flex: 1; }
+
+@media (max-width: 899px) {
+  .pdp__buy-row { grid-template-columns: auto; justify-content: start; }
+  .pdp__buy-row [data-add-to-cart] { display: none; }
+}
 
 /* ---- bundle builder ----------------------------------------------------- */
 

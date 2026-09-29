@@ -2,8 +2,6 @@
 
 namespace App\Support;
 
-use Illuminate\Support\Facades\Cache;
-
 /**
  * Cache-busted asset URLs.
  *
@@ -11,16 +9,23 @@ use Illuminate\Support\Facades\Cache;
  * step to fingerprint them. Appending the file's modification time means a
  * deploy — or an edit during development — is picked up immediately, including
  * by the service worker, which otherwise serves its cached copy forever.
+ *
+ * That only holds if the stamp is read fresh on every request. It used to be
+ * cached forever in production — cheap to compute (one filemtime() stat) and
+ * meant to save that stat, but on this deploy model the cache store lives in
+ * storage/, which is a bind-mounted volume that survives every deploy. The
+ * stamp for a file got computed once, the first time it was ever requested
+ * after the volume was created, and then never again — every deploy since
+ * updated the file on disk but kept handing out that same first-ever ?v=,
+ * so the browser, and the service worker sitting in front of it caching by
+ * that same URL, never had a reason to fetch the new one.
  */
 class Asset
 {
     public static function url(string $path): string
     {
         $path = ltrim($path, '/');
-
-        $version = app()->isProduction()
-            ? Cache::rememberForever('asset:'.$path, fn () => self::stamp($path))
-            : self::stamp($path);
+        $version = self::stamp($path);
 
         return asset($path).($version ? '?v='.$version : '');
     }
