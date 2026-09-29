@@ -135,7 +135,7 @@
 
                 <div class="split__media" data-reveal data-reveal-delay="90">
                     @if ($storyVideo)
-                        <video autoplay muted loop playsinline aria-hidden="true"
+                        <video autoplay muted loop playsinline aria-hidden="true" data-video-mute-target
                                poster="{{ $heroProduct?->image() }}">
                             <source src="{{ $storyVideo }}" type="video/mp4">
                             @if ($heroProduct?->image())
@@ -143,6 +143,11 @@
                                      loading="lazy" decoding="async" width="800" height="1000">
                             @endif
                         </video>
+                        <button type="button" class="video-mute" data-video-mute aria-pressed="true"
+                                aria-label="{{ __('storefront.actions.unmuteVideo') }}">
+                            <x-icon name="mute" size="18" class="video-mute__icon--off"/>
+                            <x-icon name="volume" size="18" class="video-mute__icon--on"/>
+                        </button>
                     @elseif ($heroProduct?->image())
                         <img src="{{ $heroProduct->image() }}" alt="{{ $heroProduct->name() }}"
                              loading="lazy" decoding="async" width="800" height="1000">

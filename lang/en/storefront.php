@@ -54,6 +54,8 @@ return [
         'shopNow'      => 'Shop now',
         'copyLink'     => 'Copy link',
         'linkCopied'   => 'Link copied',
+        'unmuteVideo'  => 'Unmute video',
+        'muteVideo'    => 'Mute video',
     ],
 
     'home' => [

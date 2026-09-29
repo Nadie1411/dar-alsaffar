@@ -54,6 +54,8 @@ return [
         'shopNow'     => 'تسوق الآن',
         'copyLink'    => 'نسخ الرابط',
         'linkCopied'  => 'تم نسخ الرابط',
+        'unmuteVideo' => 'تشغيل صوت الفيديو',
+        'muteVideo'   => 'كتم صوت الفيديو',
     ],
 
     'home' => [

@@ -587,6 +587,20 @@
     el.addEventListener('change', () => el.closest('form')?.submit());
   });
 
+  // ----------------------------------------------------------- video mute
+
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-video-mute]');
+    if (!btn) return;
+
+    const video = btn.parentElement?.querySelector('[data-video-mute-target]');
+    if (!video) return;
+
+    video.muted = !video.muted;
+    btn.setAttribute('aria-pressed', String(video.muted));
+    btn.setAttribute('aria-label', video.muted ? cfg.i18n.unmuteVideo : cfg.i18n.muteVideo);
+  });
+
   // -------------------------------------------------------- order success
 
   // A one-off chime for the moment an order is confirmed — unlike the
