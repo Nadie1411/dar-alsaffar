@@ -671,6 +671,40 @@
 .choice__note { font-size: var(--step-micro); color: var(--text-muted); }
 .choice img { block-size: 22px; inline-size: auto; margin-inline-start: auto; }
 
+/* Payment step: the two payment *types* (online / cash) read as the primary
+   choice, side by side rather than stacked in the same list as the card
+   options nested under "online" — which used to sit at the same visual
+   weight as everything else, telling indentation alone to carry the
+   "these belong to online payment" relationship. A shaded panel now does
+   that instead, with the card options themselves in a tighter 2-up grid
+   rather than five full-width rows. */
+.payment-primary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-3);
+}
+.choice--primary { font-weight: 500; }
+
+.payment-methods {
+  background: var(--surface-sunken);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+}
+.payment-methods__label {
+  font-size: var(--step-micro);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-secondary);
+  margin: 0 0 var(--space-3);
+}
+.payment-methods__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+.choice--sm { padding: var(--space-3); background: var(--surface-raised); }
+.choice--sm .choice__label { font-size: var(--step-micro); }
+
 /* Phone entry: the +965 prefix is fixed and never editable. */
 .phone-field { display: flex; align-items: stretch; }
 .phone-field__prefix {
