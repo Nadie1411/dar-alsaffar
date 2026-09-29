@@ -106,7 +106,7 @@
                     </p>
                 @endif
 
-                <div class="pdp__price" data-buy-anchor data-price-base="{{ $product->price() }}">
+                <div class="pdp__price" data-price-base="{{ $product->price() }}">
                     <span data-price-display><x-price :product="$product" size="lg"/></span>
                     @if ($product->hasDiscount())
                         <p style="margin-block-start:var(--space-2)">
