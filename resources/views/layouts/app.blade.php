@@ -106,6 +106,8 @@
                 adding:    @json(__('storefront.actions.adding')),
                 cartAdded: @json(__('storefront.cart.added')),
                 viewCart:  @json(__('storefront.actions.cart')),
+                unmuteVideo: @json(__('storefront.actions.unmuteVideo')),
+                muteVideo: @json(__('storefront.actions.muteVideo')),
                 wishAdd:   @json(__('storefront.wishlist.added')),
                 wishRemove:@json(__('storefront.wishlist.removed')),
                 error:     @json(__('storefront.errors.generic')),

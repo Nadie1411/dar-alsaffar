@@ -54,6 +54,8 @@ return [
         'shopNow'      => 'Shop now',
         'copyLink'     => 'Copy link',
         'linkCopied'   => 'Link copied',
+        'unmuteVideo'  => 'Unmute video',
+        'muteVideo'    => 'Mute video',
     ],
 
     'home' => [
@@ -214,6 +216,7 @@ return [
         'selectArea'   => 'Select area',
         'cod'          => 'Cash on delivery',
         'online'       => 'Pay online',
+        'paymentMethodLabel' => 'Choose how to pay',
         'placeOrder'   => 'Place order',
         'placing'      => 'Placing your order…',
         'policyNote'   => 'By confirming your order you agree to our :terms and :privacy.',

@@ -54,6 +54,8 @@ return [
         'shopNow'     => 'تسوق الآن',
         'copyLink'    => 'نسخ الرابط',
         'linkCopied'  => 'تم نسخ الرابط',
+        'unmuteVideo' => 'تشغيل صوت الفيديو',
+        'muteVideo'   => 'كتم صوت الفيديو',
     ],
 
     'home' => [
@@ -214,6 +216,7 @@ return [
         'selectArea'   => 'اختر المنطقة',
         'cod'          => 'الدفع عند الاستلام',
         'online'       => 'الدفع الإلكتروني',
+        'paymentMethodLabel' => 'اختر طريقة الدفع',
         'placeOrder'   => 'تأكيد الطلب',
         'placing'      => 'جارٍ تأكيد الطلب…',
         'policyNote'   => 'بتأكيد الطلب فإنك توافق على :terms و:privacy.',

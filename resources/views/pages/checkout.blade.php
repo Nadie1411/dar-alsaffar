@@ -204,19 +204,35 @@
                         </span>
                     </legend>
 
-                    <div class="stack" style="--flow:var(--space-3)">
-                        <label class="choice">
-                            <input type="radio" name="payment" value="online" data-payment
-                                   @checked($old('payment', 'online') === 'online')>
-                            <span>
+                    <div class="stack" style="--flow:var(--space-4)">
+                        <div class="payment-primary">
+                            <label class="choice choice--primary">
+                                <input type="radio" name="payment" value="online" data-payment
+                                       @checked($old('payment', 'online') === 'online')>
                                 <span class="choice__label">{{ __('storefront.checkout.online') }}</span>
-                            </span>
-                        </label>
+                            </label>
 
-                        <div id="payment-methods" style="padding-inline-start:var(--space-5)">
-                            <div class="stack" style="--flow:var(--space-2)">
+                            @if ($codEnabled)
+                                <label class="choice choice--primary">
+                                    <input type="radio" name="payment" value="cod" data-payment
+                                           @checked($old('payment') === 'cod')>
+                                    <span>
+                                        <span class="choice__label">{{ __('storefront.checkout.cod') }}</span>
+                                        @if ($quote->codFee() > 0)
+                                            <span class="choice__note">
+                                                + {{ $quote->money($quote->codFee()) }}
+                                            </span>
+                                        @endif
+                                    </span>
+                                </label>
+                            @endif
+                        </div>
+
+                        <div id="payment-methods" class="payment-methods">
+                            <p class="payment-methods__label">{{ __('storefront.checkout.paymentMethodLabel') }}</p>
+                            <div class="payment-methods__grid">
                                 @foreach ($methods as $method)
-                                    <label class="choice">
+                                    <label class="choice choice--sm">
                                         <input type="radio" name="paymentMethod" value="{{ $method['id'] }}"
                                                @checked($old('paymentMethod', $methods[0]['id'] ?? '') === $method['id'])>
                                         <span class="choice__label">{{ $method['label'] }}</span>
@@ -225,21 +241,6 @@
                             </div>
                             @error('paymentMethod')<span class="field__error">{{ $message }}</span>@enderror
                         </div>
-
-                        @if ($codEnabled)
-                            <label class="choice">
-                                <input type="radio" name="payment" value="cod" data-payment
-                                       @checked($old('payment') === 'cod')>
-                                <span>
-                                    <span class="choice__label">{{ __('storefront.checkout.cod') }}</span>
-                                    @if ($quote->codFee() > 0)
-                                        <span class="choice__note">
-                                            + {{ $quote->money($quote->codFee()) }}
-                                        </span>
-                                    @endif
-                                </span>
-                            </label>
-                        @endif
                     </div>
                     @error('payment')<span class="field__error">{{ $message }}</span>@enderror
                 </fieldset>
@@ -310,15 +311,7 @@
                         </button>
                     </div>
 
-                    {{-- Stated rather than gated: nothing to tick before ordering. --}}
                     <p class="field__hint center" style="margin-block-start:var(--space-3)">
-                        {!! __('storefront.checkout.policyNote', [
-                            'terms'   => '<a class="link-underline" href="'.Nav::url('terms').'" target="_blank" rel="noopener">'.e(__('storefront.content.termsTitle')).'</a>',
-                            'privacy' => '<a class="link-underline" href="'.Nav::url('privacy').'" target="_blank" rel="noopener">'.e(__('storefront.content.privacyTitle')).'</a>',
-                        ]) !!}
-                    </p>
-
-                    <p class="field__hint center" style="margin-block-start:var(--space-2)">
                         <x-icon name="shield" size="14" style="display:inline-block;vertical-align:-2px"/>
                         {{ __('storefront.values.secure') }}
                     </p>

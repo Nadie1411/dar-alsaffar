@@ -478,8 +478,9 @@
 }
 
 .product-card__name {
-  font-family: var(--font-display);
+  font-family: var(--font-sans);
   font-size: var(--step-subhead);
+  font-weight: 500;
   line-height: var(--leading-snug);
   margin-block: var(--space-1) var(--space-2);
 }
@@ -510,11 +511,15 @@
 .product-grid--3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 @media (min-width: 768px) { .product-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 
-/* A horizontal rail on small screens beats a cramped grid. */
+/* A horizontal rail on small screens beats a cramped grid. At 62vw the next
+   card sat at roughly the halfway point — close enough to a full card that
+   its own add-to-cart button (especially its dark "added" state) read as
+   cut off and broken, not as a scroll hint. Wide enough that only a slim
+   edge of the next card shows instead. */
 .rail {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: 62vw;
+  grid-auto-columns: 84vw;
   gap: var(--space-4);
   overflow-x: auto;
   scroll-snap-type: x mandatory;
