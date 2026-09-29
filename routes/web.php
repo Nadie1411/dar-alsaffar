@@ -51,6 +51,19 @@ Route::prefix('admin')->group(function () {
     });
 });
 
+// Served with its own route rather than as a static file so it can carry an
+// explicit Cache-Control. Nothing set one otherwise, so browsers applied
+// their own heuristic freshness to it and could sit for a while treating an
+// old copy as good enough — which meant an update to what the service
+// worker itself caches, like the one that motivated this route, could take
+// a long time to even be checked for, let alone picked up. "no-cache" does
+// not mean unfetched; it means the browser must always ask first, which a
+// conditional GET against the Last-Modified/ETag below answers cheaply.
+Route::get('/sw.js', fn () => response()->file(resource_path('sw.js'), [
+    'Content-Type' => 'application/javascript',
+    'Cache-Control' => 'no-cache, must-revalidate',
+]))->name('sw');
+
 Route::get('/', fn () => redirect('/'.SetLocale::DEFAULT));
 
 // Legacy unprefixed paths keep their link equity.
