@@ -127,8 +127,12 @@
   position: absolute;
   inset-block-start: calc(100% + 10px);
   inset-inline-start: 50%;
-  transform: translateX(-50%) translateY(-6px);
-  inline-size: min(880px, calc(100vw - 2 * var(--gutter)));
+  /* Centred on the nav with a logical margin — translateX(-50%) is physical, so
+     in RTL it pushed the panel off to the wrong side of its menu item. */
+  --mega-size: min(880px, calc(100vw - 2 * var(--gutter)));
+  inline-size: var(--mega-size);
+  margin-inline-start: calc(var(--mega-size) / -2);
+  transform: translateY(-6px);
   padding: var(--space-6);
   background: var(--surface-raised);
   border: 1px solid var(--line-soft);
@@ -149,7 +153,7 @@
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
-  transform: translateX(-50%) translateY(0);
+  transform: translateY(0);
 }
 
 .mega__grid {
@@ -616,8 +620,10 @@
 .toast-stack {
   position: fixed;
   inset-block-end: var(--space-5);
-  inset-inline-start: 50%;
-  transform: translateX(-50%);
+  /* Centred with auto margins, not `start: 50%` + translateX(-50%): the
+     transform is physical, so in RTL it shoved the toast off the left edge. */
+  inset-inline: 0;
+  margin-inline: auto;
   z-index: calc(var(--z-modal) + 5);
   display: flex;
   flex-direction: column;
