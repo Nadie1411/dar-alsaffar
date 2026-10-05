@@ -728,7 +728,7 @@
 }
 .payment-methods__grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
   gap: var(--space-2);
 }
 .choice--sm { padding: var(--space-3); background: var(--surface-raised); }
@@ -944,7 +944,14 @@
 }
 
 .payments { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
-.payments img { block-size: 22px; inline-size: auto; opacity: 0.85; }
+.payments__logo {
+  display: grid;
+  place-items: center;
+  padding: 3px 6px;
+  border-radius: var(--radius-sm);
+  background: #fff;
+}
+.payments__logo .pay-logo { block-size: 20px; inline-size: auto; display: block; }
 
 /* ---- language switch ---------------------------------------------------- */
 
@@ -1033,7 +1040,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  padding: var(--space-4);
+  padding: var(--space-3) var(--space-4);
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   background: var(--surface-raised);
@@ -1043,13 +1050,12 @@
 .pay-card:hover { border-color: var(--ink-300); }
 .pay-card input,
 .pay-method input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
-.pay-card__icon,
-.pay-method__icon {
+.pay-card__icon {
   display: grid;
   place-items: center;
   flex: none;
-  inline-size: 44px;
-  block-size: 44px;
+  inline-size: 36px;
+  block-size: 36px;
   border-radius: var(--radius-sm);
   background: var(--surface-sunken);
   color: var(--emerald-700);
@@ -1084,18 +1090,41 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  padding: var(--space-3);
+  padding: 8px var(--space-3);
+  min-block-size: 52px;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   background: var(--surface-raised);
   cursor: pointer;
-  transition: border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+  transition: border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
 }
 .pay-method:hover { border-color: var(--ink-300); }
-.pay-method__icon { inline-size: 36px; block-size: 36px; }
-.pay-method__label { font-size: var(--step-small); font-weight: 500; line-height: 1.45; }
+.pay-method__logo {
+  display: grid;
+  place-items: center;
+  flex: none;
+  inline-size: 52px;
+  block-size: 34px;
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px var(--line);
+  overflow: hidden;
+}
+.pay-method__logo .pay-logo { block-size: 24px; inline-size: auto; max-inline-size: 44px; object-fit: contain; display: block; }
+.pay-method__label { flex: 1; min-inline-size: 0; font-size: var(--step-small); font-weight: 500; line-height: 1.4; }
+.pay-method__tick {
+  flex: none;
+  display: grid;
+  place-items: center;
+  inline-size: 20px;
+  block-size: 20px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ink-300);
+  color: transparent;
+  transition: background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
 .pay-method:has(input:checked) { border-color: var(--emerald-700); box-shadow: 0 0 0 1px var(--emerald-700); }
-.pay-method:has(input:checked) .pay-method__icon { background: var(--emerald-700); color: #fff; }
+.pay-method:has(input:checked) .pay-method__tick { background: var(--emerald-700); border-color: var(--emerald-700); color: #fff; }
 
 .pay-trust {
   display: flex;
@@ -1109,6 +1138,3 @@
 .pay-trust svg { flex: none; color: var(--emerald-700); }
 .pay-trust[hidden] { display: none; }
 
-@media (max-width: 30em) {
-  .payment-methods__grid { grid-template-columns: minmax(0, 1fr); }
-}

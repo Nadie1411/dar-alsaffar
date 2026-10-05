@@ -203,7 +203,8 @@ class CheckoutControllerTest extends TestCase
         $this->onlineOn();
 
         $this->withSession($this->basket())->get('/en-KW/checkout')
-            ->assertSee('pay-method__icon', false)
+            ->assertSee('pay-method__logo', false)
+            ->assertSee('assets/img/pay/kn.png', false)
             ->assertSee('You complete payment on a secure payment page. Card details are never entered on this site.')
             ->assertSee('Pay when your order arrives');
     }

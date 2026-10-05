@@ -249,18 +249,12 @@
                                 <p class="payment-methods__label">{{ __('storefront.checkout.paymentMethodLabel') }}</p>
                                 <div class="payment-methods__grid">
                                     @foreach ($methods as $method)
-                                        @php
-                                            $methodIcon = match (true) {
-                                                $method['type'] === 'knet' => 'bank',
-                                                str_starts_with($method['type'], 'apple_pay') => 'contactless',
-                                                default => 'card',
-                                            };
-                                        @endphp
                                         <label class="pay-method">
                                             <input type="radio" name="paymentMethod" value="{{ $method['id'] }}"
                                                    @checked($old('paymentMethod', $methods[0]['id'] ?? '') === $method['id'])>
-                                            <span class="pay-method__icon"><x-icon :name="$methodIcon" size="20"/></span>
+                                            <span class="pay-method__logo"><x-pay-logo :type="$method['type']" :height="24"/></span>
                                             <span class="pay-method__label">{{ $method['label'] }}</span>
+                                            <span class="pay-method__tick"><x-icon name="check" size="12"/></span>
                                         </label>
                                     @endforeach
                                 </div>

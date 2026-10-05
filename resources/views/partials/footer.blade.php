@@ -105,9 +105,9 @@
 
             <div class="payments">
                 <span class="visually-hidden">{{ __('storefront.footer.payments') }}</span>
-                <span class="badge badge--quiet">KNET</span>
-                <span class="badge badge--quiet">VISA</span>
-                <span class="badge badge--quiet">Apple&nbsp;Pay</span>
+                <span class="payments__logo"><x-pay-logo type="knet" :height="20"/></span>
+                <span class="payments__logo"><x-pay-logo type="card" :height="20"/></span>
+                <span class="payments__logo"><x-pay-logo type="apple_pay" :height="20"/></span>
             </div>
 
             <span class="lang">
