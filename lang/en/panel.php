@@ -646,6 +646,19 @@ return [
         'cannotDeleteSelf' => 'You cannot delete your own account.',
     ],
 
+    'install' => [
+        'title' => 'Add the control panel to your home screen',
+        'body' => 'Open it in one tap from your phone and get an alert when a new order arrives.',
+        'cta' => 'Add to home screen',
+        'later' => 'Not now',
+        'installed' => 'The panel was added to your home screen',
+        'iosTitle' => 'Adding on iPhone',
+        'iosStep1' => 'Tap the Share button in the browser bar',
+        'iosStep2' => 'Choose "Add to Home Screen"',
+        'iosStep3' => 'Tap "Add" at the top',
+        'iosNote' => 'These are Safari\'s steps — iPhone does not allow a one-tap install. After adding, open the panel from its icon, then turn notifications on from My account.',
+    ],
+
     'push' => [
         'title' => 'Order notifications on this device',
         'intro' => 'Turn notifications on to get an alert on your phone the moment a new order arrives, even when the panel is closed. It works per device: turn it on in each one you want.',
@@ -656,7 +669,6 @@ return [
         'off' => 'Notifications are off for this device.',
         'denied' => 'Notifications are blocked for this site. Allow them in the browser or device settings, then try again.',
         'unsupported' => 'This browser does not support notifications.',
-        'ios' => 'On iPhone: open the panel in Safari, tap the Share button, then "Add to Home Screen". Open it from its icon and turn notifications on here. Needs iOS 16.4 or later.',
         'needsInstall' => 'To get notifications on iPhone, first add the panel to your Home Screen and open it from the icon.',
         'failed' => 'Could not turn notifications on. Please try again.',
         'sent' => 'The test notification was sent.',

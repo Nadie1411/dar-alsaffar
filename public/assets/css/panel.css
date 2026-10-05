@@ -443,3 +443,40 @@ dialog.confirm form { margin: 0; }
 :root:lang(ar) .panel-brand__sub,
 :root:lang(ar) .panel-nav__group,
 :root:lang(ar) .table th { letter-spacing: 0; }
+
+/* ---- install on the phone ------------------------------------------------------------ */
+
+.install-scrim { position: fixed; inset: 0; z-index: 70; background: rgba(14, 16, 15, .45); opacity: 0; transition: opacity .2s ease; }
+.install-scrim.is-open { opacity: 1; }
+.install-sheet {
+  position: fixed; inset-inline: 0; inset-block-end: 0; z-index: 71;
+  inline-size: min(100%, 520px); margin-inline: auto;
+  padding: 10px 20px calc(20px + env(safe-area-inset-bottom));
+  background: var(--panel-card);
+  border-radius: 18px 18px 0 0;
+  box-shadow: 0 -12px 40px -12px rgba(14, 16, 15, .35);
+  display: grid; gap: 16px;
+  transform: translateY(100%); transition: transform .22s ease-out;
+}
+.install-sheet.is-open { transform: none; }
+.install-sheet[hidden], .install-scrim[hidden] { display: none; }
+.install-sheet__grip { justify-self: center; inline-size: 40px; block-size: 4px; border-radius: 2px; background: var(--panel-line-strong); }
+.install-sheet__head { display: flex; gap: 14px; align-items: flex-start; }
+.install-sheet__head img { flex: none; inline-size: 48px; block-size: 48px; border-radius: 12px; }
+.install-sheet__head h2 { margin: 0 0 4px; font-size: 17px; line-height: 1.4; }
+.install-sheet__head p { margin: 0; font-size: 14px; color: var(--panel-text-2); line-height: 1.6; }
+.install-sheet__eyebrow { margin: 0 0 4px; font-size: 13px; font-weight: 700; color: var(--panel-text-2); }
+.install-sheet__note { margin: 8px 0 0; font-size: 13px; color: var(--panel-text-3); line-height: 1.6; }
+.install-steps { counter-reset: step; list-style: none; margin: 0; padding: 0; }
+.install-steps li { display: flex; gap: 12px; align-items: flex-start; padding-block: 10px; font-size: 14px; border-block-end: 1px solid var(--panel-line); }
+.install-steps li:last-child { border-block-end: 0; }
+.install-steps li::before {
+  counter-increment: step; content: counter(step); flex: none;
+  inline-size: 24px; block-size: 24px; display: grid; place-items: center;
+  border-radius: 50%; background: var(--panel-accent); color: #fff; font-size: 12px;
+}
+
+/* On a phone the panel can run under the notch and the home bar: keep its bars clear of both. */
+.panel-top { padding-block-start: env(safe-area-inset-top); block-size: calc(var(--panel-top-h) + env(safe-area-inset-top)); }
+.panel-side { padding-block-start: env(safe-area-inset-top); }
+.panel-content { padding-block-end: calc(24px + env(safe-area-inset-bottom)); }
