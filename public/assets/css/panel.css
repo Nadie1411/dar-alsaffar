@@ -438,3 +438,8 @@ dialog.confirm form { margin: 0; }
   .card { border: 0; box-shadow: none; }
   .grid--main, .grid--main-wide { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* Arabic letters join; tracking pulls them apart (Safari draws the gap as a dashed line). */
+:root:lang(ar) .panel-brand__sub,
+:root:lang(ar) .panel-nav__group,
+:root:lang(ar) .table th { letter-spacing: 0; }

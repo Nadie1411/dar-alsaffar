@@ -198,6 +198,22 @@ class CheckoutControllerTest extends TestCase
             ->assertDontSee('MADA');
     }
 
+    public function test_the_payment_step_shows_a_tile_for_each_method_and_says_where_the_payment_happens(): void
+    {
+        $this->onlineOn();
+
+        $this->withSession($this->basket())->get('/en-KW/checkout')
+            ->assertSee('pay-method__icon', false)
+            ->assertSee('You complete payment on a secure payment page. Card details are never entered on this site.')
+            ->assertSee('Pay when your order arrives');
+    }
+
+    public function test_the_secure_payment_note_is_not_shown_when_only_cash_is_offered(): void
+    {
+        $this->withSession($this->basket())->get('/en-KW/checkout')
+            ->assertDontSee('secure payment page');
+    }
+
     public function test_paying_online_sends_the_shopper_to_the_payment_page_and_keeps_the_basket(): void
     {
         $this->onlineOn();
