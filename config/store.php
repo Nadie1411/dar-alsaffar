@@ -36,4 +36,20 @@ return [
         'cod_fee_fils' => (int) env('STORE_COD_FEE_FILS', 0),
     ],
 
+    /*
+    | Push notifications to the staff's phones. The server posts to an address a
+    | browser handed it, so it only ever posts to the push services the browsers
+    | themselves use: an address on any other host is refused when it is saved.
+    | An entry matches that host and every subdomain of it.
+    */
+    'push' => [
+        'hosts' => [
+            'fcm.googleapis.com',         // Chrome, Edge and other Chromium browsers, Android
+            'push.services.mozilla.com',  // Firefox
+            'push.apple.com',             // Safari, and the installed web app on iPhone
+            'notify.windows.com',         // Edge on Windows
+        ],
+        'timeout' => 4,
+    ],
+
 ];

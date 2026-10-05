@@ -9,6 +9,7 @@ use App\Http\Controllers\Panel\DashboardController;
 use App\Http\Controllers\Panel\DeliveryController;
 use App\Http\Controllers\Panel\GatewayController;
 use App\Http\Controllers\Panel\InboxController;
+use App\Http\Controllers\Panel\InstallController;
 use App\Http\Controllers\Panel\LanguageController;
 use App\Http\Controllers\Panel\LoginController;
 use App\Http\Controllers\Panel\OrderController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\Panel\OrderFeedController;
 use App\Http\Controllers\Panel\PaymentController;
 use App\Http\Controllers\Panel\ProductController;
 use App\Http\Controllers\Panel\ProfileController;
+use App\Http\Controllers\Panel\PushController;
 use App\Http\Controllers\Panel\ReportController;
 use App\Http\Controllers\Panel\StaffController;
 use App\Http\Controllers\Panel\VoucherController;
@@ -36,6 +38,9 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('panel')->name('panel.')->middleware(['panel.enabled', 'panel.locale'])->group(function () {
     Route::get('/login', [LoginController::class, 'show'])->name('login');
     Route::post('/login', [LoginController::class, 'store'])->name('login.store')->middleware('throttle:20,1');
+    // Fetched by the browser without a session, so outside the login.
+    Route::get('/manifest.webmanifest', [InstallController::class, 'manifest'])->name('manifest');
+    Route::get('/sw.js', [InstallController::class, 'worker'])->name('worker');
     Route::get('/language/{locale}', LanguageController::class)->where('locale', 'ar|en')->name('language');
 
     Route::middleware('panel.auth')->group(function () {
@@ -46,6 +51,11 @@ Route::prefix('panel')->name('panel.')->middleware(['panel.enabled', 'panel.loca
         // Everyone who can sign in may change their own name, language and password.
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+        // Notifications on this device: for everyone who can sign in.
+        Route::post('/push/subscribe', [PushController::class, 'subscribe'])->name('push.subscribe');
+        Route::post('/push/unsubscribe', [PushController::class, 'unsubscribe'])->name('push.unsubscribe');
+        Route::post('/push/test', [PushController::class, 'test'])->name('push.test')->middleware('throttle:6,1');
 
         // ---- orders ---------------------------------------------------------
         Route::middleware('panel.module:orders')->prefix('orders')->name('orders.')->group(function () {

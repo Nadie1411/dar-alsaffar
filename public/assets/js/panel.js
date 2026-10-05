@@ -243,4 +243,129 @@
     poll();
     setInterval(poll, every);
   }
+
+  /* ---- install on the phone, and order notifications -------------------------------- */
+
+  var worker = document.body.getAttribute('data-worker');
+  var csrf = (document.querySelector('meta[name="csrf-token"]') || {}).content || '';
+
+  if (worker && 'serviceWorker' in navigator) {
+    navigator.serviceWorker.register(worker, { scope: '/panel/' }).catch(function () { /* the panel works without it */ });
+  }
+
+  var push = $('[data-push]');
+
+  if (push) {
+    var enable = $('[data-push-enable]', push);
+    var disable = $('[data-push-disable]', push);
+    var test = $('[data-push-test]', push);
+    var note = $('[data-push-note]', push);
+    var iosHelp = $('[data-push-ios]', push);
+
+    var say = function (message) {
+      note.hidden = !message;
+      note.textContent = message || '';
+    };
+
+    var show = function (state) {
+      enable.hidden = state !== 'off';
+      disable.hidden = state !== 'on';
+      test.hidden = state !== 'on';
+    };
+
+    var post = function (url, body) {
+      return fetch(url, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf },
+        body: JSON.stringify(body || {})
+      });
+    };
+
+    var toKey = function (base64Url) {
+      var padded = (base64Url + '='.repeat((4 - base64Url.length % 4) % 4)).replace(/-/g, '+').replace(/_/g, '/');
+      var raw = atob(padded);
+      var bytes = new Uint8Array(raw.length);
+      for (var i = 0; i < raw.length; i += 1) { bytes[i] = raw.charCodeAt(i); }
+      return bytes;
+    };
+
+    var isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    var installed = window.navigator.standalone === true || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+    var supported = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+
+    // iPhone only allows notifications for a web app that is on the Home Screen.
+    if (isIos && !installed) { iosHelp.hidden = false; }
+
+    var refresh = function () {
+      if (!supported) {
+        say(isIos ? push.getAttribute('data-needs-install') : push.getAttribute('data-unsupported'));
+        show('none');
+        return;
+      }
+
+      if (Notification.permission === 'denied') {
+        say(push.getAttribute('data-denied'));
+        show('none');
+        return;
+      }
+
+      navigator.serviceWorker.ready
+        .then(function (registration) { return registration.pushManager.getSubscription(); })
+        .then(function (subscription) {
+          if (subscription) {
+            // Remembering it again is harmless, and moves a shared device to whoever is signed in now.
+            post(push.getAttribute('data-subscribe'), { endpoint: subscription.endpoint });
+          }
+          say(subscription ? push.getAttribute('data-on') : push.getAttribute('data-off'));
+          show(subscription ? 'on' : 'off');
+        })
+        .catch(function () { show('off'); });
+    };
+
+    enable.addEventListener('click', function () {
+      enable.disabled = true;
+
+      Notification.requestPermission()
+        .then(function (permission) {
+          if (permission !== 'granted') { return null; }
+          return navigator.serviceWorker.ready.then(function (registration) {
+            return registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: toKey(push.getAttribute('data-key')) });
+          });
+        })
+        .then(function (subscription) {
+          if (!subscription) { return null; }
+          return post(push.getAttribute('data-subscribe'), { endpoint: subscription.endpoint }).then(function (response) {
+            if (!response.ok) {
+              subscription.unsubscribe();
+              throw new Error('refused');
+            }
+          });
+        })
+        .catch(function () { toast(push.getAttribute('data-failed')); })
+        .then(function () { enable.disabled = false; refresh(); });
+    });
+
+    disable.addEventListener('click', function () {
+      navigator.serviceWorker.ready
+        .then(function (registration) { return registration.pushManager.getSubscription(); })
+        .then(function (subscription) {
+          if (!subscription) { return null; }
+          return post(push.getAttribute('data-unsubscribe'), { endpoint: subscription.endpoint }).then(function () { return subscription.unsubscribe(); });
+        })
+        .then(refresh);
+    });
+
+    test.addEventListener('click', function () {
+      test.disabled = true;
+
+      post(push.getAttribute('data-test'))
+        .then(function (response) { return response.ok ? response.json() : { delivered: 0 }; })
+        .then(function (data) { toast(push.getAttribute(data.delivered > 0 ? 'data-sent' : 'data-none-sent')); })
+        .catch(function () { toast(push.getAttribute('data-none-sent')); })
+        .then(function () { test.disabled = false; });
+    });
+
+    refresh();
+  }
 })();

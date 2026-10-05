@@ -646,6 +646,25 @@ return [
         'cannotDeleteSelf' => 'You cannot delete your own account.',
     ],
 
+    'push' => [
+        'title' => 'Order notifications on this device',
+        'intro' => 'Turn notifications on to get an alert on your phone the moment a new order arrives, even when the panel is closed. It works per device: turn it on in each one you want.',
+        'enable' => 'Turn on notifications',
+        'disable' => 'Turn off notifications',
+        'test' => 'Send a test notification',
+        'on' => 'Notifications are on for this device.',
+        'off' => 'Notifications are off for this device.',
+        'denied' => 'Notifications are blocked for this site. Allow them in the browser or device settings, then try again.',
+        'unsupported' => 'This browser does not support notifications.',
+        'ios' => 'On iPhone: open the panel in Safari, tap the Share button, then "Add to Home Screen". Open it from its icon and turn notifications on here. Needs iOS 16.4 or later.',
+        'needsInstall' => 'To get notifications on iPhone, first add the panel to your Home Screen and open it from the icon.',
+        'failed' => 'Could not turn notifications on. Please try again.',
+        'sent' => 'The test notification was sent.',
+        'noneSent' => 'The notification did not go out. Turn notifications off and on again on this device.',
+        'refused' => 'That notification address is not accepted.',
+        'fallback' => 'A new order has arrived.',
+    ],
+
     'profile' => [
         'title' => 'My account',
         'saved' => 'Your details were saved.',

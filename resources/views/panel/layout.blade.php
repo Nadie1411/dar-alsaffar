@@ -17,6 +17,13 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', __('panel.app')) — {{ __('panel.app') }}</title>
     <link rel="icon" href="{{ asset('favicon.png') }}" sizes="32x32">
+    <link rel="manifest" href="{{ route('panel.manifest', [], false) }}">
+    <meta name="theme-color" content="#0f1412">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="{{ config('brand.name.'.$locale, config('brand.name.ar')) }}">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
@@ -25,6 +32,7 @@
     @stack('head')
 </head>
 <body class="panel"
+      data-worker="{{ route('panel.worker', [], false) }}"
       @if ($user->canAccess(PanelModule::Orders))
           data-orders-feed="{{ route('panel.orders.feed') }}"
           data-orders-poll="{{ $settings->int('orders.poll', 30) }}"
