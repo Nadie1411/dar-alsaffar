@@ -214,25 +214,29 @@
 
                         <div class="payment-primary">
                             @if ($methods !== [])
-                                <label class="choice choice--primary">
+                                <label class="pay-card">
                                     <input type="radio" name="payment" value="online" data-payment
                                            @checked($old('payment', 'online') === 'online')>
-                                    <span class="choice__label">{{ __('storefront.checkout.online') }}</span>
+                                    <span class="pay-card__icon"><x-icon name="card" size="22"/></span>
+                                    <span class="pay-card__text">
+                                        <span class="pay-card__title">{{ __('storefront.checkout.online') }}</span>
+                                    </span>
+                                    <span class="pay-card__tick"><x-icon name="check" size="14"/></span>
                                 </label>
                             @endif
 
                             @if ($codEnabled)
-                                <label class="choice choice--primary">
+                                <label class="pay-card">
                                     <input type="radio" name="payment" value="cod" data-payment
                                            @checked($old('payment', $methods === [] ? 'cod' : '') === 'cod')>
-                                    <span>
-                                        <span class="choice__label">{{ __('storefront.checkout.cod') }}</span>
-                                        @if ($quote->codFee() > 0)
-                                            <span class="choice__note">
-                                                + {{ $quote->money($quote->codFee()) }}
-                                            </span>
-                                        @endif
+                                    <span class="pay-card__icon"><x-icon name="cash" size="22"/></span>
+                                    <span class="pay-card__text">
+                                        <span class="pay-card__title">{{ __('storefront.checkout.cod') }}</span>
+                                        <span class="pay-card__note">
+                                            {{ __('storefront.checkout.codNote') }}@if ($quote->codFee() > 0) · + {{ $quote->money($quote->codFee()) }}@endif
+                                        </span>
                                     </span>
+                                    <span class="pay-card__tick"><x-icon name="check" size="14"/></span>
                                 </label>
                             @endif
                         </div>
@@ -245,15 +249,30 @@
                                 <p class="payment-methods__label">{{ __('storefront.checkout.paymentMethodLabel') }}</p>
                                 <div class="payment-methods__grid">
                                     @foreach ($methods as $method)
-                                        <label class="choice choice--sm">
+                                        @php
+                                            $methodIcon = match (true) {
+                                                $method['type'] === 'knet' => 'bank',
+                                                str_starts_with($method['type'], 'apple_pay') => 'contactless',
+                                                default => 'card',
+                                            };
+                                        @endphp
+                                        <label class="pay-method">
                                             <input type="radio" name="paymentMethod" value="{{ $method['id'] }}"
                                                    @checked($old('paymentMethod', $methods[0]['id'] ?? '') === $method['id'])>
-                                            <span class="choice__label">{{ $method['label'] }}</span>
+                                            <span class="pay-method__icon"><x-icon :name="$methodIcon" size="20"/></span>
+                                            <span class="pay-method__label">{{ $method['label'] }}</span>
                                         </label>
                                     @endforeach
                                 </div>
                                 @error('paymentMethod')<span class="field__error">{{ $message }}</span>@enderror
                             </div>
+                        @endif
+
+                        @if ($methods !== [])
+                            <p class="pay-trust" id="pay-trust">
+                                <x-icon name="lock" size="16"/>
+                                <span>{{ __('storefront.checkout.payTrust') }}</span>
+                            </p>
                         @endif
                     </div>
                     @error('payment')<span class="field__error">{{ $message }}</span>@enderror
@@ -367,8 +386,10 @@
     // Card method choices only matter when paying online.
     const methods = document.getElementById('payment-methods');
     const sync = () => {
-        if (!methods) return;
         const online = document.querySelector('[data-payment][value="online"]')?.checked;
+        const trust = document.getElementById('pay-trust');
+        if (trust) trust.hidden = !online;
+        if (!methods) return;
         methods.hidden = !online;
         methods.querySelectorAll('input').forEach((i) => { i.disabled = !online; });
     };

@@ -257,6 +257,8 @@ return [
         'payNow'       => 'Pay now',
         'pendingTitle' => 'Confirming your payment',
         'pendingText'  => 'We have not received the final result of your payment yet. If the amount was taken, your order is safe and we will confirm it shortly. You can also contact us with your order number.',
+        'payTrust'     => 'You complete payment on a secure payment page. Card details are never entered on this site.',
+        'codNote'      => 'Pay when your order arrives',
         'paymentMethodLabel' => 'Choose how to pay',
         'placeOrder'   => 'Place order',
         'placing'      => 'Placing your order…',

@@ -145,3 +145,12 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Arabic letters join. Any letter-spacing pulls the joins apart — Safari draws
+   the gaps as a dashed line — so tracking is off wherever the page is Arabic. */
+:root:lang(ar) {
+  --tracking-wide: 0;
+  --tracking-wider: 0;
+  --tracking-widest: 0;
+}
+:lang(ar) .phone-field .input { letter-spacing: 0; }

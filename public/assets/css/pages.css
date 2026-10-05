@@ -1023,3 +1023,92 @@
 
 .option-chip__price { font-size: var(--step-micro); color: var(--text-secondary); font-variant-numeric: tabular-nums; }
 .option-chip:has(input:checked) .option-chip__price { color: var(--emerald-800); }
+
+/* ---- payment step -------------------------------------------------------
+   Two large cards for the way to pay (online / on delivery), then — only for
+   online — the methods as tiles with a small glyph each, and a plain note on
+   where the payment happens. Marks are neutral glyphs, not brand logos. */
+.pay-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+}
+.pay-card:hover { border-color: var(--ink-300); }
+.pay-card input,
+.pay-method input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.pay-card__icon,
+.pay-method__icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  inline-size: 44px;
+  block-size: 44px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  color: var(--emerald-700);
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.pay-card__text { display: grid; gap: 2px; min-inline-size: 0; flex: 1; }
+.pay-card__title { font-weight: 600; font-size: var(--step-small); line-height: 1.45; }
+.pay-card__note { font-size: var(--step-micro); color: var(--text-muted); line-height: 1.45; }
+.pay-card__tick {
+  display: grid;
+  place-items: center;
+  flex: none;
+  inline-size: 22px;
+  block-size: 22px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ink-300);
+  color: transparent;
+  transition: background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.pay-card:has(input:checked) {
+  border-color: var(--emerald-700);
+  background: var(--emerald-050);
+  box-shadow: 0 0 0 1px var(--emerald-700);
+}
+.pay-card:has(input:checked) .pay-card__icon { background: var(--emerald-700); color: #fff; }
+.pay-card:has(input:checked) .pay-card__tick { background: var(--emerald-700); border-color: var(--emerald-700); color: #fff; }
+.pay-card:has(input:focus-visible),
+.pay-method:has(input:focus-visible) { outline: 2px solid var(--emerald-700); outline-offset: 2px; }
+
+.pay-method {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+}
+.pay-method:hover { border-color: var(--ink-300); }
+.pay-method__icon { inline-size: 36px; block-size: 36px; }
+.pay-method__label { font-size: var(--step-small); font-weight: 500; line-height: 1.45; }
+.pay-method:has(input:checked) { border-color: var(--emerald-700); box-shadow: 0 0 0 1px var(--emerald-700); }
+.pay-method:has(input:checked) .pay-method__icon { background: var(--emerald-700); color: #fff; }
+
+.pay-trust {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-2) 0 0;
+  font-size: var(--step-micro);
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+.pay-trust svg { flex: none; color: var(--emerald-700); }
+.pay-trust[hidden] { display: none; }
+
+@media (max-width: 30em) {
+  .payment-methods__grid { grid-template-columns: minmax(0, 1fr); }
+}

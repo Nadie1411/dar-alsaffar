@@ -67,9 +67,10 @@ self.addEventListener('fetch', (event) => {
       if (hit) return hit;
 
       return fetch(request).then((response) => {
-        if (response.ok && response.type === 'basic') {
+        // Only whole responses: a 206 (a video being streamed in ranges) cannot be cached.
+        if (response.status === 200 && response.type === 'basic') {
           const copy = response.clone();
-          caches.open(SHELL).then((cache) => cache.put(request, copy));
+          caches.open(SHELL).then((cache) => cache.put(request, copy)).catch(() => {});
         }
         return response;
       }).catch(() => hit);
