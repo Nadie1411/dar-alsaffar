@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Panel;
 use App\Http\Controllers\Controller;
 use App\Http\Middleware\PanelAuth;
 use App\Services\Store\ActivityLogger;
+use App\Services\Store\Push\VapidKeys;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -19,9 +20,9 @@ class ProfileController extends Controller
 {
     public function __construct(protected ActivityLogger $log) {}
 
-    public function edit(Request $request): View
+    public function edit(Request $request, VapidKeys $keys): View
     {
-        return view('panel.profile', ['member' => $request->user('staff')]);
+        return view('panel.profile', ['member' => $request->user('staff'), 'pushKey' => $keys->publicKey()]);
     }
 
     public function update(Request $request): RedirectResponse

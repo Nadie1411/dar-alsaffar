@@ -27,4 +27,34 @@
 
         <div><button class="btn-p" type="submit">{{ __('panel.common.saveChanges') }}</button></div>
     </form>
+
+    <section class="card" style="max-inline-size: 640px; margin-block-start: var(--space-5, 24px)"
+             data-push
+             data-key="{{ $pushKey }}"
+             data-subscribe="{{ route('panel.push.subscribe') }}"
+             data-unsubscribe="{{ route('panel.push.unsubscribe') }}"
+             data-test="{{ route('panel.push.test') }}"
+             data-on="{{ __('panel.push.on') }}"
+             data-off="{{ __('panel.push.off') }}"
+             data-denied="{{ __('panel.push.denied') }}"
+             data-unsupported="{{ __('panel.push.unsupported') }}"
+             data-needs-install="{{ __('panel.push.needsInstall') }}"
+             data-failed="{{ __('panel.push.failed') }}"
+             data-sent="{{ __('panel.push.sent') }}"
+             data-none-sent="{{ __('panel.push.noneSent') }}">
+        <div class="card__head"><h2>{{ __('panel.push.title') }}</h2></div>
+        <div class="card__body stack">
+            <p class="muted">{{ __('panel.push.intro') }}</p>
+
+            <p class="alert-p" data-push-note hidden></p>
+
+            <div class="row" style="gap: 8px; flex-wrap: wrap">
+                <button class="btn-p" type="button" data-push-enable hidden>{{ __('panel.push.enable') }}</button>
+                <button class="btn-p btn-p--ghost" type="button" data-push-test hidden>{{ __('panel.push.test') }}</button>
+                <button class="btn-p btn-p--ghost" type="button" data-push-disable hidden>{{ __('panel.push.disable') }}</button>
+            </div>
+
+            <p class="muted" data-push-ios hidden>{{ __('panel.push.ios') }}</p>
+        </div>
+    </section>
 @endsection
