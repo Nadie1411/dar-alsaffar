@@ -247,7 +247,7 @@
   /* ---- offer to add the panel to the home screen ------------------------------------ */
 
   var sheet = $('[data-install]');
-  var scrim = $('[data-install-scrim]');
+  var installScrim = $('[data-install-scrim]');
   var deferred = null;
   var phoneIos = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   var standalone = window.navigator.standalone === true || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
@@ -271,16 +271,16 @@
   }
 
   function setInstall(open) {
-    if (!sheet || !scrim) { return; }
+    if (!sheet || !installScrim) { return; }
     if (open) {
       refreshInstall();
       sheet.hidden = false;
-      scrim.hidden = false;
-      requestAnimationFrame(function () { sheet.classList.add('is-open'); scrim.classList.add('is-open'); });
+      installScrim.hidden = false;
+      requestAnimationFrame(function () { sheet.classList.add('is-open'); installScrim.classList.add('is-open'); });
     } else {
       sheet.classList.remove('is-open');
-      scrim.classList.remove('is-open');
-      setTimeout(function () { sheet.hidden = true; scrim.hidden = true; }, 220);
+      installScrim.classList.remove('is-open');
+      setTimeout(function () { sheet.hidden = true; installScrim.hidden = true; }, 220);
     }
   }
 
@@ -288,7 +288,7 @@
     try { localStorage.setItem(snoozeKey, String(Date.now() + days * 86400000)); } catch (error) { /* ignore */ }
   }
 
-  if (sheet && scrim) {
+  if (sheet && installScrim) {
     var days = parseInt(sheet.getAttribute('data-snooze-days'), 10) || 14;
     var wait = (parseInt(sheet.getAttribute('data-delay'), 10) || 4) * 1000;
     var until = 0;
@@ -303,7 +303,7 @@
     var later = function () { snoozeInstall(days); setInstall(false); };
 
     $('[data-install-later]', sheet).addEventListener('click', later);
-    scrim.addEventListener('click', later);
+    installScrim.addEventListener('click', later);
     document.addEventListener('keydown', function (event) { if (event.key === 'Escape' && !sheet.hidden) { later(); } });
 
     $('[data-install-go]', sheet).addEventListener('click', function () {
