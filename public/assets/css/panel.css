@@ -407,6 +407,9 @@ dialog.confirm form { margin: 0; }
   .panel-shell { grid-template-columns: minmax(0, 1fr); }
   .panel-side {
     position: fixed; inset-block: 0; inset-inline-start: 0; inline-size: min(300px, 86vw);
+    /* Pinned top and bottom, so it is the height of what is on screen: 100vh on a phone is taller
+       than the visible page and would hide the last links under the browser's toolbar. */
+    block-size: auto; overscroll-behavior: contain;
     transform: translateX(-100%); box-shadow: var(--shadow-lg);
     /* Closed, the drawer is also hidden from the keyboard and screen readers. */
     visibility: hidden; transition: transform .2s ease-out, visibility 0s linear .2s;
