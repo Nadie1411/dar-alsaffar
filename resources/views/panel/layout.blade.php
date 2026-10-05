@@ -21,7 +21,7 @@
     <meta name="theme-color" content="#0f1412">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="{{ config('brand.name.'.$locale, config('brand.name.ar')) }}">
     <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -113,6 +113,7 @@
 
 <div class="panel-scrim" data-scrim hidden></div>
 <div class="panel-toasts" data-toasts aria-live="polite"></div>
+@include('panel.partials.install')
 
 <dialog class="confirm" id="confirm-dialog">
     <form method="dialog">

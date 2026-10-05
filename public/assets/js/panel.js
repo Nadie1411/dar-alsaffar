@@ -244,6 +244,87 @@
     setInterval(poll, every);
   }
 
+  /* ---- offer to add the panel to the home screen ------------------------------------ */
+
+  var sheet = $('[data-install]');
+  var scrim = $('[data-install-scrim]');
+  var deferred = null;
+  var phoneIos = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var standalone = window.navigator.standalone === true || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+  var snoozeKey = 'panel.install';
+
+  window.addEventListener('beforeinstallprompt', function (event) {
+    event.preventDefault();
+    deferred = event;
+    refreshInstall();
+  });
+
+  // What can be offered: nothing once it is installed; Android and Chrome get a button, iPhone gets the steps.
+  function canOffer() { return !standalone && (deferred !== null || phoneIos); }
+
+  function refreshInstall() {
+    $$('[data-install-open-row]').forEach(function (row) { row.hidden = !canOffer(); });
+    if (sheet) {
+      $('[data-install-native]', sheet).hidden = deferred === null;
+      $('[data-install-ios]', sheet).hidden = !(phoneIos && deferred === null);
+    }
+  }
+
+  function setInstall(open) {
+    if (!sheet || !scrim) { return; }
+    if (open) {
+      refreshInstall();
+      sheet.hidden = false;
+      scrim.hidden = false;
+      requestAnimationFrame(function () { sheet.classList.add('is-open'); scrim.classList.add('is-open'); });
+    } else {
+      sheet.classList.remove('is-open');
+      scrim.classList.remove('is-open');
+      setTimeout(function () { sheet.hidden = true; scrim.hidden = true; }, 220);
+    }
+  }
+
+  function snoozeInstall(days) {
+    try { localStorage.setItem(snoozeKey, String(Date.now() + days * 86400000)); } catch (error) { /* ignore */ }
+  }
+
+  if (sheet && scrim) {
+    var days = parseInt(sheet.getAttribute('data-snooze-days'), 10) || 14;
+    var wait = (parseInt(sheet.getAttribute('data-delay'), 10) || 4) * 1000;
+    var until = 0;
+    try { until = parseInt(localStorage.getItem(snoozeKey), 10) || 0; } catch (error) { until = 0; }
+
+    refreshInstall();
+
+    if (Date.now() > until) {
+      setTimeout(function () { if (canOffer()) { setInstall(true); } }, wait);
+    }
+
+    var later = function () { snoozeInstall(days); setInstall(false); };
+
+    $('[data-install-later]', sheet).addEventListener('click', later);
+    scrim.addEventListener('click', later);
+    document.addEventListener('keydown', function (event) { if (event.key === 'Escape' && !sheet.hidden) { later(); } });
+
+    $('[data-install-go]', sheet).addEventListener('click', function () {
+      if (!deferred) { return; }
+      deferred.prompt();
+      deferred.userChoice.then(function (choice) {
+        deferred = null;
+        if (choice.outcome === 'accepted') { toast(sheet.getAttribute('data-installed')); }
+        snoozeInstall(days);
+        setInstall(false);
+        refreshInstall();
+      });
+    });
+
+    window.addEventListener('appinstalled', function () { snoozeInstall(3650); setInstall(false); });
+
+    document.addEventListener('click', function (event) {
+      if (event.target.closest('[data-install-open]')) { setInstall(true); }
+    });
+  }
+
   /* ---- install on the phone, and order notifications -------------------------------- */
 
   var worker = document.body.getAttribute('data-worker');
@@ -260,7 +341,6 @@
     var disable = $('[data-push-disable]', push);
     var test = $('[data-push-test]', push);
     var note = $('[data-push-note]', push);
-    var iosHelp = $('[data-push-ios]', push);
 
     var say = function (message) {
       note.hidden = !message;
@@ -293,9 +373,6 @@
     var isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     var installed = window.navigator.standalone === true || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
     var supported = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
-
-    // iPhone only allows notifications for a web app that is on the Home Screen.
-    if (isIos && !installed) { iosHelp.hidden = false; }
 
     var refresh = function () {
       if (!supported) {

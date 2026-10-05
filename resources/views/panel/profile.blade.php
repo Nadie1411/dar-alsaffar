@@ -54,7 +54,9 @@
                 <button class="btn-p btn-p--ghost" type="button" data-push-disable hidden>{{ __('panel.push.disable') }}</button>
             </div>
 
-            <p class="muted" data-push-ios hidden>{{ __('panel.push.ios') }}</p>
+            <div data-install-open-row hidden>
+                <button class="btn-p btn-p--ghost" type="button" data-install-open>{{ __('panel.install.cta') }}</button>
+            </div>
         </div>
     </section>
 @endsection

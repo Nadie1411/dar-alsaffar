@@ -53,6 +53,33 @@ class PushNotificationsPanelTest extends TestCase
             ->assertSee('data-worker="/panel/sw.js"', false);
     }
 
+    public function test_every_panel_page_carries_the_add_to_home_screen_sheet_with_the_iphone_steps(): void
+    {
+        $this->signInAs('staff');
+
+        $this->get(route('panel.orders.index'))
+            ->assertSee('data-install', false)
+            ->assertSee('Add the control panel to your home screen')
+            ->assertSee('Choose "Add to Home Screen"')
+            ->assertSee('Not now');
+    }
+
+    public function test_the_profile_page_can_reopen_the_add_to_home_screen_sheet(): void
+    {
+        $this->signInAs('staff');
+
+        $this->get(route('panel.profile.edit'))->assertSee('data-install-open', false);
+    }
+
+    public function test_the_phone_status_bar_does_not_cover_the_panel(): void
+    {
+        $this->signInAs('staff');
+
+        $this->get(route('panel.dashboard'))
+            ->assertSee('name="apple-mobile-web-app-status-bar-style" content="default"', false)
+            ->assertDontSee('black-translucent');
+    }
+
     public function test_the_sign_in_page_offers_to_be_installed_too(): void
     {
         $this->get(route('panel.login'))->assertSee('rel="manifest"', false);
