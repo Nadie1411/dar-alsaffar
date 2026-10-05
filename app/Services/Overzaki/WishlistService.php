@@ -2,6 +2,7 @@
 
 namespace App\Services\Overzaki;
 
+use App\Contracts\Store\Wishlist;
 use App\Services\Overzaki\DTO\Product;
 use Illuminate\Support\Facades\Session;
 
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\Session;
  * between devices. Guests get a session list, which is merged upstream the
  * moment they sign in — so nothing a guest saved is lost at the door.
  */
-class WishlistService
+class WishlistService implements Wishlist
 {
     protected const GUEST_KEY = 'wishlist.ids';
 

@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\Overzaki\WishlistService;
+use App\Contracts\Store\Wishlist;
 use Illuminate\Http\Request;
 
 class WishlistController extends Controller
 {
-    public function __construct(protected WishlistService $wishlist) {}
+    public function __construct(protected Wishlist $wishlist) {}
 
     public function index()
     {

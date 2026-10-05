@@ -1,0 +1,99 @@
+{
+ "data": {
+  "product": {
+   "_id": "p-jar-twin",
+   "slug": "indian-jar-twin",
+   "title": {
+    "en": "Indian oud jar (royal)",
+    "ar": "جار السبائك الملكي"
+   },
+   "description": null,
+   "status": true,
+   "isDelete": false,
+   "mainImage": null,
+   "images": [],
+   "sellPrice": 0,
+   "discountType": "fixed_amount",
+   "discountValue": 0,
+   "isStockLimited": true,
+   "quantity": 4,
+   "lowQuantity": 2,
+   "unlimitedQuantityPerUser": false,
+   "maxQuantityPerUser": 3,
+   "sku": "",
+   "tags": [],
+   "isFeatured": true,
+   "isNew": true,
+   "isPopular": false,
+   "enableCashOnDelivery": false,
+   "sort": 2,
+   "totalOrders": 3,
+   "rate": 4.5,
+   "count": 2,
+   "relatedProducts": [],
+   "categories": [
+    {
+     "_id": "c-perfumes",
+     "parentId": null,
+     "level": 1,
+     "name": {
+      "en": "Perfumes",
+      "ar": "العطور"
+     },
+     "slug": "Perfumes",
+     "image": "https://cdn.example.com/img/perfumes.jpg",
+     "icon": null,
+     "sortIndex": 1,
+     "isFeatured": true,
+     "isActive": true,
+     "isDelete": false
+    }
+   ],
+   "options": [
+    {
+     "_id": "g-weight",
+     "name": {
+      "en": "Choose From",
+      "ar": "اختر"
+     },
+     "layout": "radio",
+     "isRequired": true,
+     "sortIndex": 0,
+     "isActive": true,
+     "isDelete": false,
+     "values": [
+      {
+       "_id": "v-2tola",
+       "name": {
+        "en": "2 tola",
+        "ar": "2 تولة"
+       },
+       "price": 60,
+       "image": null,
+       "sortIndex": 0,
+       "isActive": true,
+       "isDelete": false,
+       "discountType": "none",
+       "discountValue": 0
+      },
+      {
+       "_id": "v-5tola",
+       "name": {
+        "en": "5 tola",
+        "ar": "5 تولة"
+       },
+       "price": 145.5,
+       "image": "https://cdn.example.com/img/5tola.jpg",
+       "sortIndex": 1,
+       "isActive": true,
+       "isDelete": false,
+       "discountType": "none",
+       "discountValue": 0
+      }
+     ]
+    }
+   ]
+  },
+  "varients": []
+ }
+}

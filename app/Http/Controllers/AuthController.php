@@ -2,23 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\Overzaki\AuthService;
-use App\Services\Overzaki\OrderService;
-use App\Services\Overzaki\WishlistService;
+use App\Contracts\Store\Customers;
+use App\Contracts\Store\Orders;
+use App\Contracts\Store\Wishlist;
 use App\Support\Nav;
+use App\Support\Shopper;
 use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
     public function __construct(
-        protected AuthService $auth,
-        protected WishlistService $wishlist,
-        protected OrderService $orders,
+        protected Customers $auth,
+        protected Wishlist $wishlist,
+        protected Orders $orders,
     ) {}
 
     public function showLogin()
     {
-        return AuthService::check()
+        return Shopper::check()
             ? redirect(Nav::url('account'))
             : view('pages.auth.login');
     }
@@ -46,7 +47,7 @@ class AuthController extends Controller
 
     public function showRegister()
     {
-        return AuthService::check()
+        return Shopper::check()
             ? redirect(Nav::url('account'))
             : view('pages.auth.register');
     }

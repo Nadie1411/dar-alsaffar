@@ -2,7 +2,9 @@
 
 namespace App\Services\Overzaki;
 
+use App\Contracts\Store\Orders;
 use App\Support\Loc;
+use App\Support\Phone;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
@@ -14,7 +16,7 @@ use Illuminate\Support\Facades\Log;
  * builds the payload and interprets the response; it never computes a total
  * and never touches card data, which stays entirely on the gateway.
  */
-class OrderService
+class OrderService implements Orders
 {
     public function __construct(
         protected OverzakiClient $client,
@@ -245,14 +247,7 @@ class OrderService
     /** Local 8-digit Kuwaiti numbers become +965XXXXXXXX. */
     public function e164(string $phone): string
     {
-        $digits = preg_replace('/\D+/', '', $phone) ?? '';
-        $dial = config('brand.country.dial');
-
-        if (str_starts_with($digits, $dial) && strlen($digits) > config('brand.country.phone_len')) {
-            return '+'.$digits;
-        }
-
-        return '+'.$dial.$digits;
+        return Phone::e164($phone);
     }
 
     /** @return array<int,array<string,mixed>> */

@@ -173,7 +173,7 @@
     @endif
 
     {{-- -------------------------------------------------------- packages --}}
-    @php $packages = collect(app(\App\Services\Overzaki\CatalogService::class)->all())
+    @php $packages = collect(app(\App\Contracts\Store\Catalog::class)->all())
         ->filter(fn ($p) => $p->isBundle())->take(1)->first(); @endphp
 
     @if ($packages)

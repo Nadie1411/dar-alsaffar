@@ -2,21 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\Overzaki\AuthService;
+use App\Contracts\Store\Cart;
+use App\Contracts\Store\Orders;
+use App\Enums\OrderStatus;
+use App\Models\Order;
 use App\Services\Overzaki\CartQuote;
-use App\Services\Overzaki\CartService;
-use App\Services\Overzaki\OrderService;
 use App\Services\Settings;
+use App\Services\Store\Payments\MyFatoorahException;
+use App\Services\Store\Payments\PaymentService;
 use App\Support\Nav;
+use App\Support\Shopper;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class CheckoutController extends Controller
 {
     public function __construct(
-        protected CartService $cart,
-        protected OrderService $orders,
+        protected Cart $cart,
+        protected Orders $orders,
         protected Settings $settings,
+        protected PaymentService $payments,
     ) {}
 
     public function index()
@@ -35,7 +41,7 @@ class CheckoutController extends Controller
             );
         }
 
-        $customer = AuthService::customer();
+        $customer = Shopper::customer();
 
         return view('pages.checkout', [
             'quote' => $quote,
@@ -103,8 +109,12 @@ class CheckoutController extends Controller
             return back()->withInput()->withErrors(['checkout' => $result['message'] ?? __('storefront.checkout.failed')]);
         }
 
-        // Only clear the basket once the order exists upstream.
-        $this->cart->clear();
+        // Only clear the basket once the order exists — and, for an online
+        // payment, once it has been paid: an abandoned payment page must not
+        // cost the shopper their basket.
+        if ($result['clearCart'] ?? true) {
+            $this->cart->clear();
+        }
 
         if ($result['kind'] === 'redirect') {
             return redirect()->away($result['paymentUrl']);
@@ -136,8 +146,60 @@ class CheckoutController extends Controller
         return view('pages.thanks', ['orderId' => $order ?: null]);
     }
 
-    public function failed()
+    public function failed(Request $request)
     {
-        return view('pages.checkout-failed');
+        return view('pages.checkout-failed', [
+            // Offered only to the shopper whose order it is.
+            'retryUrl' => ($order = $this->payableOrder((string) $request->query('order', session('payment.order'))))
+                ? Nav::url('checkout/pay/'.$order->number)
+                : null,
+        ]);
+    }
+
+    /** Payment is not confirmed yet — MyFatoorah could not be asked, or the order needs a person's attention. */
+    public function pending(string $locale, ?string $number = null)
+    {
+        return view('pages.checkout-pending', ['orderId' => $number ?: null]);
+    }
+
+    /** Back to the payment page for an order that has not been paid. */
+    public function pay(string $locale, string $number)
+    {
+        $order = $this->payableOrder($number);
+
+        abort_if($order === null, 404);
+
+        try {
+            $payment = $this->payments->resume($order);
+        } catch (MyFatoorahException) {
+            return redirect(Nav::url('checkout/failed'));
+        }
+
+        session()->put('payment.order', $order->number);
+
+        return redirect()->away($payment->mf_payment_url);
+    }
+
+    /**
+     * An order still waiting for its payment, if the person asking is the one
+     * who placed it: the same browser session, or the signed-in account.
+     */
+    protected function payableOrder(string $number): ?Order
+    {
+        if ($number === '') {
+            return null;
+        }
+
+        $order = Order::query()->where('number', $number)->first();
+
+        if ($order === null || $order->status !== OrderStatus::PendingPayment) {
+            return null;
+        }
+
+        $customerId = Auth::guard(Shopper::GUARD)->id();
+        $isTheirs = session('payment.order') === $order->number
+            || ($customerId !== null && $customerId === $order->customer_id);
+
+        return $isTheirs ? $order : null;
     }
 }

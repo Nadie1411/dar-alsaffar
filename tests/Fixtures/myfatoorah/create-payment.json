@@ -1,0 +1,12 @@
+{
+  "IsSuccess": true,
+  "Message": "",
+  "ValidationErrors": null,
+  "Data": {
+    "InvoiceId": "6148108",
+    "PaymentId": null,
+    "PaymentURL": "https://demo.MyFatoorah.com/KWT/ie/050754719614810863-ce9138bf",
+    "PaymentCompleted": false,
+    "TransactionDetails": null
+  }
+}

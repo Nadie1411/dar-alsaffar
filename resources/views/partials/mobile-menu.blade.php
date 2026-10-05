@@ -1,7 +1,7 @@
 @php
-    use App\Services\Overzaki\AuthService;
+    use App\Support\Shopper;
     use App\Support\Nav;
-    $categories = app(\App\Services\Overzaki\CatalogService::class)->categoriesWithCounts();
+    $categories = app(\App\Contracts\Store\Catalog::class)->categoriesWithCounts();
 @endphp
 
 <aside class="drawer drawer--start" id="mobile-menu" data-panel="mobile-menu" role="dialog" aria-modal="true"
@@ -41,7 +41,7 @@
     </nav>
 
     <div class="drawer__foot stack">
-        @if (AuthService::check())
+        @if (Shopper::check())
             <a class="btn btn--block" href="{{ Nav::url('account') }}">{{ __('storefront.account.title') }}</a>
             <form method="POST" action="{{ Nav::url('logout') }}">
                 @csrf

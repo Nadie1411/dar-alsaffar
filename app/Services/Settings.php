@@ -37,7 +37,16 @@ class Settings
         'install.delay' => 'int',
         'announcement' => 'string',
         'checkout.cod' => 'bool',
+
+        // What checkout charges and requires, in whole fils. Empty means:
+        // use the default in config/store.php.
+        'commerce.delivery_fee_fils' => 'int',
+        'commerce.free_shipping_fils' => 'int',
+        'commerce.minimum_order_fils' => 'int',
+        'commerce.cod_fee_fils' => 'int',
         'orders.alert' => 'bool',
+        // Where a new-order email goes. Empty means no such email is sent.
+        'orders.notify_email' => 'string',
         'orders.poll' => 'int',
         'orders.last_seen_at' => 'int',
 
@@ -136,6 +145,12 @@ class Settings
     {
         File::delete($this->path());
         Cache::forget(self::CACHE_KEY);
+    }
+
+    /** Where the settings file is, for the nightly backup to copy. */
+    public function file(): string
+    {
+        return $this->path();
     }
 
     protected function path(): string

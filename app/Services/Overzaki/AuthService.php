@@ -2,6 +2,7 @@
 
 namespace App\Services\Overzaki;
 
+use App\Contracts\Store\Customers;
 use Illuminate\Support\Facades\Session;
 
 /**
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\Session;
  * bearer token which is kept in the PHP session and replayed on every
  * customer-scoped API call (orders, addresses, wishlist).
  */
-class AuthService
+class AuthService implements Customers
 {
     protected const TOKEN_KEY = 'overzaki.token';
 
@@ -118,6 +119,33 @@ class AuthService
     {
         Session::forget([self::TOKEN_KEY, self::REFRESH_KEY, self::CUSTOMER_KEY]);
         Session::forget('wishlist.ids');
+    }
+
+    /**
+     * @param  array{fullName:string}  $validated
+     * @return array{ok:bool,message:?string}
+     */
+    public function updateProfile(array $validated): array
+    {
+        $response = $this->client->withToken(self::token())
+            ->postRaw('/customers/update_profile', $validated);
+
+        if (! $response['ok']) {
+            return ['ok' => false, 'message' => $response['message']];
+        }
+
+        Session::put(self::CUSTOMER_KEY, array_merge(self::customer() ?? [], $validated));
+
+        return ['ok' => true, 'message' => null];
+    }
+
+    /** @return array<int,array<string,mixed>> */
+    public function addresses(): array
+    {
+        $response = $this->client->withToken(self::token())
+            ->get(config('overzaki.endpoints.myAddresses'));
+
+        return $response['data'] ?? (is_array($response) ? $response : []);
     }
 
     /** Persist whatever token/customer shape the API returned. */

@@ -1,10 +1,10 @@
 @php
-    use App\Services\Overzaki\AuthService;
+    use App\Support\Shopper;
     use App\Support\Nav;
 
-    $cartCount = app(\App\Services\Overzaki\CartService::class)->count();
-    $wishCount = app(\App\Services\Overzaki\WishlistService::class)->count();
-    $menuCategories = app(\App\Services\Overzaki\CatalogService::class)->categoriesWithCounts();
+    $cartCount = app(\App\Contracts\Store\Cart::class)->count();
+    $wishCount = app(\App\Contracts\Store\Wishlist::class)->count();
+    $menuCategories = app(\App\Contracts\Store\Catalog::class)->categoriesWithCounts();
     $featured = collect($menuCategories)->first(fn ($c) => ! empty($c['image']));
     $overlay = View::hasSection('overlay-header');
 @endphp
@@ -102,7 +102,7 @@
                     <x-icon name="search"/>
                 </button>
 
-                <a class="icon-btn" href="{{ AuthService::check() ? Nav::url('account') : Nav::url('login') }}"
+                <a class="icon-btn" href="{{ Shopper::check() ? Nav::url('account') : Nav::url('login') }}"
                    aria-label="{{ __('storefront.actions.account') }}">
                     <x-icon name="user"/>
                 </a>

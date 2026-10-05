@@ -2,6 +2,7 @@
 
 namespace App\Services\Overzaki;
 
+use App\Contracts\Store\Promotions;
 use App\Support\Loc;
 use Illuminate\Support\Facades\Cache;
 
@@ -13,7 +14,7 @@ use Illuminate\Support\Facades\Cache;
  * promotion that has expired, sold out or been switched off simply stops
  * appearing. This class only decides how to describe what is already true.
  */
-class PromotionService
+class PromotionService implements Promotions
 {
     public const BUY_X_GET_Y = 'buy_x_get_y';
 

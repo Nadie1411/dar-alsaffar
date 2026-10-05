@@ -1,6 +1,6 @@
 @php
     use App\Support\Nav;
-    $categories = app(\App\Services\Overzaki\CatalogService::class)->categoriesWithCounts();
+    $categories = app(\App\Contracts\Store\Catalog::class)->categoriesWithCounts();
     $phone = $contact['phone'];
     $whatsapp = $contact['whatsapp'];
 @endphp

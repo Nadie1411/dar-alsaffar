@@ -9,6 +9,8 @@ use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ContentController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PasswordResetController;
+use App\Http\Controllers\PaymentCallbackController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Middleware\SetLocale;
@@ -35,7 +37,7 @@ use Illuminate\Support\Facades\Route;
 | `php artisan store:password`.
 |
 */
-Route::prefix('admin')->group(function () {
+Route::prefix('admin')->middleware('admin.legacy')->group(function () {
     Route::get('/login', [AdminController::class, 'showLogin'])->name('admin.login');
     Route::post('/login', [AdminController::class, 'login']);
     Route::post('/logout', [AdminController::class, 'logout'])->name('admin.logout');
@@ -107,6 +109,9 @@ Route::prefix('{locale}')
         Route::get('/checkout/areas/{cityId?}', [CheckoutController::class, 'areas'])->name('checkout.areas');
         Route::get('/checkout/thanks/{order?}', [CheckoutController::class, 'thanks'])->name('checkout.thanks');
         Route::get('/checkout/failed', [CheckoutController::class, 'failed'])->name('checkout.failed');
+        Route::get('/checkout/pending/{number?}', [CheckoutController::class, 'pending'])->name('checkout.pending');
+        Route::get('/checkout/pay/{number}', [CheckoutController::class, 'pay'])->name('checkout.pay');
+        Route::get('/payment/return', PaymentCallbackController::class)->name('payment.return');
 
         // ---- wishlist ----------------------------------------------------
         Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist');
@@ -114,11 +119,13 @@ Route::prefix('{locale}')
 
         // ---- auth --------------------------------------------------------
         Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-        Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+        Route::post('/login', [AuthController::class, 'login'])->name('login.post')->middleware('throttle:customer-auth');
         Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-        Route::post('/register', [AuthController::class, 'register'])->name('register.post');
+        Route::post('/register', [AuthController::class, 'register'])->name('register.post')->middleware('throttle:customer-auth');
         Route::get('/forgot-password', [AuthController::class, 'showForgot'])->name('forgot');
-        Route::post('/forgot-password', [AuthController::class, 'forgot'])->name('forgot.post');
+        Route::post('/forgot-password', [AuthController::class, 'forgot'])->name('forgot.post')->middleware('throttle:customer-auth');
+        Route::get('/reset-password/{token}', [PasswordResetController::class, 'show'])->name('password.reset');
+        Route::post('/reset-password', [PasswordResetController::class, 'update'])->name('password.update')->middleware('throttle:customer-auth');
         Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
         // ---- account -----------------------------------------------------

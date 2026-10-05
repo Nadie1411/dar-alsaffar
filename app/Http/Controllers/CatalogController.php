@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\Overzaki\CatalogService;
+use App\Contracts\Store\Catalog;
 use App\Support\Nav;
 use Illuminate\Http\Request;
 
@@ -10,7 +10,7 @@ class CatalogController extends Controller
 {
     protected const PER_PAGE = 12;
 
-    public function __construct(protected CatalogService $catalog) {}
+    public function __construct(protected Catalog $catalog) {}
 
     public function index(Request $request)
     {

@@ -1,0 +1,27 @@
+{"data": {"product": {
+  "_id": "p-package", "slug": "choose-three-package",
+  "title": {"en": "Choose three", "ar": "اختر ثلاثة"},
+  "description": {"en": "", "ar": ""},
+  "status": true, "isDelete": false,
+  "mainImage": "https://cdn.example.com/img/package.jpg", "images": [],
+  "sellPrice": 20, "discountType": "percentage", "discountValue": 12.5,
+  "discountStartDate": null, "discountEndDate": null,
+  "isStockLimited": false, "quantity": 0, "lowQuantity": 0,
+  "unlimitedQuantityPerUser": true, "maxQuantityPerUser": 0,
+  "sku": null, "tags": [],
+  "isFeatured": false, "isNew": false, "isPopular": true, "enableCashOnDelivery": true,
+  "sort": 3, "totalOrders": 0, "rate": 0, "count": 0,
+  "relatedProducts": [],
+  "categories": [],
+  "options": [
+    {"_id": "g-pick", "name": {"en": "Choose (3)", "ar": "اختر (3)"}, "layout": "checkbox", "isRequired": true,
+     "minimumChoises": 3, "maximumChoises": 3, "sortIndex": 0, "isActive": true, "isDelete": false,
+     "values": [
+       {"_id": "v-a", "name": {"en": "Musk", "ar": "مسك"}, "price": 5, "sortIndex": 0, "isActive": true, "isDelete": false},
+       {"_id": "v-b", "name": {"en": "Amber", "ar": "عنبر"}, "price": 5, "sortIndex": 1, "isActive": true, "isDelete": false},
+       {"_id": "v-removed", "name": {"en": "Retired", "ar": "قديم"}, "price": 5, "sortIndex": 2, "isActive": true, "isDelete": true}
+     ]},
+    {"_id": "g-deleted", "name": {"en": "Old group", "ar": "قديم"}, "layout": "radio", "isRequired": false,
+     "sortIndex": 1, "isActive": true, "isDelete": true, "values": []}
+  ]
+}, "varients": []}}

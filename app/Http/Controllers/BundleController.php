@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\Overzaki\CartService;
-use App\Services\Overzaki\CatalogService;
+use App\Contracts\Store\Cart;
+use App\Contracts\Store\Catalog;
 use App\Services\Overzaki\DTO\Product;
 use App\Support\Nav;
 use Illuminate\Http\Request;
@@ -19,8 +19,8 @@ use Illuminate\Http\Request;
 class BundleController extends Controller
 {
     public function __construct(
-        protected CatalogService $catalog,
-        protected CartService $cart,
+        protected Catalog $catalog,
+        protected Cart $cart,
     ) {}
 
     public function index()

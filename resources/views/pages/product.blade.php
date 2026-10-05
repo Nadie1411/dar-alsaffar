@@ -11,7 +11,7 @@
 
     $gallery  = $product->gallery();
     $category = $product->primaryCategory();
-    $saved    = app(\App\Services\Overzaki\WishlistService::class)->has($product->id());
+    $saved    = app(\App\Contracts\Store\Wishlist::class)->has($product->id());
     $maxQty   = $product->maxPerOrder() ?? $product->quantityAvailable() ?? 99;
 @endphp
 

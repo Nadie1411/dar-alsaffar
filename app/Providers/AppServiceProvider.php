@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use App\Enums\OrderStatus;
 use App\Http\Middleware\SetLocale;
+use App\Models\ContactMessage;
+use App\Models\Order;
 use App\Services\Settings;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\View;
@@ -60,6 +63,14 @@ class AppServiceProvider extends ServiceProvider
             }
 
             $view->with($shared);
+        });
+
+        // The two counts the panel's sidebar and bell show on every page.
+        View::composer('panel.layout', function ($view): void {
+            $view->with([
+                'newOrders' => Order::query()->where('status', OrderStatus::New->value)->count(),
+                'unreadMessages' => ContactMessage::query()->unread()->count(),
+            ]);
         });
 
         Paginator::defaultView('vendor.pagination.darsaffar');

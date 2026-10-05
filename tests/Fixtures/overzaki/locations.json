@@ -1,0 +1,6 @@
+{"data": {"cities": [
+  {"cityId": "city-hawalli", "cityName": {"en": "Hawalli", "ar": "حولي"}, "areas": [
+    {"_id": "area-salmiya", "name": {"en": "Salmiya", "ar": "السالمية"}, "isActive": true},
+    {"_id": "area-closed", "name": {"en": "Closed area", "ar": "منطقة مغلقة"}, "isActive": false}
+  ]}
+]}}

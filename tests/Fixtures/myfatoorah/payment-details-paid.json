@@ -1,0 +1,48 @@
+{
+  "IsSuccess": true,
+  "Message": "",
+  "ValidationErrors": null,
+  "Data": {
+    "Invoice": {
+      "Id": "6148108",
+      "Status": "PAID",
+      "Reference": "2025060917",
+      "CreationDate": "2025-12-24T14:48:17.1230000Z",
+      "ExpirationDate": "2026-06-22T14:48:17.1230000Z",
+      "ExternalIdentifier": "REFERENCE-PLACEHOLDER",
+      "UserDefinedField": "",
+      "MetaData": null
+    },
+    "Transaction": {
+      "Id": "102585",
+      "Status": "SUCCESS",
+      "PaymentMethod": "VISA/MASTER",
+      "PaymentId": "07076389491322460173",
+      "ReferenceId": "535814102585",
+      "TrackId": "24-12-2025_3224601",
+      "AuthorizationId": "102585",
+      "TransactionDate": "2025-12-24T14:51:06.5630000Z",
+      "ECI": "02",
+      "IP": {"Address": "41.35.105.183", "Country": "Egypt"},
+      "Error": {"Code": "", "Message": ""},
+      "Card": {
+        "NameOnCard": "", "Number": "512345xxxxxx0008", "Token": "", "PanHash": "b888aa5f",
+        "ExpiryMonth": "12", "ExpiryYear": "34", "Brand": "Mastercard", "Issuer": "Test Bank",
+        "IssuerCountry": "KWT", "FundingMethod": "credit"
+      }
+    },
+    "Customer": {"Reference": "", "Name": "Anonymous", "Mobile": "+96551234567", "Email": ""},
+    "Amount": {
+      "BaseCurrency": "KWD",
+      "ValueInBaseCurrency": "40",
+      "ServiceCharge": "0.4",
+      "ServiceChargeVAT": "0.06",
+      "ReceivableAmount": "39.54",
+      "DisplayCurrency": "KWD",
+      "ValueInDisplayCurrency": "40",
+      "PayCurrency": "KWD",
+      "ValueInPayCurrency": "40"
+    },
+    "Suppliers": []
+  }
+}

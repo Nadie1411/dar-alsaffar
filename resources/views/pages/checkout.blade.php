@@ -3,7 +3,7 @@
 @section('title', __('storefront.checkout.title'))
 
 @php
-    use App\Services\Overzaki\AuthService;
+    use App\Support\Shopper;
     use App\Support\Nav;
 
     $old = fn (string $key, $fallback = '') => old($key, $fallback);
@@ -41,7 +41,7 @@
             </p>
         @endif
 
-        @unless (AuthService::check())
+        @unless (Shopper::check())
             <p class="alert alert--notice">
                 <x-icon name="user" size="16" class="alert__icon"/>
                 {!! __('storefront.checkout.guestNote', [
@@ -205,17 +205,26 @@
                     </legend>
 
                     <div class="stack" style="--flow:var(--space-4)">
+                        @if ($methods === [] && ! $codEnabled)
+                            <p class="alert alert--error" role="alert">
+                                <x-icon name="info" size="16" class="alert__icon"/>
+                                {{ __('storefront.checkout.noPayment') }}
+                            </p>
+                        @endif
+
                         <div class="payment-primary">
-                            <label class="choice choice--primary">
-                                <input type="radio" name="payment" value="online" data-payment
-                                       @checked($old('payment', 'online') === 'online')>
-                                <span class="choice__label">{{ __('storefront.checkout.online') }}</span>
-                            </label>
+                            @if ($methods !== [])
+                                <label class="choice choice--primary">
+                                    <input type="radio" name="payment" value="online" data-payment
+                                           @checked($old('payment', 'online') === 'online')>
+                                    <span class="choice__label">{{ __('storefront.checkout.online') }}</span>
+                                </label>
+                            @endif
 
                             @if ($codEnabled)
                                 <label class="choice choice--primary">
                                     <input type="radio" name="payment" value="cod" data-payment
-                                           @checked($old('payment') === 'cod')>
+                                           @checked($old('payment', $methods === [] ? 'cod' : '') === 'cod')>
                                     <span>
                                         <span class="choice__label">{{ __('storefront.checkout.cod') }}</span>
                                         @if ($quote->codFee() > 0)
@@ -228,19 +237,24 @@
                             @endif
                         </div>
 
-                        <div id="payment-methods" class="payment-methods">
-                            <p class="payment-methods__label">{{ __('storefront.checkout.paymentMethodLabel') }}</p>
-                            <div class="payment-methods__grid">
-                                @foreach ($methods as $method)
-                                    <label class="choice choice--sm">
-                                        <input type="radio" name="paymentMethod" value="{{ $method['id'] }}"
-                                               @checked($old('paymentMethod', $methods[0]['id'] ?? '') === $method['id'])>
-                                        <span class="choice__label">{{ $method['label'] }}</span>
-                                    </label>
-                                @endforeach
+                        @if (count($methods) === 1)
+                            {{-- One way to pay is not a choice to put to the shopper. --}}
+                            <input type="hidden" name="paymentMethod" value="{{ $methods[0]['id'] }}">
+                        @elseif ($methods !== [])
+                            <div id="payment-methods" class="payment-methods">
+                                <p class="payment-methods__label">{{ __('storefront.checkout.paymentMethodLabel') }}</p>
+                                <div class="payment-methods__grid">
+                                    @foreach ($methods as $method)
+                                        <label class="choice choice--sm">
+                                            <input type="radio" name="paymentMethod" value="{{ $method['id'] }}"
+                                                   @checked($old('paymentMethod', $methods[0]['id'] ?? '') === $method['id'])>
+                                            <span class="choice__label">{{ $method['label'] }}</span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                                @error('paymentMethod')<span class="field__error">{{ $message }}</span>@enderror
                             </div>
-                            @error('paymentMethod')<span class="field__error">{{ $message }}</span>@enderror
-                        </div>
+                        @endif
                     </div>
                     @error('payment')<span class="field__error">{{ $message }}</span>@enderror
                 </fieldset>
@@ -353,6 +367,7 @@
     // Card method choices only matter when paying online.
     const methods = document.getElementById('payment-methods');
     const sync = () => {
+        if (!methods) return;
         const online = document.querySelector('[data-payment][value="online"]')?.checked;
         methods.hidden = !online;
         methods.querySelectorAll('input').forEach((i) => { i.disabled = !online; });

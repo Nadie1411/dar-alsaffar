@@ -1,6 +1,6 @@
 @php
     use App\Support\Nav;
-    $catalog = app(\App\Services\Overzaki\CatalogService::class);
+    $catalog = app(\App\Contracts\Store\Catalog::class);
     $searchCategories = $catalog->categoriesWithCounts();
     $suggested = $catalog->bestSellers(4);
 @endphp

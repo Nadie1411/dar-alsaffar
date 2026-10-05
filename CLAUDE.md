@@ -162,19 +162,52 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 # Dar Al Saffar storefront
 
-An Arabic-first, RTL-native storefront for a Kuwaiti perfume house. It is the
-**presentation layer only**; the shop itself lives in Overzaki.
+An Arabic-first, RTL-native storefront for a Kuwaiti perfume house. It runs in
+one of two ways, chosen by `STORE_BACKEND` (`config/store.php`):
+
+- `overzaki` (the default, and what production ran until the switch-over): the
+  shop lives in Overzaki and this app is its presentation layer.
+- `local`: the shop lives **in this app** — its own database, an admin panel at
+  `/panel`, and payments taken directly through MyFatoorah.
+
+Every page asks one of seven contracts in `app/Contracts/Store` (Catalog, Cart,
+Orders, Customers, Wishlist, Promotions, Inbox) for what it needs.
+`StoreServiceProvider` binds the Overzaki or the local implementation, so the
+views are identical either way. A test fails if a contract has no local
+implementation. Flipping `STORE_BACKEND` back is the rollback.
 
 ## The rule that matters most
 
-**Never compute money.** Line prices, discounts, delivery, VAT, gift
-eligibility and totals all come back from Overzaki's cart checker
-(`CartService::quote()` → `CartQuote`). A second pricing implementation in PHP
-could disagree with the engine that actually charges the customer.
+**Money is computed in exactly one place.**
 
-The same applies to promotions: `buy_x_get_y`, `free_shipping`,
-`percentage_off` and `fixed_amount` are configured in the Overzaki dashboard.
-`PromotionService` only *reads* them.
+- In `overzaki` mode never compute money: every figure comes back from
+  Overzaki's cart checker (`CartService::quote()` → `CartQuote`).
+- In `local` mode the one place is `App\Services\Store\Pricing\PricingEngine`.
+  Everything is **whole fils** (1 KWD = 1,000 fils), never a float. The cart,
+  the checkout summary and the placed order all read the same `PricedCart`; no
+  controller, view or Blade partial does arithmetic on prices. It is
+  parity-tested against Overzaki's real cart checker.
+- Whatever staff type as an amount goes through `Money::parseFils()` (digit by
+  digit — Arabic digits and a decimal comma included) and the `Dinars` rule.
+- `PromotionService` / `LocalPromotions` only *read* offers.
+
+A second pricing implementation anywhere else could disagree with the engine
+that actually charges the customer.
+
+## Payments
+
+Online payment is MyFatoorah's v3 API, hosted page. An order is paid only
+after MyFatoorah **confirms** it: the webhook and the return page are never
+trusted, every outcome is re-read with `GET /v3/payments/{id}`, and the amount
+is checked against the order. The API key is a secret: it lives in the
+server's `.env` (`MYFATOORAH_API_KEY`) or, saved by an owner on the owner-only
+*Payments → Payment keys* page, encrypted in `gateway_credentials`. All reads go
+through `GatewayConfig` (panel value first, then `.env`). It is never committed,
+logged, flashed into the session, put in the activity log, shown back by any
+page or sent to a browser — keep it that way (`dontFlash`, `#[Hidden]`, tests
+that search every page for it). Tests never reach MyFatoorah (`Http::fake` and
+`preventStrayRequests`), and nobody — including an AI assistant — types a live
+key into a field on someone's behalf.
 
 ## Stack notes
 
@@ -183,7 +216,12 @@ The same applies to promotions: `buy_x_get_y`, `free_shipping`,
   must deploy to plain PHP hosting.
 - Asset URLs go through `App\Support\Asset::url()` for cache busting.
 - Design tokens live in `public/assets/css/tokens.css`. Load order is
-  tokens → base → components → pages.
+  tokens → base → components → pages. The admin panel has its own
+  `panel.css` / `panel.js` on top of the tokens.
+- Uploads go through `App\Services\Store\Uploads` (random names, a short
+  allow-list of types, never deleted while another row still points at them).
+  HTML typed by staff goes through `App\Support\Html::clean()`.
+- Staff-facing exports go through `App\Support\Csv` (formula-injection safe).
 
 ## RTL and Arabic
 
@@ -191,18 +229,28 @@ The same applies to promotions: `buy_x_get_y`, `free_shipping`,
   (`margin-inline-start`, `inset-inline-end`) — never `left`/`right`.
 - `ch` is a poor measure for Arabic (the zero glyph is narrow). Use `em` for
   display measures.
-- All user-facing strings go in `lang/{ar,en}/storefront.php`. Never hardcode
-  copy in a Blade file.
+- All user-facing strings go in `lang/{ar,en}/storefront.php` (the shop) or
+  `lang/{ar,en}/panel.php` (the admin panel). Never hardcode copy in a Blade
+  file. `PanelLanguageTest` fails when a key is missing in either language.
 - Localised API values (`{ar, en}` maps) go through `App\Support\Loc::text()`.
 
 ## Content integrity
 
 Do not invent brand claims, product copy, prices, delivery promises or
 policies. Where the business has not published content, the layout ships with
-a clearly marked placeholder (`.placeholder-note`) rather than filler.
+a clearly marked placeholder (`.placeholder-note`) rather than filler. The same
+goes for emails: say what happened, promise nothing the shop has not published.
 
 ## Scope boundaries
 
-`/admin` is a small panel for what *this app* owns — the announcement strip,
-the pop-up and the install prompt. Products, prices, offers and orders stay in
-Overzaki. It returns 404 until `php artisan store:password` is run.
+- `/panel` is the staff admin panel for the `local` backend: orders, products,
+  categories, add-on services, vouchers, delivery, payments, customers, inbox,
+  content, reports, staff and an activity log. Roles (`AdminRole`): Owner,
+  Manager, Staff, each limited to the modules `AdminRole::modules()` lists. It
+  answers 404 while the backend is `overzaki`. The first owner is created with
+  `php artisan store:admin`.
+- `/admin` is the old single-password panel (announcement strip, pop-up,
+  install prompt, order board). It exists only while the backend is `overzaki`;
+  once it is `local` it redirects to `/panel`.
+- `php artisan store:import-overzaki` copies the catalogue, options, delivery
+  areas and images across; it is safe to repeat until the switch-over.
