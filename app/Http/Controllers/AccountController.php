@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\Overzaki\AuthService;
-use App\Services\Overzaki\OrderService;
-use App\Services\Overzaki\OverzakiClient;
-use App\Services\Overzaki\WishlistService;
+use App\Contracts\Store\Customers;
+use App\Contracts\Store\Orders;
+use App\Contracts\Store\Wishlist;
 use App\Support\Nav;
+use App\Support\Shopper;
 use Illuminate\Http\Request;
 
 class AccountController extends Controller
 {
     public function __construct(
-        protected OrderService $orders,
-        protected WishlistService $wishlist,
-        protected OverzakiClient $client,
+        protected Orders $orders,
+        protected Wishlist $wishlist,
+        protected Customers $customers,
     ) {}
 
     public function index()
@@ -26,7 +26,7 @@ class AccountController extends Controller
         $orders = $this->orders->myOrders();
 
         return view('pages.account.index', [
-            'customer' => AuthService::customer(),
+            'customer' => Shopper::customer(),
             'recentOrders' => array_slice($orders, 0, 3),
             'orderCount' => count($orders),
             'wishCount' => $this->wishlist->count(),
@@ -61,12 +61,7 @@ class AccountController extends Controller
             return $guard;
         }
 
-        $response = $this->client->withToken(AuthService::token())
-            ->get(config('overzaki.endpoints.myAddresses'));
-
-        return view('pages.account.addresses', [
-            'addresses' => $response['data'] ?? (is_array($response) ? $response : []),
-        ]);
+        return view('pages.account.addresses', ['addresses' => $this->customers->addresses()]);
     }
 
     public function settings()
@@ -75,7 +70,7 @@ class AccountController extends Controller
             return $guard;
         }
 
-        return view('pages.account.settings', ['customer' => AuthService::customer()]);
+        return view('pages.account.settings', ['customer' => Shopper::customer()]);
     }
 
     public function update(Request $request)
@@ -88,21 +83,18 @@ class AccountController extends Controller
             'fullName' => ['required', 'string', 'min:2', 'max:120'],
         ]);
 
-        $response = $this->client->withToken(AuthService::token())
-            ->postRaw('/customers/update_profile', $validated);
+        $result = $this->customers->updateProfile($validated);
 
-        if (! $response['ok']) {
-            return back()->withErrors(['fullName' => $response['message'] ?? __('storefront.errors.generic')]);
+        if (! $result['ok']) {
+            return back()->withErrors(['fullName' => $result['message'] ?? __('storefront.errors.generic')]);
         }
-
-        session()->put('overzaki.customer', array_merge(AuthService::customer() ?? [], $validated));
 
         return back()->with('status', __('storefront.account.saved'));
     }
 
     protected function requireLogin()
     {
-        if (AuthService::check()) {
+        if (Shopper::check()) {
             return null;
         }
 

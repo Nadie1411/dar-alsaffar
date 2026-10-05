@@ -8,7 +8,7 @@
     $total  = $order['total'] ?? $order['amountToPay'] ?? null;
     $date   = $order['createdAt'] ?? $order['date'] ?? null;
 
-    $tone = match (true) {
+    $tone = $order['statusTone'] ?? match (true) {
         str_contains($status, 'cancel'), str_contains($status, 'reject') => 'cancelled',
         str_contains($status, 'deliver'), str_contains($status, 'complete') => 'done',
         default => 'pending',

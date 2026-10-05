@@ -1,0 +1,6 @@
+{"data": {"data": [
+  {"_id": "c-perfumes", "parentId": null, "level": 1, "name": {"en": "Perfumes", "ar": "العطور"}, "slug": "Perfumes",
+   "image": "https://cdn.example.com/img/perfumes.jpg", "icon": null, "sortIndex": 1, "isFeatured": true, "isActive": true, "isDelete": false},
+  {"_id": "c-oud", "parentId": null, "level": 1, "name": {"en": "Oud Oils", "ar": "دهن العود"}, "slug": "Oud-Oils",
+   "image": null, "icon": null, "sortIndex": 2, "isFeatured": false, "isActive": true, "isDelete": false}
+], "count": 2}}

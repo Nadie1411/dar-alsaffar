@@ -1,0 +1,21 @@
+{
+  "Event": {"Code": 1, "Name": "PAYMENT_STATUS_CHANGED", "CountryIsoCode": "KWT", "CreationDate": "2026-01-04T08:15:00.9500000Z", "Reference": "WH-626519"},
+  "Data": {
+    "Invoice": {
+      "Id": "6148108", "Status": "PAID", "Reference": "2026000073",
+      "CreationDate": "2026-01-04T08:14:49.897Z", "ExpirationDate": "2026-01-04T10:08:36Z",
+      "UserDefinedField": "", "ExternalIdentifier": "REFERENCE-PLACEHOLDER", "MetaData": null
+    },
+    "Transaction": {
+      "Id": "86781", "Status": "SUCCESS", "PaymentMethod": "VISA/MASTER",
+      "PaymentId": "07076389491322460173", "ReferenceId": "600408086781", "TrackId": "04-01-2026_3239988",
+      "AuthorizationId": "086781", "TransactionDate": "2026-01-04T08:15:00.8834074Z", "ECI": "02",
+      "Error": {"Code": "", "Message": ""}
+    },
+    "Customer": {"Name": "Anonymous", "Mobile": "+965", "Email": ""},
+    "Amount": {
+      "BaseCurrency": "KWD", "ValueInBaseCurrency": "40", "DisplayCurrency": "KWD", "ValueInDisplayCurrency": "40",
+      "PayCurrency": "KWD", "ValueInPayCurrency": "40"
+    }
+  }
+}

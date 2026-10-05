@@ -1,0 +1,4 @@
+{"data": [
+  {"_id": "addon-wrap", "name": {"en": "Gift wrapping", "ar": "تغليف هدية"}, "description": {"en": "<p>Wrapped by hand</p>", "ar": "<p>تغليف يدوي</p>"},
+   "price": 1.5, "image": null, "isActive": true, "isDelete": false}
+]}

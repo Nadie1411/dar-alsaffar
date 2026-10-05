@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\Overzaki\CatalogService;
-use App\Services\Overzaki\OverzakiClient;
+use App\Contracts\Store\Catalog;
+use App\Contracts\Store\Inbox;
 use App\Services\Settings;
 use Illuminate\Http\Request;
 
 class ContentController extends Controller
 {
     public function __construct(
-        protected OverzakiClient $client,
-        protected CatalogService $catalog,
+        protected Inbox $inbox,
+        protected Catalog $catalog,
         protected Settings $settings,
     ) {}
 
@@ -37,16 +37,16 @@ class ContentController extends Controller
             'message' => ['required', 'string', 'min:5', 'max:2000'],
         ]);
 
-        $response = $this->client->postRaw(config('overzaki.endpoints.contactUs'), [
+        $result = $this->inbox->sendContact([
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'phoneNumber' => $validated['phone'] ?? null,
+            'phone' => $validated['phone'] ?? null,
             'message' => $validated['message'],
         ]);
 
-        if (! $response['ok']) {
+        if (! $result['ok']) {
             return back()->withInput()->withErrors([
-                'message' => $response['message'] ?? __('storefront.content.messageFailed'),
+                'message' => $result['message'] ?? __('storefront.content.messageFailed'),
             ]);
         }
 
@@ -57,14 +57,14 @@ class ContentController extends Controller
     {
         $validated = $request->validate(['email' => ['required', 'email:rfc']]);
 
-        $response = $this->client->postRaw(config('overzaki.endpoints.newsletter'), $validated);
+        $result = $this->inbox->subscribe($validated['email']);
 
-        // Only say "subscribed" when the API actually accepted it — reporting
-        // a success we did not verify would leave people expecting mail that
-        // never arrives.
-        if (! $response['ok']) {
+        // Only say "subscribed" when the sign-up was actually accepted —
+        // reporting a success we did not verify would leave people expecting
+        // mail that never arrives.
+        if (! $result['ok']) {
             return back()->withInput()->withErrors([
-                'newsletter' => $response['message'] ?? __('storefront.errors.generic'),
+                'newsletter' => $result['message'] ?? __('storefront.errors.generic'),
             ]);
         }
 

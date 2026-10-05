@@ -11,7 +11,7 @@
     $image    = $product->image();
     $hover    = $product->hoverImage();
     $inStock  = $product->inStock();
-    $saved    = app(\App\Services\Overzaki\WishlistService::class)->has($product->id());
+    $saved    = app(\App\Contracts\Store\Wishlist::class)->has($product->id());
     $category = $product->primaryCategory();
 @endphp
 

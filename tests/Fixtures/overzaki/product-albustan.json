@@ -1,0 +1,132 @@
+{
+ "data": {
+  "product": {
+   "_id": "p-albustan",
+   "slug": "ALBUSTAN",
+   "title": {
+    "en": "ALBUSTAN",
+    "ar": "البستان"
+   },
+   "description": {
+    "en": "<p>Fresh citrus</p>",
+    "ar": "<p>حمضيات منعشة</p>"
+   },
+   "status": true,
+   "isDelete": false,
+   "mainImage": "https://cdn.example.com/img/albustan.jpg",
+   "images": [
+    "https://cdn.example.com/img/albustan-2.jpg",
+    "https://cdn.example.com/img/albustan.jpg"
+   ],
+   "sellPrice": 35,
+   "discountType": "fixed_amount",
+   "discountValue": 16,
+   "discountStartDate": "2025-10-01T00:00:00.000Z",
+   "discountEndDate": "2026-10-19T00:00:00.000Z",
+   "isStockLimited": false,
+   "quantity": 5,
+   "lowQuantity": 0,
+   "unlimitedQuantityPerUser": true,
+   "maxQuantityPerUser": 1,
+   "sku": "ALB-1",
+   "tags": [
+    "5 نجوم"
+   ],
+   "isFeatured": true,
+   "isNew": false,
+   "isPopular": false,
+   "enableCashOnDelivery": true,
+   "sort": 1,
+   "totalOrders": 17,
+   "rate": 0,
+   "count": 0,
+   "relatedProducts": [
+    {
+     "_id": "p-jar",
+     "slug": "indian-jar",
+     "title": {
+      "en": "Indian oud jar"
+     }
+    },
+    "p-not-in-feed"
+   ],
+   "categories": [
+    {
+     "_id": "c-perfumes",
+     "parentId": null,
+     "level": 1,
+     "name": {
+      "en": "Perfumes",
+      "ar": "العطور"
+     },
+     "slug": "Perfumes",
+     "image": "https://cdn.example.com/img/perfumes.jpg",
+     "icon": null,
+     "sortIndex": 1,
+     "isFeatured": true,
+     "isActive": true,
+     "isDelete": false
+    },
+    {
+     "_id": "c-100ml",
+     "parentId": "c-perfumes",
+     "level": 2,
+     "name": {
+      "en": "100ml",
+      "ar": "100 مل"
+     },
+     "slug": "100ml",
+     "image": null,
+     "icon": null,
+     "sortIndex": 1,
+     "isFeatured": false,
+     "isActive": false,
+     "isDelete": false
+    }
+   ],
+   "options": [],
+   "oneTimeDiscount": {
+    "enabled": true,
+    "packages": [
+     {
+      "quantity": 1,
+      "discountType": "none",
+      "discountValue": 0,
+      "freeDelivery": false,
+      "title": {
+       "en": "1 bottle",
+       "ar": "زجاجة"
+      }
+     },
+     {
+      "quantity": 2,
+      "discountType": "fixed_amount",
+      "discountValue": 5,
+      "freeDelivery": false,
+      "title": {
+       "en": "2 bottles",
+       "ar": "زجاجتان"
+      }
+     },
+     {
+      "quantity": 3,
+      "discountType": "percentage",
+      "discountValue": 10,
+      "freeDelivery": true,
+      "title": {
+       "en": "3 bottles",
+       "ar": "3 زجاجات"
+      }
+     },
+     {
+      "quantity": 0,
+      "discountType": "fixed_amount",
+      "discountValue": 99,
+      "freeDelivery": false
+     }
+    ]
+   }
+  },
+  "varients": []
+ }
+}

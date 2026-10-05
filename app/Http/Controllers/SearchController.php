@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\Overzaki\CatalogService;
+use App\Contracts\Store\Catalog;
 use Illuminate\Http\Request;
 
 class SearchController extends Controller
 {
-    public function __construct(protected CatalogService $catalog) {}
+    public function __construct(protected Catalog $catalog) {}
 
     public function index(Request $request)
     {

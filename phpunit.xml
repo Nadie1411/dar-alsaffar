@@ -29,6 +29,17 @@
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
+        <!-- Pinned so a developer's own .env (a local backend, a dead Overzaki URL) can never change what the tests see. -->
+        <env name="STORE_BACKEND" value="overzaki"/>
+        <env name="OVERZAKI_BASE_URL" value="https://production.overzaki.org/api"/>
+        <env name="OVERZAKI_TENANT_ID" value="dar-alsaffar.net"/>
+        <env name="OVERZAKI_RETRIES" value="0"/>
+        <env name="CHECKOUT_COD" value="true"/>
+        <!-- No test may ever hold a real key, so none can reach MyFatoorah; the ones that need it configure it themselves. -->
+        <env name="MYFATOORAH_API_KEY" value=""/>
+        <env name="MYFATOORAH_API_URL" value="https://apitest.myfatoorah.com"/>
+        <env name="MYFATOORAH_WEBHOOK_SECRET" value=""/>
+        <env name="MYFATOORAH_ENABLED" value="true"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>

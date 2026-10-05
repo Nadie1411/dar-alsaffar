@@ -65,7 +65,7 @@
 
     <a class="skip-link" href="#main">{{ __('storefront.nav.skip') }}</a>
 
-    @php $headlineOffer = app(\App\Services\Overzaki\PromotionService::class)->headline(); @endphp
+    @php $headlineOffer = app(\App\Contracts\Store\Promotions::class)->headline(); @endphp
     @include('partials.offer-strip', ['offer' => $headlineOffer])
     @include('partials.header')
 

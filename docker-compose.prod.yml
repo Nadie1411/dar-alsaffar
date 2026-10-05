@@ -14,3 +14,21 @@ services:
       - ./.env:/app/.env                  # store:password writes its hash here
       - ./storage:/app/storage            # SQLite DB, settings JSON, logs
       - ./public/uploads:/app/public/uploads
+
+  # The scheduler: runs `payments:reconcile` every five minutes (it finds an online
+  # payment whose shopper never came back, and releases an order whose invoice ran
+  # out) and, every minute, works through the queued emails. The same image, the
+  # same files, nothing published. If it is not running the shop still sells, but
+  # those two things stop — see docs/DEPLOYMENT.md.
+  scheduler:
+    image: dar-alsaffar:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    mem_limit: 192m
+    memswap_limit: 192m
+    command: ["php", "artisan", "schedule:work"]
+    healthcheck:
+      disable: true
+    volumes:
+      - ./.env:/app/.env
+      - ./storage:/app/storage
+      - ./public/uploads:/app/public/uploads

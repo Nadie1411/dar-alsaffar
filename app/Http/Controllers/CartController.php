@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\Overzaki\CartService;
-use App\Services\Overzaki\CatalogService;
+use App\Contracts\Store\Cart;
+use App\Contracts\Store\Catalog;
 use App\Support\Nav;
 use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
     public function __construct(
-        protected CartService $cart,
-        protected CatalogService $catalog,
+        protected Cart $cart,
+        protected Catalog $catalog,
     ) {}
 
     public function index()

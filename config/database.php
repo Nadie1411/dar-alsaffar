@@ -38,10 +38,16 @@ return [
             'database' => env('DB_DATABASE', database_path('database.sqlite')),
             'prefix' => '',
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
-            'busy_timeout' => null,
-            'journal_mode' => null,
-            'synchronous' => null,
-            'transaction_mode' => 'DEFERRED',
+            // The shop's whole state is this one file, written to by checkouts,
+            // payment webhooks, the admin panel and every visitor's session at
+            // once. WAL lets readers carry on while a write happens, a busy
+            // timeout makes a writer wait its turn instead of failing, and
+            // IMMEDIATE takes the write lock when a transaction begins, so two
+            // transactions cannot each read and then deadlock on the upgrade.
+            'busy_timeout' => env('DB_BUSY_TIMEOUT', 5000),
+            'journal_mode' => env('DB_JOURNAL_MODE', 'WAL'),
+            'synchronous' => env('DB_SYNCHRONOUS', 'NORMAL'),
+            'transaction_mode' => env('DB_TRANSACTION_MODE', 'IMMEDIATE'),
         ],
 
         'mysql' => [

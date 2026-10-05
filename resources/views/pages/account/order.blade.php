@@ -33,8 +33,14 @@
             <div class="panel">
                 <div class="panel__head">
                     <h2 class="panel__title">{{ __('storefront.checkout.summary') }}</h2>
-                    <span class="status status--pending">{{ $order['status'] ?? '' }}</span>
+                    <span class="status status--{{ $order['statusTone'] ?? 'pending' }}">{{ $order['status'] ?? '' }}</span>
                 </div>
+
+                @if (! empty($order['payUrl']))
+                    <p style="margin-block-end:var(--space-4)">
+                        <a class="btn" href="{{ $order['payUrl'] }}">{{ __('storefront.checkout.payNow') }}</a>
+                    </p>
+                @endif
 
                 @foreach ($items as $item)
                     @php

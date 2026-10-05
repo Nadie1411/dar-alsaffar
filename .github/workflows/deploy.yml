@@ -36,14 +36,27 @@ jobs:
         env:
           HOST: ${{ secrets.VPS_HOST }}
           USER: ${{ secrets.VPS_USER }}
+          # Optional. Set them in the repository's Settings > Secrets and variables
+          # > Actions; with none set this is a plain deploy. See docs/DEPLOYMENT.md.
+          STORE_BACKEND: ${{ vars.STORE_BACKEND }}
+          PANEL_OWNER_NAME: ${{ vars.PANEL_OWNER_NAME }}
+          PANEL_OWNER_EMAIL: ${{ secrets.PANEL_OWNER_EMAIL }}
+          PANEL_OWNER_PASSWORD: ${{ secrets.PANEL_OWNER_PASSWORD }}
         run: |
-          ssh -i ~/.ssh/deploy_key "$USER@$HOST" bash -s -- "$GITHUB_SHA" <<'EOF'
-            set -euo pipefail
-            cd ~/apps/dar-alsaffar
-            git fetch --prune origin main
-            git reset --hard "$1"
-            bash scripts/deploy.sh "$1"
+          # The settings go to the server on standard input, never on a command line,
+          # so they are not in any process list or log. %q quotes each one safely.
+          {
+            for name in STORE_BACKEND PANEL_OWNER_NAME PANEL_OWNER_EMAIL PANEL_OWNER_PASSWORD; do
+              printf 'export %s=%q\n' "$name" "${!name}"
+            done
+            cat <<'EOF'
+          set -euo pipefail
+          cd ~/apps/dar-alsaffar
+          git fetch --prune origin main
+          git reset --hard "$1"
+          bash scripts/deploy.sh "$1"
           EOF
+          } | ssh -i ~/.ssh/deploy_key "$USER@$HOST" bash -s -- "$GITHUB_SHA"
 
       - name: Smoke test
         run: curl -fsS -o /dev/null -w '%{http_code}\n' https://daralsaffar.shop/up

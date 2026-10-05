@@ -20,7 +20,10 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
-          extensions: intl, zip, bcmath, pdo_sqlite
+          # gd is only for the tests, which build fake pictures to upload; dom, mbstring
+          # and fileinfo are what the panel's HTML cleaner, text handling and upload
+          # type check rely on (the production image ships all three).
+          extensions: intl, zip, bcmath, pdo_sqlite, gd, dom, mbstring, fileinfo
           coverage: none
 
       - name: Cache Composer

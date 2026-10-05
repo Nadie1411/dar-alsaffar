@@ -1,0 +1,13 @@
+{
+  "IsSuccess": true,
+  "Message": "",
+  "ValidationErrors": null,
+  "Data": {
+    "PaymentMethods": [
+      {"Name": "Visa / Master", "ApiName": "CARD", "CommissionPercentage": "2.5", "CommissionValue": "0", "IsDirectPayment": "false", "IsEmbeddedSupported": "true", "CurrencyIso": "KWD", "LogoUrl": "https://example.com/card.png"},
+      {"Name": "KNET", "ApiName": "KNET", "CommissionPercentage": "0", "CommissionValue": "0.250", "IsDirectPayment": "false", "IsEmbeddedSupported": "false", "CurrencyIso": "KWD", "LogoUrl": "https://example.com/knet.png"},
+      {"Name": "Apple Pay", "ApiName": "APPLE_PAY", "CommissionPercentage": "2.5", "CommissionValue": "0", "IsDirectPayment": "false", "IsEmbeddedSupported": "true", "CurrencyIso": "KWD", "LogoUrl": "https://example.com/apple.png"},
+      {"Name": "MADA", "ApiName": "MADA", "CommissionPercentage": "1.5", "CommissionValue": "0", "IsDirectPayment": "false", "IsEmbeddedSupported": "false", "CurrencyIso": "SAR", "LogoUrl": "https://example.com/mada.png"}
+    ]
+  }
+}
