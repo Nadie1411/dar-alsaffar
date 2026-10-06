@@ -418,6 +418,8 @@ return [
         'scopeCategories'  => 'On selected collections',
         'scopeProducts'    => 'On selected products',
         'code'             => 'Discount code',
+        'copyCode'         => 'Copy discount code :code',
+        'codeCopied'       => 'Discount code copied',
         'endsOn'           => 'Ends :date',
         'giftTitle'        => 'Your gift is on its way',
         'giftUnlocked'     => 'Your gift is unlocked 🎁',

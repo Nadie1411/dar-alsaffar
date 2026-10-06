@@ -112,6 +112,7 @@
                 wishRemove:@json(__('storefront.wishlist.removed')),
                 error:     @json(__('storefront.errors.generic')),
                 copied:    @json(__('storefront.actions.linkCopied')),
+                codeCopied: @json(__('storefront.promo.codeCopied')),
                 installed: @json(__('storefront.pwa.installed')),
             },
         };

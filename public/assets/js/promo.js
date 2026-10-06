@@ -73,6 +73,44 @@
     new MutationObserver(() => scanGifts(drawerBody)).observe(drawerBody, { childList: true, subtree: true });
   }
 
+  // ------------------------------------------------------------ copy a code
+
+  async function copyText(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch { /* no clipboard API (plain http, older iOS): fall back below */ }
+
+    const field = document.createElement('textarea');
+    field.value = text;
+    field.setAttribute('readonly', '');
+    field.style.cssText = 'position:fixed;inset-block-start:0;opacity:0';
+    document.body.appendChild(field);
+    field.select();
+    field.setSelectionRange(0, text.length);
+
+    let copied = false;
+    try { copied = document.execCommand('copy'); } catch { /* ignore */ }
+    field.remove();
+
+    return copied;
+  }
+
+  document.addEventListener('click', async (e) => {
+    const chip = e.target.closest('[data-copy-code]');
+    if (!chip) return;
+
+    const i18n = window.Store?.i18n || {};
+
+    if (await copyText(chip.dataset.copyCode)) {
+      window.StoreUI?.toast(i18n.codeCopied || '');
+      chip.classList.add('is-copied');
+      setTimeout(() => chip.classList.remove('is-copied'), 1800);
+    } else {
+      window.StoreUI?.toast(i18n.error || '', 'error');
+    }
+  });
+
   // ---------------------------------------------------------------- pop-up
 
   const popup = $('[data-promo-popup]');
@@ -90,6 +128,9 @@
 
     const open = () => {
       popup.setAttribute('data-shown', '');
+      // Seen is seen: remembered as it appears, not only when it is closed, so
+      // following its link or navigating away does not bring it back on the next page.
+      snooze(key, days);
       const first = popup.querySelector('a, button');
       setTimeout(() => first && first.focus(), 280);
     };

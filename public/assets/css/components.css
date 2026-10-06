@@ -782,6 +782,13 @@
   font-family: var(--font-sans);
   letter-spacing: var(--tracking-wide);
 }
+/* The code is a button: tapping it copies it, and the icon says so. */
+button.offer-strip__code { background: transparent; cursor: pointer; transition: background var(--dur-fast) var(--ease); }
+button.offer-strip__code:hover { background: rgba(243, 232, 200, 0.12); }
+.offer-strip :focus-visible { outline-color: var(--gold-300); }
+.offer-strip__done { display: none; }
+.offer-strip__code.is-copied .offer-strip__copy { display: none; }
+.offer-strip__code.is-copied .offer-strip__done { display: block; }
 
 /* ---- promo popup -------------------------------------------------------- */
 
