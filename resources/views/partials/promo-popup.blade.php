@@ -55,9 +55,7 @@
 
                 @if (! empty($offer['code']))
                     <p style="margin-block-end:var(--space-5)">
-                        <span class="offer-strip__code" style="border-color:var(--gold-500);color:var(--gold-600)">
-                            {{ $offer['code'] }}
-                        </span>
+                        <x-offer-code :code="$offer['code']" style="border-color:var(--gold-500);color:var(--gold-600)"/>
                     </p>
                 @endif
 

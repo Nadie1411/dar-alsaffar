@@ -19,6 +19,7 @@
         'minus'    => '<path d="M5 12h14"/>',
         'trash'    => '<path d="M4 7h16"/><path d="M9 7V5h6v2"/><path d="M6 7l1 13h10l1-13"/>',
         'check'    => '<path d="m4 12.5 5 5L20 6.5"/>',
+        'copy'     => '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/>',
         'star'     => '<path d="m12 3.5 2.6 5.6 6 .8-4.4 4.3 1.1 6.1-5.3-3-5.3 3 1.1-6.1L3.4 9.9l6-.8Z"/>',
         'filter'   => '<path d="M3 6h18"/><path d="M7 12h10"/><path d="M11 18h2"/>',
         'sort'     => '<path d="M7 4v16"/><path d="m3 8 4-4 4 4"/><path d="M17 20V4"/><path d="m13 16 4 4 4-4"/>',

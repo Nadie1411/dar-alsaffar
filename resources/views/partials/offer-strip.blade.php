@@ -9,10 +9,7 @@
         <span style="opacity:.8">{{ $offer['scope']['label'] }}</span>
 
         @if ($offer['code'])
-            <span class="offer-strip__code">
-                <span class="visually-hidden">{{ __('storefront.promo.code') }}</span>
-                {{ $offer['code'] }}
-            </span>
+            <x-offer-code :code="$offer['code']"/>
         @endif
 
         <a class="link-underline" href="{{ Nav::url('offers') }}" style="color:var(--gold-300)">

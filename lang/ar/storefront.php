@@ -418,6 +418,8 @@ return [
         'scopeCategories'  => 'على مجموعات مختارة',
         'scopeProducts'    => 'على منتجات مختارة',
         'code'             => 'كود الخصم',
+        'copyCode'         => 'نسخ كود الخصم :code',
+        'codeCopied'       => 'تم نسخ كود الخصم',
         'endsOn'           => 'ينتهي في :date',
         'giftTitle'        => 'هديتك في الطريق',
         'giftUnlocked'     => 'حصلت على هديتك 🎁',
