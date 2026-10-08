@@ -278,6 +278,7 @@
       });
 
       setCartCount(data.count);
+      flyToCart(btn);
       btn.textContent = cfg.i18n.added;
       // A toast, not the drawer — popping the drawer open on every add
       // stopped anyone from adding a second, different item without it
@@ -294,6 +295,61 @@
       btn.disabled = false;
     }
   });
+
+  // ------------------------------------------------- the product flies to the bag
+
+  // A small copy of the product's picture (or a brand-coloured dot when there is
+  // none on screen) arcs from where it was added to the bag icon, which then gives
+  // a little bounce. Skipped for anyone who has asked their device for less motion.
+  function flyToCart(btn) {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('animate' in Element.prototype)) return;
+
+    const target = $$('[data-open="cart"]').find((el) => {
+      const r = el.getBoundingClientRect();
+      return r.width > 0 && r.height > 0 && r.bottom > 0 && r.top < window.innerHeight;
+    });
+    if (!target) return;
+
+    const scope = btn.closest('[data-product-scope], .product-card, article, form') || document;
+    const img = scope.querySelector('img') || document.querySelector('[data-gallery] img, .gallery img, .product img');
+    const onScreen = (r) => r.width > 0 && r.bottom > 0 && r.top < window.innerHeight && r.right > 0 && r.left < window.innerWidth;
+
+    let from = img ? img.getBoundingClientRect() : null;
+    if (!from || !onScreen(from)) from = btn.getBoundingClientRect();
+
+    const size = 64;
+    const to = target.getBoundingClientRect();
+    const startX = from.left + from.width / 2 - size / 2;
+    const startY = from.top + from.height / 2 - size / 2;
+    const dx = to.left + to.width / 2 - size / 2 - startX;
+    const dy = to.top + to.height / 2 - size / 2 - startY;
+
+    const fly = document.createElement('div');
+    fly.className = 'fly-thumb';
+    fly.setAttribute('aria-hidden', 'true');
+    fly.style.cssText = `left:${startX}px;top:${startY}px;width:${size}px;height:${size}px;`;
+    if (img && img.currentSrc && onScreen(img.getBoundingClientRect())) {
+      fly.style.backgroundImage = `url("${img.currentSrc}")`;
+    }
+    document.body.appendChild(fly);
+
+    // Up and over, then down into the bag: a lifted midpoint makes the path an arc.
+    const lift = Math.min(120, Math.abs(dy) * 0.5 + 40);
+    const animation = fly.animate([
+      { transform: 'translate(0, 0) scale(1)', opacity: 1, offset: 0 },
+      { transform: `translate(${dx * 0.55}px, ${dy * 0.55 - lift}px) scale(0.7)`, opacity: 1, offset: 0.55 },
+      { transform: `translate(${dx}px, ${dy}px) scale(0.18)`, opacity: 0.6, offset: 1 },
+    ], { duration: 780, easing: 'cubic-bezier(.45,.05,.55,.95)', fill: 'forwards' });
+
+    animation.onfinish = () => {
+      fly.remove();
+      target.animate(
+        [{ transform: 'scale(1)' }, { transform: 'scale(1.28)' }, { transform: 'scale(0.94)' }, { transform: 'scale(1)' }],
+        { duration: 420, easing: 'ease-out' }
+      );
+    };
+    animation.oncancel = () => fly.remove();
+  }
 
   function setCartCount(count) {
     $$('[data-cart-count]').forEach((el) => {
