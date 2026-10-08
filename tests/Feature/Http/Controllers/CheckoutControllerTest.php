@@ -77,6 +77,28 @@ class CheckoutControllerTest extends TestCase
             ->assertDontSee('Pay online');
     }
 
+    public function test_the_courier_needs_the_block_street_and_building_but_the_rest_of_the_address_is_optional(): void
+    {
+        foreach (['block', 'street', 'building'] as $field) {
+            $this->withSession($this->basket())->post('/en-KW/checkout', $this->form([$field => '']))
+                ->assertSessionHasErrors($field);
+        }
+
+        $this->withSession($this->basket())->post('/en-KW/checkout', $this->form(['avenue' => '', 'floor' => '', 'apartment' => '', 'notes' => '', 'email' => '']))
+            ->assertSessionDoesntHaveErrors();
+    }
+
+    public function test_the_form_lists_what_is_required_before_what_is_optional_and_marks_each_optional_field(): void
+    {
+        $html = $this->withSession($this->basket())->get('/ar-KW/checkout')->assertOk()->getContent();
+
+        $positions = array_map(fn (string $name) => strpos($html, 'name="'.$name.'"'), ['city', 'area', 'block', 'street', 'building', 'avenue', 'floor', 'apartment', 'notes']);
+
+        $this->assertSame($positions, collect($positions)->sort()->values()->all(), 'fields appear in that order');
+        $this->assertStringContainsString('رقم شقة', $html);
+        $this->assertGreaterThanOrEqual(5, substr_count($html, 'field__optional'));
+    }
+
     public function test_an_empty_basket_is_sent_back_to_the_cart(): void
     {
         $this->get('/en-KW/checkout')->assertRedirect('/en-KW/cart');

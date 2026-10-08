@@ -73,10 +73,11 @@ class CheckoutController extends Controller
             'phone' => ['required', 'string', 'regex:/^[1-9][0-9]{'.($phoneLen - 1).'}$/'],
             'city' => ['required', 'string', Rule::in($cities->pluck('id')->all())],
             'area' => ['required', 'string'],
-            'block' => ['nullable', 'string', 'max:40'],
-            'street' => ['nullable', 'string', 'max:120'],
+            // The courier needs these three; the rest of the address is optional.
+            'block' => ['required', 'string', 'max:40'],
+            'street' => ['required', 'string', 'max:120'],
+            'building' => ['required', 'string', 'max:60'],
             'avenue' => ['nullable', 'string', 'max:60'],
-            'building' => ['nullable', 'string', 'max:60'],
             'floor' => ['nullable', 'string', 'max:30'],
             'apartment' => ['nullable', 'string', 'max:30'],
             'notes' => ['nullable', 'string', 'max:500'],
@@ -90,6 +91,9 @@ class CheckoutController extends Controller
             'addons.*' => ['nullable', 'string'],
         ], [
             'phone.regex' => __('storefront.checkout.phoneHint'),
+            'block.required' => __('storefront.errors.required'),
+            'street.required' => __('storefront.errors.required'),
+            'building.required' => __('storefront.errors.required'),
         ]);
 
         // The chosen area must belong to the chosen governorate.

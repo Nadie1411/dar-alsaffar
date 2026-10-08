@@ -964,3 +964,16 @@ button.offer-strip__code:hover { background: rgba(243, 232, 200, 0.12); }
   .success-mark__circle, .success-mark__check { animation: none; stroke-dashoffset: 0; }
   .success-mark__spark { animation: none; opacity: 0; }
 }
+
+/* ---- the product flying into the bag ------------------------------------- */
+
+.fly-thumb {
+  position: fixed;
+  z-index: 200;
+  pointer-events: none;
+  border-radius: 50%;
+  background: var(--emerald-700) center / cover no-repeat;
+  border: 2px solid #fff;
+  box-shadow: 0 8px 24px rgba(14, 16, 15, 0.3);
+  will-change: transform, opacity;
+}

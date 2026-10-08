@@ -96,6 +96,7 @@
                         <label class="field">
                             <span class="field__label">
                                 {{ __('storefront.checkout.email') }}
+                                <span class="field__optional">({{ __('storefront.checkout.optional') }})</span>
                             </span>
                             <input class="input" type="email" name="email" autocomplete="email"
                                    inputmode="email" dir="ltr"
@@ -144,45 +145,34 @@
                             @error('area')<span class="field__error">{{ $message }}</span>@enderror
                         </label>
 
-                        <label class="field">
-                            <span class="field__label">{{ __('storefront.checkout.block') }}</span>
-                            <input class="input" type="text" name="block" value="{{ $old('block') }}">
-                        </label>
+                        {{-- What the courier cannot find the door without, then the extras. --}}
+                        @foreach (['block' => null, 'street' => 'address-line1', 'building' => null] as $name => $autocomplete)
+                            <label class="field">
+                                <span class="field__label">
+                                    {{ __('storefront.checkout.'.$name) }}<span class="field__required">*</span>
+                                </span>
+                                <input class="input" type="text" name="{{ $name }}" required value="{{ $old($name) }}"
+                                       @if ($autocomplete) autocomplete="{{ $autocomplete }}" @endif
+                                       @error($name) aria-invalid="true" aria-describedby="err-{{ $name }}" @enderror>
+                                @error($name)<span class="field__error" id="err-{{ $name }}">{{ $message }}</span>@enderror
+                            </label>
+                        @endforeach
 
-                        <label class="field">
-                            <span class="field__label">{{ __('storefront.checkout.street') }}</span>
-                            <input class="input" type="text" name="street" value="{{ $old('street') }}"
-                                   autocomplete="address-line1">
-                        </label>
-
-                        <label class="field">
-                            <span class="field__label">
-                                {{ __('storefront.checkout.avenue') }}
-                                <span class="field__optional">({{ __('storefront.checkout.optional') }})</span>
-                            </span>
-                            <input class="input" type="text" name="avenue" value="{{ $old('avenue') }}">
-                        </label>
-
-                        <label class="field">
-                            <span class="field__label">{{ __('storefront.checkout.building') }}</span>
-                            <input class="input" type="text" name="building" value="{{ $old('building') }}">
-                        </label>
-
-                        <label class="field">
-                            <span class="field__label">
-                                {{ __('storefront.checkout.floor') }}
-                                <span class="field__optional">({{ __('storefront.checkout.optional') }})</span>
-                            </span>
-                            <input class="input" type="text" name="floor" value="{{ $old('floor') }}">
-                        </label>
-
-                        <label class="field">
-                            <span class="field__label">{{ __('storefront.checkout.apartment') }}</span>
-                            <input class="input" type="text" name="apartment" value="{{ $old('apartment') }}">
-                        </label>
+                        @foreach (['avenue', 'floor', 'apartment'] as $name)
+                            <label class="field">
+                                <span class="field__label">
+                                    {{ __('storefront.checkout.'.$name) }}
+                                    <span class="field__optional">({{ __('storefront.checkout.optional') }})</span>
+                                </span>
+                                <input class="input" type="text" name="{{ $name }}" value="{{ $old($name) }}">
+                            </label>
+                        @endforeach
 
                         <label class="field span-2">
-                            <span class="field__label">{{ __('storefront.checkout.notes') }}</span>
+                            <span class="field__label">
+                                {{ __('storefront.checkout.notes') }}
+                                <span class="field__optional">({{ __('storefront.checkout.optional') }})</span>
+                            </span>
                             <textarea class="textarea" name="notes" rows="3"
                                       aria-describedby="hint-notes">{{ $old('notes') }}</textarea>
                             <span class="field__hint" id="hint-notes">{{ __('storefront.checkout.notesHint') }}</span>
