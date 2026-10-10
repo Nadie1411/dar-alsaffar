@@ -89,7 +89,6 @@ Route::prefix('{locale}')
         // ---- bundles -----------------------------------------------------
         Route::get('/packages', [BundleController::class, 'index'])->name('packages');
         Route::get('/packages/{slug}', [BundleController::class, 'show'])->name('package');
-        Route::post('/packages/{slug}', [BundleController::class, 'add'])->name('package.add');
 
         // ---- search ------------------------------------------------------
         Route::get('/search', [SearchController::class, 'index'])->name('search');

@@ -1,6 +1,5 @@
 @extends('layouts.app')
 @section('title', __('storefront.nav.packages'))
-@section('description', __('storefront.bundle.lede'))
 
 @php use App\Support\Nav; @endphp
 
@@ -15,28 +14,22 @@
 
         <div class="page-head">
             <h1 class="page-head__title">{{ __('storefront.nav.packages') }}</h1>
-            <p class="page-head__lede">{{ __('storefront.bundle.lede') }}</p>
         </div>
 
         @if (count($packages))
             <div class="product-grid" style="padding-block-end:var(--space-8)">
                 @foreach ($packages as $package)
                     <article class="product-card">
-                        <a class="product-card__media" href="{{ Nav::url('packages/'.$package->slug()) }}">
+                        <a class="product-card__media" href="{{ Nav::url('products/'.$package->slug()) }}">
                             @if ($package->image())
                                 <img class="product-card__img product-card__img--main" src="{{ $package->image() }}"
                                      alt="" width="600" height="750" loading="lazy" decoding="async">
                             @endif
-                            <span class="product-card__flags">
-                                <span class="badge badge--gold">
-                                    {{ __('storefront.bundle.stepShort', ['n' => $package->bundleSize()]) }}
-                                </span>
-                            </span>
                         </a>
                         <div class="product-card__body">
                             <p class="product-card__kicker">{{ __('storefront.nav.packages') }}</p>
                             <h2 class="product-card__name">
-                                <a href="{{ Nav::url('packages/'.$package->slug()) }}">{{ $package->name() }}</a>
+                                <a href="{{ Nav::url('products/'.$package->slug()) }}">{{ $package->name() }}</a>
                             </h2>
                             <x-price :product="$package"/>
                         </div>

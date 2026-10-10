@@ -184,14 +184,11 @@
                      data-reveal>
                     <div>
                         <p class="section-heading__eyebrow">{{ __('storefront.nav.packages') }}</p>
-                        <h2 style="font-size:var(--step-title);color:var(--cream-400);margin-block-end:var(--space-3)">
-                            {{ __('storefront.home.bundleTitle') }}
+                        <h2 style="font-size:var(--step-title);color:var(--cream-400);margin-block-end:var(--space-5)">
+                            {{ $packages->name() }}
                         </h2>
-                        <p style="color:rgba(243,232,200,.78);margin-block-end:var(--space-5)">
-                            {{ __('storefront.home.bundleLede') }}
-                        </p>
-                        <a class="btn btn--on-dark" href="{{ Nav::url('packages/'.$packages->slug()) }}">
-                            {{ __('storefront.bundle.title') }}
+                        <a class="btn btn--on-dark" href="{{ Nav::url('products/'.$packages->slug()) }}">
+                            {{ __('storefront.actions.shopNow') }}
                         </a>
                     </div>
 

@@ -307,9 +307,20 @@ class Product implements Arrayable
         return (bool) ($this->raw['isVarientExists'] ?? false);
     }
 
+    /**
+     * True when the shopper has something to pick before this can be added. A
+     * package's "choose several" group is not that: nobody picks from it, so a
+     * package adds to the bag like any other product.
+     */
     public function hasOptions(): bool
     {
-        return (bool) ($this->raw['isOptionExists'] ?? false);
+        if (! ($this->raw['isOptionExists'] ?? false)) {
+            return false;
+        }
+
+        $groups = $this->options();
+
+        return $groups === [] || array_filter($groups, fn (array $group) => ! self::choosesSeveral($group)) !== [];
     }
 
     public function rating(): float
@@ -328,9 +339,8 @@ class Product implements Arrayable
      * Option groups as the dashboard defines them.
      *
      * A group with a checkbox layout and a choice count is how this store
-     * builds its packages — "باكج" is a product whose single group is named
-     * "Choose (3)" with minimumChoises/maximumChoises of 3. The bundle builder
-     * reads exactly that, so packages stay editable from the dashboard.
+     * marks its packages — "باكج" is a product whose single group is named
+     * "Choose (3)" with minimumChoises/maximumChoises of 3 ({@see isBundle()}).
      *
      * @return array<int,array<string,mixed>>
      */
@@ -379,11 +389,16 @@ class Product implements Arrayable
         return $groups;
     }
 
-    /** True when this product is a "choose N" package rather than a single bottle. */
+    /**
+     * True when this product is a package rather than a single bottle: it carries
+     * a "choose several" group (a checkbox layout that takes more than one pick).
+     * The group only marks it as a package — the shopper is never asked to fill
+     * it in.
+     */
     public function isBundle(): bool
     {
         foreach ($this->options() as $group) {
-            if ($group['layout'] === 'checkbox' && $group['max'] > 1) {
+            if (self::choosesSeveral($group)) {
                 return true;
             }
         }
@@ -391,27 +406,10 @@ class Product implements Arrayable
         return false;
     }
 
-    /** How many picks the package expects, for the builder's step count. */
-    public function bundleSize(): int
+    /** @param  array<string,mixed>  $group  one entry of {@see options()} */
+    protected static function choosesSeveral(array $group): bool
     {
-        foreach ($this->options() as $group) {
-            if ($group['layout'] === 'checkbox' && $group['max'] > 1) {
-                return $group['max'];
-            }
-        }
-
-        return 0;
-    }
-
-    public function bundleGroup(): ?array
-    {
-        foreach ($this->options() as $group) {
-            if ($group['layout'] === 'checkbox' && $group['max'] > 1) {
-                return $group;
-            }
-        }
-
-        return null;
+        return $group['layout'] === 'checkbox' && $group['max'] > 1;
     }
 
     /**

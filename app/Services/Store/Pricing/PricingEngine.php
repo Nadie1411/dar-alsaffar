@@ -240,7 +240,7 @@ class PricingEngine
         }
 
         foreach ($groups as $group) {
-            if ($group->is_required && ! isset($chosenGroups[$group->id])) {
+            if ($group->is_required && ! $group->choosesSeveral() && ! isset($chosenGroups[$group->id])) {
                 return [0, [], $problem];
             }
         }

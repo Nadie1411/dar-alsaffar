@@ -33,6 +33,15 @@ class OptionGroup extends Model
         ];
     }
 
+    /**
+     * A "choose several" group (a checkbox layout taking more than one pick)
+     * marks a package. Nobody is asked to fill it in, so it never blocks an add.
+     */
+    public function choosesSeveral(): bool
+    {
+        return $this->layout === self::LAYOUT_CHECKBOX && $this->max_choices > 1;
+    }
+
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);

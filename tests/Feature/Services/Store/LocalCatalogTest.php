@@ -88,7 +88,7 @@ class LocalCatalogTest extends TestCase
         $this->assertStringEndsWith('/uploads/catalog/products/third.png', $gallery[2]);
     }
 
-    public function test_options_come_through_as_groups_with_dinar_prices_and_bundles_are_recognised(): void
+    public function test_options_come_through_as_groups_with_dinar_prices_and_packages_are_recognised(): void
     {
         $jar = Product::factory()->priced(0)->create(['slug' => 'jar']);
         $weight = OptionGroup::factory()->for($jar)->create(['name_en' => 'Weight', 'name_ar' => 'الوزن']);
@@ -106,7 +106,7 @@ class LocalCatalogTest extends TestCase
         $this->assertSame([60.0, 145.5], array_column($jarView->options()[0]['values'], 'price'));
         $this->assertSame(60.0, $jarView->startingPrice());
         $this->assertTrue($packageView->isBundle());
-        $this->assertSame(3, $packageView->bundleSize());
+        $this->assertFalse($packageView->hasOptions(), 'nobody picks from a package, so it has nothing to choose');
     }
 
     public function test_an_inactive_option_value_is_left_out(): void

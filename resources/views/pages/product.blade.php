@@ -122,14 +122,7 @@
                     <p class="muted" style="line-height:var(--leading-relaxed)">{{ $excerpt }}</p>
                 @endif
 
-                {{-- A package is configured on its own page, not here. --}}
-                @if ($product->isBundle())
-                    <div class="pdp__actions">
-                        <a class="btn btn--lg btn--block" href="{{ Nav::url('packages/'.$product->slug()) }}">
-                            {{ __('storefront.bundle.title') }}
-                        </a>
-                    </div>
-                @elseif ($product->inStock())
+                @if ($product->inStock())
                     <x-product-options :product="$product"/>
 
                     <div class="pdp__actions">
@@ -272,7 +265,7 @@
     </div>
 
     {{-- Sticky buy bar for phones, revealed once the price scrolls away. --}}
-    @if ($product->inStock() && ! $product->isBundle())
+    @if ($product->inStock())
         <div class="buy-bar" data-buy-bar>
             <div class="buy-bar__price"><x-price :product="$product"/></div>
             <button type="button" class="btn" data-add-to-cart="{{ $product->id() }}"
