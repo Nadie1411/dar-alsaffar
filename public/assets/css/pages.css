@@ -441,58 +441,6 @@
   .pdp__buy-row [data-add-to-cart] { display: none; }
 }
 
-/* ---- bundle builder ----------------------------------------------------- */
-
-.bundle-steps { display: grid; gap: var(--space-4); }
-@media (min-width: 768px) { .bundle-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-
-.bundle-slot {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  padding: var(--space-4);
-  border: 1px dashed var(--line);
-  border-radius: var(--radius-md);
-  background: var(--surface-raised);
-  transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease);
-  min-block-size: 132px;
-}
-.bundle-slot.is-active { border-style: solid; border-color: var(--emerald-700); }
-.bundle-slot.is-filled { border-style: solid; border-color: var(--line); background: var(--surface-sunken); }
-
-.bundle-slot__index {
-  font-family: var(--font-sans);
-  font-size: var(--step-micro);
-  letter-spacing: var(--tracking-wider);
-  color: var(--gold-600);
-}
-.bundle-slot__label { font-size: var(--step-small); color: var(--text-secondary); }
-.bundle-slot__chosen { display: flex; align-items: center; gap: var(--space-3); }
-.bundle-slot__chosen img {
-  inline-size: 52px; block-size: 64px;
-  object-fit: cover;
-  border-radius: var(--radius-sm);
-  flex: none;
-}
-
-.bundle-bar {
-  position: sticky;
-  inset-block-end: 0;
-  z-index: 40;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-  flex-wrap: wrap;
-  padding: var(--space-4) var(--space-5);
-  padding-block-end: max(var(--space-4), env(safe-area-inset-bottom));
-  background: var(--ink-900);
-  color: var(--cream-400);
-  border-radius: var(--radius-md);
-}
-.bundle-bar__progress { font-size: var(--step-small); }
-
 /* ---- cart --------------------------------------------------------------- */
 
 .cart-layout { display: grid; gap: var(--space-6); align-items: start; }
@@ -594,6 +542,15 @@
 .checkout-bar .btn { flex: 1; }
 
 @media (min-width: 1024px) { .checkout-bar { display: none; } }
+
+/* The cart's summary box: desktop checks out from the box (there is no fixed bar),
+   phones check out from the fixed bar and the box offers "continue shopping"
+   instead — and the plain link under the lines would then be a second copy of it. */
+.cart-cta__shop { display: none; }
+@media (max-width: 1023px) {
+  .cart-cta__checkout, .cart-keep-shopping { display: none; }
+  .cart-cta__shop { display: inline-flex; }
+}
 
 /* Keep the last of the page clear of the fixed bar. */
 @media (max-width: 1023px) {

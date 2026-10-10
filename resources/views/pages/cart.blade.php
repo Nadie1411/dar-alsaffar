@@ -129,7 +129,7 @@
                         </div>
                     @endforeach
 
-                    <p style="margin-block-start:var(--space-5)">
+                    <p class="cart-keep-shopping" style="margin-block-start:var(--space-5)">
                         <a class="link-underline" href="{{ Nav::url('products') }}">
                             <x-icon name="arrow" size="16" class="icon-arrow"/>
                             {{ __('storefront.actions.keepShopping') }}
@@ -220,22 +220,32 @@
                         @endunless
 
                         <div class="sticky-cta">
-                            {{-- aria-disabled on a link still follows on click, so a
+                            {{-- Below desktop width the fixed bar below owns "checkout", so
+                                 this box offers "continue shopping" instead; on desktop
+                                 there is no bar and the box keeps the checkout button.
+                                 aria-disabled on a link still follows on click, so a
                                  cart the API will not accept gets a real disabled
                                  button instead of a link that leads to a dead end. --}}
                             @if ($quote->canPlaceOrder())
-                                <a class="btn btn--lg btn--block" href="{{ Nav::url('checkout') }}">
+                                <a class="btn btn--lg btn--block cart-cta__checkout" href="{{ Nav::url('checkout') }}">
                                     {{ __('storefront.actions.checkout') }}
                                 </a>
                             @else
-                                <button class="btn btn--lg btn--block" type="button" disabled
+                                <button class="btn btn--lg btn--block cart-cta__checkout" type="button" disabled
                                         aria-describedby="checkout-blocked">
                                     {{ __('storefront.actions.checkout') }}
                                 </button>
+                            @endif
+
+                            <a class="btn btn--lg btn--block btn--ghost cart-cta__shop" href="{{ Nav::url('products') }}">
+                                {{ __('storefront.actions.keepShopping') }}
+                            </a>
+
+                            @unless ($quote->canPlaceOrder())
                                 <p class="field__hint center" id="checkout-blocked">
                                     {{ $quote->problems()[0] ?? __('storefront.cart.unavailable') }}
                                 </p>
-                            @endif
+                            @endunless
                         </div>
                     </div>
                 </aside>

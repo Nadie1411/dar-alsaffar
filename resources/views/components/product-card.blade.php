@@ -61,13 +61,12 @@
 
         @if ($inStock)
             <div class="product-card__reveal">
-                @if ($product->isPricedByOptions() || $product->hasOptions() || $product->isBundle())
-                    {{-- Needs a choice (a weight, a package selection), so the
-                         card sends the shopper to the product rather than
-                         quietly adding the wrong thing. --}}
-                    <a class="btn btn--sm btn--block"
-                       href="{{ $product->isBundle() ? Nav::url('packages/'.$product->slug()) : $url }}">
-                        {{ $product->isBundle() ? __('storefront.bundle.choose') : __('storefront.actions.quickView') }}
+                @if ($product->isPricedByOptions() || $product->hasOptions())
+                    {{-- Needs a choice (a weight, say), so the card sends the
+                         shopper to the product rather than quietly adding the
+                         wrong thing. --}}
+                    <a class="btn btn--sm btn--block" href="{{ $url }}">
+                        {{ __('storefront.actions.quickView') }}
                     </a>
                 @else
                     <button type="button"

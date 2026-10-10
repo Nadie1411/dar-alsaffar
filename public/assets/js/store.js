@@ -298,9 +298,12 @@
 
   // ------------------------------------------------- the product flies to the bag
 
-  // A small copy of the product's picture (or a brand-coloured dot when there is
-  // none on screen) arcs from where it was added to the bag icon, which then gives
-  // a little bounce. Skipped for anyone who has asked their device for less motion.
+  // A small copy of the product's picture arcs from where it was added to the bag
+  // icon, which then gives a little bounce. The picture is the product's own even
+  // when it has scrolled out of view (a gift box with a long list of choices, say):
+  // the copy then simply starts from the button instead of from the picture. A
+  // brand-coloured dot is only for a product with no picture at all. Skipped for
+  // anyone who has asked their device for less motion.
   function flyToCart(btn) {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('animate' in Element.prototype)) return;
 
@@ -310,8 +313,12 @@
     });
     if (!target) return;
 
-    const scope = btn.closest('[data-product-scope], .product-card, article, form') || document;
-    const img = scope.querySelector('img') || document.querySelector('[data-gallery] img, .gallery img, .product img');
+    // A card in a listing carries its own picture; on a product page it is the
+    // gallery's.
+    const card = btn.closest('.product-card');
+    const img = (card && card.querySelector('img'))
+      || $('[data-gallery-slide].is-active, .gallery__stage img.is-active, [data-gallery] img, .gallery img');
+    const src = img ? (img.currentSrc || img.src) : '';
     const onScreen = (r) => r.width > 0 && r.bottom > 0 && r.top < window.innerHeight && r.right > 0 && r.left < window.innerWidth;
 
     let from = img ? img.getBoundingClientRect() : null;
@@ -328,9 +335,7 @@
     fly.className = 'fly-thumb';
     fly.setAttribute('aria-hidden', 'true');
     fly.style.cssText = `left:${startX}px;top:${startY}px;width:${size}px;height:${size}px;`;
-    if (img && img.currentSrc && onScreen(img.getBoundingClientRect())) {
-      fly.style.backgroundImage = `url("${img.currentSrc}")`;
-    }
+    if (src) fly.style.backgroundImage = `url("${src}")`;
     document.body.appendChild(fly);
 
     // Up and over, then down into the bag: a lifted midpoint makes the path an arc.

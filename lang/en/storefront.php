@@ -75,8 +75,6 @@ return [
         'newTitle'    => 'New releases',
         'storyEyebrow'=> 'Dar Alsaffar',
         'storyTitle'  => 'A scent that stays in memory',
-        'bundleTitle' => 'Build your own set',
-        'bundleLede'  => 'Choose your fragrances and get the package price.',
     ],
 
     'values' => [
@@ -345,18 +343,6 @@ return [
     ],
 
     'bundle' => [
-        'title'      => 'Build your own set',
-        'lede'       => 'Pick your products and get the package price.',
-        'step'       => 'Choose product :n',
-        'stepShort'  => 'Product :n',
-        'choose'     => 'Choose a product',
-        'change'     => 'Change',
-        'remaining'  => ':count left to choose',
-        'remainingOne' => '1 left to choose',
-        'complete'   => 'Your selection is complete',
-        'price'      => 'Package price',
-        'addBundle'  => 'Add package to cart',
-        'selected'   => 'Your selection',
         'empty'      => 'No packages available right now',
         'emptyText'  => 'Follow us for the latest packages and offers.',
     ],
