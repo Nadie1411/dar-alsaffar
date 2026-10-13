@@ -21,6 +21,9 @@ use Illuminate\Validation\Validator;
  */
 class ProductRequest extends FormRequest
 {
+    /** The most pieces a customer can be asked to pick for one set. */
+    public const MOST_PIECES = 20;
+
     public function authorize(): bool
     {
         return true;
@@ -101,6 +104,12 @@ class ProductRequest extends FormRequest
             'options.*.values.*.price' => ['nullable', new Dinars],
             'options.*.values.*.is_active' => ['nullable', 'boolean'],
 
+            'set' => ['nullable', 'array'],
+            'set.enabled' => ['nullable', 'boolean'],
+            'set.size' => ['nullable', 'integer', 'min:2', 'max:'.self::MOST_PIECES],
+            'set.pieces' => ['nullable', 'array', 'max:60'],
+            'set.pieces.*' => ['integer', 'distinct', 'exists:products,id', Rule::notIn(array_filter([$product?->id]))],
+
             'tiers' => ['nullable', 'array', 'max:10'],
             'tiers.*.id' => ['nullable', 'integer'],
             'tiers.*.min_quantity' => ['required', 'integer', 'min:1', 'max:9999', 'distinct'],
@@ -127,6 +136,7 @@ class ProductRequest extends FormRequest
 
             $this->checkDiscount($validator);
             $this->checkOptions($validator);
+            $this->checkSet($validator);
             $this->checkTiers($validator);
         }];
     }
@@ -181,6 +191,27 @@ class ProductRequest extends FormRequest
             if ($min > count($group['values'] ?? [])) {
                 $validator->errors()->add("options.$index.min_choices", __('panel.products.minAboveValues'));
             }
+        }
+    }
+
+    protected function checkSet(Validator $validator): void
+    {
+        if (! $this->boolean('set.enabled')) {
+            return;
+        }
+
+        $size = (int) $this->input('set.size');
+        $pieces = array_map('intval', (array) $this->input('set.pieces', []));
+
+        if ($size < 2) {
+            $validator->errors()->add('set.size', __('panel.products.setSizeRequired'));
+        } elseif (count($pieces) < $size) {
+            $validator->errors()->add('set.pieces', __('panel.products.setNotEnough'));
+        }
+
+        // A set is filled with products, not with other sets.
+        if ($pieces !== [] && OptionGroup::query()->where('is_builder', true)->whereIn('product_id', $pieces)->exists()) {
+            $validator->errors()->add('set.pieces', __('panel.products.setNested'));
         }
     }
 

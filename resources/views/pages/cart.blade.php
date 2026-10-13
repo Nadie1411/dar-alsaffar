@@ -80,6 +80,7 @@
                                                 <a href="{{ Nav::url('products/'.$product->slug()) }}">{{ $product->name() }}</a>
                                             @endif
                                         </p>
+                                        <x-line-choices :options="$line['options']"/>
                                         @if ($line['isFreeGift'])
                                             <span class="badge badge--gold">{{ __('storefront.cart.freeGift') }}</span>
                                         @endif

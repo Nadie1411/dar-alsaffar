@@ -283,6 +283,7 @@
                             @endif
                             <span style="flex:1;min-inline-size:0">
                                 <span style="display:block;font-size:var(--step-small)">{{ $product?->name() }}</span>
+                                <x-line-choices :options="$line['options']"/>
                                 <span class="muted" style="font-size:var(--step-micro)">× {{ $line['quantity'] }}</span>
                             </span>
                             <x-price :now="$line['total']" :symbol="$line['symbol']"/>

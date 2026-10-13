@@ -61,7 +61,12 @@
 
         @if ($inStock)
             <div class="product-card__reveal">
-                @if ($product->isPricedByOptions() || $product->hasOptions())
+                @if ($product->isSetBuilder())
+                    {{-- Its pieces are for the shopper to pick, on the set's own page. --}}
+                    <a class="btn btn--sm btn--block" href="{{ Nav::url('packages/'.$product->slug()) }}">
+                        {{ __('storefront.bundle.build') }}
+                    </a>
+                @elseif ($product->isPricedByOptions() || $product->hasOptions())
                     {{-- Needs a choice (a weight, say), so the card sends the
                          shopper to the product rather than quietly adding the
                          wrong thing. --}}

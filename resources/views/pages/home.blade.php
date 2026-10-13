@@ -187,8 +187,9 @@
                         <h2 style="font-size:var(--step-title);color:var(--cream-400);margin-block-end:var(--space-5)">
                             {{ $packages->name() }}
                         </h2>
-                        <a class="btn btn--on-dark" href="{{ Nav::url('products/'.$packages->slug()) }}">
-                            {{ __('storefront.actions.shopNow') }}
+                        <a class="btn btn--on-dark"
+                           href="{{ Nav::url(($packages->isSetBuilder() ? 'packages/' : 'products/').$packages->slug()) }}">
+                            {{ $packages->isSetBuilder() ? __('storefront.bundle.build') : __('storefront.actions.shopNow') }}
                         </a>
                     </div>
 

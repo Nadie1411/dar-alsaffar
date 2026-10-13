@@ -40,6 +40,17 @@ class OptionGroupFactory extends Factory
         ]);
     }
 
+    /** The group a customer builds a set from: exactly $size pieces, all required. */
+    public function builder(int $size = 3): static
+    {
+        return $this->checkbox($size, $size)->state([
+            'name_ar' => 'اختياراتك',
+            'name_en' => 'Your picks',
+            'is_builder' => true,
+            'is_required' => true,
+        ]);
+    }
+
     public function optional(): static
     {
         return $this->state(['is_required' => false]);

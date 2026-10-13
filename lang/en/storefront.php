@@ -191,6 +191,7 @@ return [
         'lineOnlyLeft' => 'Only :count left in stock',
         'lineMaxPerOrder' => 'You can order up to :count of this product',
         'lineOptionsInvalid' => 'Please choose from the available options',
+        'pieceOutOfStock' => ':name is not available right now',
         'areaUnavailable' => 'We do not deliver to this area yet',
         'addonUnavailable' => 'One of the selected extras is no longer available',
     ],
@@ -343,8 +344,19 @@ return [
     ],
 
     'bundle' => [
-        'empty'      => 'No packages available right now',
-        'emptyText'  => 'Follow us for the latest packages and offers.',
+        'title'        => 'Build your own set',
+        'lede'         => 'Pick your products and get the package price.',
+        'build'        => 'Build your set',
+        'step'         => 'Choose product :n',
+        'choose'       => 'Choose a product',
+        'remaining'    => ':count left to choose',
+        'remainingOne' => '1 left to choose',
+        'complete'     => 'Your selection is complete',
+        'price'        => 'Package price',
+        'addBundle'    => 'Add package to cart',
+        'unavailable'  => 'This package is not available right now.',
+        'empty'        => 'No packages available right now',
+        'emptyText'    => 'Follow us for the latest packages and offers.',
     ],
 
     'content' => [

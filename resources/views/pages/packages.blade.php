@@ -19,17 +19,25 @@
         @if (count($packages))
             <div class="product-grid" style="padding-block-end:var(--space-8)">
                 @foreach ($packages as $package)
+                    {{-- A set the customer builds opens its builder; a ready-made package, its product page. --}}
+                    @php $url = Nav::url(($package->isSetBuilder() ? 'packages/' : 'products/').$package->slug()); @endphp
+
                     <article class="product-card">
-                        <a class="product-card__media" href="{{ Nav::url('products/'.$package->slug()) }}">
+                        <a class="product-card__media" href="{{ $url }}">
                             @if ($package->image())
                                 <img class="product-card__img product-card__img--main" src="{{ $package->image() }}"
                                      alt="" width="600" height="750" loading="lazy" decoding="async">
+                            @endif
+                            @if ($package->isSetBuilder())
+                                <span class="product-card__flags">
+                                    <span class="badge badge--gold">{{ __('storefront.bundle.build') }}</span>
+                                </span>
                             @endif
                         </a>
                         <div class="product-card__body">
                             <p class="product-card__kicker">{{ __('storefront.nav.packages') }}</p>
                             <h2 class="product-card__name">
-                                <a href="{{ Nav::url('products/'.$package->slug()) }}">{{ $package->name() }}</a>
+                                <a href="{{ $url }}">{{ $package->name() }}</a>
                             </h2>
                             <x-price :product="$package"/>
                         </div>

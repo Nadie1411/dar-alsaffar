@@ -423,6 +423,18 @@ return [
         'discountEndsBeforeStart' => 'The end must be after the start.',
         'maxBelowMin' => 'The most is below the fewest.',
         'minAboveValues' => 'The fewest is more than the number of values.',
+        'setTitle' => 'Set the customer builds',
+        'setHint' => 'The customer chooses the pieces of this set from the products you tick here and pays this product\'s price for the whole set, whichever pieces they choose. Set that price in the price field above.',
+        'setEnable' => 'Let customers build this set',
+        'setSize' => 'Pieces in the set',
+        'setSizeHint' => 'How many products the customer picks before they can add the set to the bag.',
+        'setPieces' => 'Products they can choose from',
+        'setPiecesHint' => 'A product that is switched off or sold out cannot be picked.',
+        'setPieceHidden' => 'switched off',
+        'setSizeRequired' => 'Enter how many pieces go in the set (2 to 20).',
+        'setNotEnough' => 'Tick at least as many products as there are pieces in the set.',
+        'setNested' => 'A set the customer builds cannot be a piece of another set.',
+        'setBadge' => 'Customer builds it',
     ],
 
     'addons' => [

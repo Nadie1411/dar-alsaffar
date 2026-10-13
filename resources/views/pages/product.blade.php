@@ -122,7 +122,14 @@
                     <p class="muted" style="line-height:var(--leading-relaxed)">{{ $excerpt }}</p>
                 @endif
 
-                @if ($product->inStock())
+                {{-- A set the customer builds is put together on its own page, not here. --}}
+                @if ($product->isSetBuilder())
+                    <div class="pdp__actions">
+                        <a class="btn btn--lg btn--block" href="{{ Nav::url('packages/'.$product->slug()) }}">
+                            {{ __('storefront.bundle.build') }}
+                        </a>
+                    </div>
+                @elseif ($product->inStock())
                     <x-product-options :product="$product"/>
 
                     <div class="pdp__actions">
@@ -265,7 +272,7 @@
     </div>
 
     {{-- Sticky buy bar for phones, revealed once the price scrolls away. --}}
-    @if ($product->inStock())
+    @if ($product->inStock() && ! $product->isSetBuilder())
         <div class="buy-bar" data-buy-bar>
             <div class="buy-bar__price"><x-price :product="$product"/></div>
             <button type="button" class="btn" data-add-to-cart="{{ $product->id() }}"

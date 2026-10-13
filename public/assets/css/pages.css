@@ -441,6 +441,73 @@
   .pdp__buy-row [data-add-to-cart] { display: none; }
 }
 
+/* ---- bundle builder ----------------------------------------------------- */
+
+.bundle-steps { display: grid; gap: var(--space-4); }
+@media (min-width: 768px) { .bundle-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+.bundle-slot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease);
+  min-block-size: 132px;
+}
+.bundle-slot.is-active { border-style: solid; border-color: var(--emerald-700); }
+.bundle-slot.is-filled { border-style: solid; border-color: var(--line); background: var(--surface-sunken); }
+
+.bundle-slot__index {
+  font-family: var(--font-sans);
+  font-size: var(--step-micro);
+  letter-spacing: var(--tracking-wider);
+  color: var(--gold-600);
+}
+.bundle-slot__label { font-size: var(--step-small); color: var(--text-secondary); }
+.bundle-slot__chosen { display: flex; align-items: center; gap: var(--space-3); }
+.bundle-slot__chosen img {
+  inline-size: 52px; block-size: 64px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  flex: none;
+}
+
+.bundle-bar {
+  position: sticky;
+  inset-block-end: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  padding: var(--space-4) var(--space-5);
+  padding-block-end: max(var(--space-4), env(safe-area-inset-bottom));
+  background: var(--ink-900);
+  color: var(--cream-400);
+  border-radius: var(--radius-md);
+}
+/* The round chat button floats over the bar's start corner, so the text starts beside it. */
+.bundle-bar__progress { font-size: var(--step-small); padding-inline-start: 52px; }
+.bundle-bar .price { white-space: nowrap; }
+
+/* A piece the shop has run out of stays on show, but cannot be picked. */
+.product-card.is-sold-out { opacity: .55; cursor: not-allowed !important; }
+.product-card.is-sold-out input { cursor: not-allowed; }
+
+/* What the shopper chose on a bag line: a size, the pieces of a set. */
+.line-choices {
+  margin-block: var(--space-1) 0;
+  font-size: var(--step-small);
+  line-height: var(--leading-relaxed);
+  color: var(--text-secondary);
+}
+.line-choices__group { color: var(--text-muted, var(--text-secondary)); }
+
 /* ---- cart --------------------------------------------------------------- */
 
 .cart-layout { display: grid; gap: var(--space-6); align-items: start; }

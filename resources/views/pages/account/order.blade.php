@@ -55,6 +55,7 @@
                             <p style="font-family:var(--font-display);font-size:var(--step-subhead)">
                                 {{ Loc::text($p['title'] ?? null) }}
                             </p>
+                            <x-line-choices :options="$item['options'] ?? []"/>
                             <p class="muted" style="font-size:var(--step-micro)">× {{ $item['quantity'] ?? 1 }}</p>
                         </div>
                         <x-price :now="$item['totalPriceAfterDiscount'] ?? $item['totalPrice'] ?? 0"

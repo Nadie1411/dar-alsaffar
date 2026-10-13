@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\OptionGroup;
 use App\Models\OptionValue;
+use App\Models\Product;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -28,6 +29,16 @@ class OptionValueFactory extends Factory
             'is_active' => true,
             'overzaki_id' => null,
         ];
+    }
+
+    /** A piece of a set: it stands for one of the shop's own products. */
+    public function piece(Product $product): static
+    {
+        return $this->state([
+            'product_id' => $product->id,
+            'name_ar' => $product->name_ar,
+            'name_en' => $product->name_en,
+        ]);
     }
 
     public function priced(int $fils): static

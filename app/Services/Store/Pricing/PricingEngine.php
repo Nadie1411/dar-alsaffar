@@ -144,11 +144,11 @@ class PricingEngine
             return new PricedLine($key, $productId, $product, $quantity, 0, 0, false, __('storefront.cart.lineGone'));
         }
 
-        [$optionsFils, $selected, $optionProblem] = $this->options($product, $item['options'] ?? []);
+        [$optionsFils, $selected, $optionProblem, $pieces] = $this->options($product, $item['options'] ?? []);
 
         $listUnit = (int) $product->sell_price_fils + $optionsFils;
         $unit = $product->priceFils() + $optionsFils;
-        $message = $optionProblem ?? $this->quantityProblem($product, $quantity);
+        $message = $optionProblem ?? $this->quantityProblem($product, $quantity) ?? $this->piecesProblem($pieces, $quantity);
 
         // "Buy more, save more": the highest tier the line reaches takes its
         // discount off the line once. A line that cannot be sold earns none.
@@ -158,7 +158,26 @@ class PricingEngine
             $key, $productId, $product, $quantity, $listUnit, $unit, $message === null, $message, $selected,
             $tier?->discountFor($unit * $quantity) ?? 0,
             $tier?->free_delivery ?? false,
+            $pieces,
         );
+    }
+
+    /**
+     * A set takes one of each of its pieces per unit, so each piece must have
+     * that many left. (Whether the pieces of several lines add up to more than
+     * the shelf holds is settled when the order is placed.)
+     *
+     * @param  array<int,Product>  $pieces
+     */
+    protected function piecesProblem(array $pieces, int $quantity): ?string
+    {
+        foreach ($pieces as $piece) {
+            if ($piece->track_stock && $piece->stock < $quantity) {
+                return __('storefront.cart.pieceOutOfStock', ['name' => $piece->localized('name')]);
+            }
+        }
+
+        return null;
     }
 
     protected function quantityProblem(Product $product, int $quantity): ?string
@@ -183,15 +202,19 @@ class PricingEngine
      * add up what they cost.
      *
      * @param  array<int,mixed>  $selections  [['optionId' => ..., 'values' => [['valueId' => ..., 'quantity' => ...]]]]
-     * @return array{0:int,1:array<int,array<string,mixed>>,2:?string} extra fils, the choices resolved, a problem if any
+     * @return array{0:int,1:array<int,array<string,mixed>>,2:?string,3:array<int,Product>} extra fils, the choices
+     *                                                                                      resolved, a problem if any, and the products picked as a set's pieces
      */
     protected function options(Product $product, array $selections): array
     {
-        $groups = $product->optionGroups
-            ->filter(fn (OptionGroup $group) => $group->is_active && $group->values->contains('is_active', true));
+        // A set stays in the list even with no piece left to pick, so it cannot
+        // be bought with its pieces missing.
+        $groups = $product->optionGroups->filter(fn (OptionGroup $group) => $group->is_active
+            && ($group->is_builder || $group->values->contains(fn (OptionValue $value) => $value->isSelectable())));
 
         $extra = 0;
         $resolved = [];
+        $pieces = [];
         $chosenGroups = [];
         $problem = __('storefront.cart.lineOptionsInvalid');
 
@@ -199,37 +222,45 @@ class PricingEngine
             $group = $this->findByReference($groups, (string) ($selection['optionId'] ?? ''));
 
             if ($group === null || isset($chosenGroups[$group->id])) {
-                return [0, [], $problem];
+                return [0, [], $problem, []];
             }
 
             $chosenGroups[$group->id] = true;
             $values = [];
             $count = 0;
+            $picked = [];
 
             foreach ($selection['values'] ?? [] as $pick) {
                 /** @var OptionValue|null $value */
                 $value = $this->findByReference(
-                    $group->values->filter(fn (OptionValue $value) => $value->is_active),
+                    $group->values->filter(fn (OptionValue $value) => $value->isSelectable()),
                     (string) ($pick['valueId'] ?? '')
                 );
 
-                if ($value === null) {
-                    return [0, [], $problem];
+                // A set's pieces are each picked once: the price is the set's
+                // own, so a piece cannot be counted twice to fill it.
+                if ($value === null || ($group->is_builder && isset($picked[$value->id]))) {
+                    return [0, [], $problem, []];
                 }
 
-                $quantity = max(1, min((int) ($pick['quantity'] ?? 1), 99));
+                $picked[$value->id] = true;
+                $quantity = $group->is_builder ? 1 : max(1, min((int) ($pick['quantity'] ?? 1), 99));
                 $count += $quantity;
                 $extra += $value->price_fils * $quantity;
                 $values[] = [
                     'valueId' => (string) $value->id,
                     'quantity' => $quantity,
                     'unitPrice' => Money::fromFils($value->price_fils),
-                    'value' => ['name' => $value->localizedMap('name')],
+                    'value' => ['name' => $value->nameMap()],
                 ];
+
+                if ($group->is_builder && $value->piece !== null) {
+                    $pieces[] = $value->piece;
+                }
             }
 
             if (! $this->choiceCountIsAllowed($group, $count)) {
-                return [0, [], $problem];
+                return [0, [], $problem, []];
             }
 
             $resolved[] = [
@@ -240,12 +271,12 @@ class PricingEngine
         }
 
         foreach ($groups as $group) {
-            if ($group->is_required && ! $group->choosesSeveral() && ! isset($chosenGroups[$group->id])) {
-                return [0, [], $problem];
+            if ($group->mustBeFilledIn() && ! isset($chosenGroups[$group->id])) {
+                return [0, [], $problem, []];
             }
         }
 
-        return [$extra, $resolved, null];
+        return [$extra, $resolved, null, $pieces];
     }
 
     protected function choiceCountIsAllowed(OptionGroup $group, int $count): bool
