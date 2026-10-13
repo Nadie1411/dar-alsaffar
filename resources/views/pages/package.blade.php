@@ -6,7 +6,7 @@
 @php use App\Support\Nav; @endphp
 
 @section('content')
-    <div class="container">
+    <div class="container set-page">
         <nav aria-label="breadcrumb">
             <ol class="crumbs">
                 <li><a href="{{ Nav::url() }}">{{ __('storefront.nav.home') }}</a></li>
@@ -15,32 +15,23 @@
             </ol>
         </nav>
 
-        <div class="pdp" style="align-items:start">
-            <div class="gallery">
-                <div class="gallery__stage">
-                    @if ($product->image())
-                        <img class="is-active" src="{{ $product->image() }}" alt="{{ $product->name() }}"
-                             width="1000" height="1250" fetchpriority="high" decoding="async">
-                    @endif
-                </div>
-            </div>
+        {{-- Kept short on purpose: the pieces to choose from are what the shopper came for. --}}
+        <header class="set-hero">
+            @if ($product->image())
+                <img class="set-hero__img" src="{{ $product->image() }}" alt="" width="200" height="250"
+                     fetchpriority="high" decoding="async">
+            @endif
 
-            <div class="pdp__info">
-                <p class="pdp__kicker">{{ __('storefront.nav.packages') }}</p>
-                <h1 class="pdp__title">{{ $product->name() }}</h1>
-
-                <div class="pdp__price">
+            <div class="set-hero__text">
+                <p class="set-hero__kicker">{{ __('storefront.nav.packages') }}</p>
+                <h1 class="set-hero__title">{{ $product->name() }}</h1>
+                <p class="set-hero__lede">{{ __('storefront.bundle.lede') }}</p>
+                <p class="set-hero__price">
                     <x-price :product="$product" size="lg"/>
-                    <p class="muted" style="margin-block-start:var(--space-2);font-size:var(--step-small)">
-                        {{ __('storefront.bundle.price') }}
-                    </p>
-                </div>
-
-                @if ($excerpt = $product->excerpt(200))
-                    <p class="muted">{{ $excerpt }}</p>
-                @endif
+                    <span class="set-hero__price-note">{{ __('storefront.bundle.price') }}</span>
+                </p>
             </div>
-        </div>
+        </header>
 
         @unless ($available)
             <p class="alert alert--error" role="alert">
@@ -48,101 +39,76 @@
             </p>
         @endunless
 
+        @error('values')
+            <p class="alert alert--error" role="alert">
+                <x-icon name="info" size="16" class="alert__icon"/> {{ $message }}
+            </p>
+        @enderror
+
         {{-- --------------------------------------------- bundle builder --}}
-        <section class="section" data-bundle data-size="{{ $group['max'] }}">
-            <x-section-heading
-                :eyebrow="__('storefront.nav.packages')"
-                :title="__('storefront.bundle.title')"
-                :lede="__('storefront.bundle.lede')"/>
+        <form method="POST" action="{{ Nav::url('packages/'.$product->slug()) }}"
+              data-bundle data-size="{{ $group['max'] }}">
+            @csrf
 
-            @error('values')
-                <p class="alert alert--error" role="alert">
-                    <x-icon name="info" size="16" class="alert__icon"/> {{ $message }}
+            {{-- The slots show what has been picked so far; the real controls are the
+                 checkboxes below, so the form works without JavaScript. --}}
+            <div class="set-tray">
+                @for ($i = 1; $i <= $group['max']; $i++)
+                    <button type="button" class="set-slot" data-slot="{{ $i }}" disabled aria-hidden="true">
+                        <span class="set-slot__num">{{ $i }}</span>
+                        <span class="set-slot__empty" data-slot-empty><x-icon name="plus" size="18"/></span>
+                        <span class="set-slot__chosen" data-slot-chosen hidden>
+                            <img src="" alt="" width="56" height="70" data-slot-img>
+                            <span class="set-slot__name" data-slot-name></span>
+                        </span>
+                    </button>
+                @endfor
+            </div>
+
+            <fieldset class="set-pieces">
+                <legend class="visually-hidden">{{ __('storefront.bundle.title') }}</legend>
+
+                <div class="piece-grid" role="group" aria-describedby="bundle-progress">
+                    @foreach ($group['values'] as $value)
+                        <label class="piece @if ($value['soldOut']) is-sold-out @endif">
+                            <input class="piece__input visually-hidden" type="checkbox" name="values[]"
+                                   value="{{ $value['id'] }}" data-bundle-option
+                                   @if ($value['soldOut']) disabled data-sold-out @endif>
+
+                            <span class="piece__media">
+                                @if ($value['image'])
+                                    <img src="{{ $value['image'] }}" alt="" width="300" height="375"
+                                         loading="lazy" decoding="async" data-piece-img>
+                                @endif
+                                <span class="piece__tick" aria-hidden="true"><x-icon name="check" size="14"/></span>
+                                @if ($value['soldOut'])
+                                    <span class="piece__soldout">{{ __('storefront.product.soldOut') }}</span>
+                                @endif
+                            </span>
+
+                            @if ($value['kicker'] !== '')
+                                <span class="piece__kicker">{{ $value['kicker'] }}</span>
+                            @endif
+                            <span class="piece__name" data-piece-name>{{ $value['name'] }}</span>
+                        </label>
+                    @endforeach
+                </div>
+            </fieldset>
+
+            <div class="bundle-bar">
+                <p class="bundle-bar__progress" id="bundle-progress" aria-live="polite" data-progress>
+                    {{ __('storefront.bundle.remaining', ['count' => $group['max']]) }}
                 </p>
-            @enderror
 
-            <form method="POST" action="{{ Nav::url('packages/'.$product->slug()) }}">
-                @csrf
-
-                {{-- The numbered slots show progress; the real controls are the
-                     checkboxes below, so the form works without JavaScript. --}}
-                <div class="bundle-steps" style="margin-block-end:var(--space-6)">
-                    @for ($i = 1; $i <= $group['max']; $i++)
-                        <div class="bundle-slot" data-slot="{{ $i }}">
-                            <span class="bundle-slot__index">
-                                {{ str_pad((string) $i, 2, '0', STR_PAD_LEFT) }} —
-                                {{ __('storefront.bundle.step', ['n' => $i]) }}
-                            </span>
-                            <span class="bundle-slot__label" data-slot-label>
-                                {{ __('storefront.bundle.choose') }}
-                            </span>
-                            <span class="bundle-slot__chosen" data-slot-chosen hidden></span>
-                        </div>
-                    @endfor
+                <div class="bundle-bar__buy">
+                    <x-price :product="$product"/>
+                    <button class="btn btn--on-dark" type="submit" data-bundle-submit disabled
+                            @unless ($available) data-unavailable @endunless>
+                        {{ __('storefront.bundle.addBundle') }}
+                    </button>
                 </div>
-
-                <fieldset class="fieldset" style="margin-block-end:var(--space-6)">
-                    <legend class="fieldset__legend">
-                        <span class="fieldset__legend-inner">{{ $group['name'] }}</span>
-                    </legend>
-
-                    <div class="product-grid" role="group"
-                         aria-describedby="bundle-progress">
-                        @foreach ($group['values'] as $value)
-                            <label class="product-card @if ($value['soldOut']) is-sold-out @endif" style="cursor:pointer">
-                                <span class="product-card__media">
-                                    @if ($value['image'])
-                                        <img class="product-card__img product-card__img--main"
-                                             src="{{ $value['image'] }}" alt="" width="600" height="750"
-                                             loading="lazy" decoding="async">
-                                    @else
-                                        <span class="product-card__img product-card__img--main"
-                                              style="display:grid;place-items:center;font-family:var(--font-display);font-size:var(--step-heading);color:var(--ink-400)">
-                                            {{ $value['name'] }}
-                                        </span>
-                                    @endif
-
-                                    <span class="product-card__wish" aria-hidden="true" data-tick hidden
-                                          style="background:var(--emerald-700);color:var(--cream-400)">
-                                        <x-icon name="check" size="16"/>
-                                    </span>
-                                </span>
-
-                                <span class="product-card__body" style="display:flex;align-items:center;gap:var(--space-3)">
-                                    <input type="checkbox" name="values[]" value="{{ $value['id'] }}"
-                                           data-bundle-option
-                                           @if ($value['soldOut']) disabled data-sold-out @endif
-                                           style="inline-size:20px;block-size:20px;accent-color:var(--emerald-700);flex:none">
-                                    <span style="min-inline-size:0">
-                                        @if ($value['kicker'] !== '')
-                                            <span class="product-card__kicker" style="display:block">{{ $value['kicker'] }}</span>
-                                        @endif
-                                        <span class="product-card__name" style="margin:0">{{ $value['name'] }}</span>
-                                    </span>
-                                    @if ($value['soldOut'])
-                                        <span class="badge badge--quiet">{{ __('storefront.product.soldOut') }}</span>
-                                    @endif
-                                </span>
-                            </label>
-                        @endforeach
-                    </div>
-                </fieldset>
-
-                <div class="bundle-bar">
-                    <p class="bundle-bar__progress" id="bundle-progress" aria-live="polite" data-progress>
-                        {{ __('storefront.bundle.remaining', ['count' => $group['max']]) }}
-                    </p>
-
-                    <div style="display:flex;align-items:center;gap:var(--space-4)">
-                        <x-price :product="$product"/>
-                        <button class="btn btn--on-dark" type="submit" data-bundle-submit disabled
-                                @unless ($available) data-unavailable @endunless>
-                            {{ __('storefront.bundle.addBundle') }}
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </section>
+            </div>
+        </form>
     </div>
 @endsection
 
@@ -159,45 +125,48 @@
     const submit = root.querySelector('[data-bundle-submit]');
 
     const i18n = {
-        choose:      @json(__('storefront.bundle.choose')),
+        remove:      @json(__('storefront.actions.remove')),
         complete:    @json(__('storefront.bundle.complete')),
         remaining:   @json(__('storefront.bundle.remaining', ['count' => '%n'])),
         remainingOne:@json(__('storefront.bundle.remainingOne')),
     };
 
+    // The order the shopper picked them in, so the slots fill from the first one.
+    let picked = [];
+
     function sync() {
-        const chosen = boxes.filter((b) => b.checked);
-        const left = size - chosen.length;
+        picked = picked.filter((b) => b.checked);
+        boxes.filter((b) => b.checked && !picked.includes(b)).forEach((b) => picked.push(b));
 
-        // Once the package is full, the remaining options are closed off
-        // rather than silently ignored on submit.
-        boxes.forEach((b) => { b.disabled = 'soldOut' in b.dataset || (!b.checked && left <= 0); });
+        const left = size - picked.length;
 
+        // Once the set is full, the remaining pieces are closed off rather than
+        // silently ignored on submit.
         boxes.forEach((b) => {
-            const tick = b.closest('label').querySelector('[data-tick]');
-            if (tick) tick.hidden = !b.checked;
-            b.closest('label').style.opacity = b.disabled ? '0.45' : '';
+            b.disabled = 'soldOut' in b.dataset || (!b.checked && left <= 0);
+            b.closest('.piece').classList.toggle('is-closed', b.disabled && !('soldOut' in b.dataset));
         });
 
         slots.forEach((slot, i) => {
-            const pick = chosen[i];
-            const label = slot.querySelector('[data-slot-label]');
-            const shown = slot.querySelector('[data-slot-chosen]');
+            const box = picked[i];
+            const card = box ? box.closest('.piece') : null;
+            const img = card ? card.querySelector('[data-piece-img]') : null;
 
-            slot.classList.toggle('is-filled', Boolean(pick));
-            slot.classList.toggle('is-active', !pick && i === chosen.length);
+            slot.classList.toggle('is-filled', Boolean(box));
+            slot.classList.toggle('is-active', !box && i === picked.length);
+            slot.querySelector('[data-slot-empty]').hidden = Boolean(box);
+            slot.querySelector('[data-slot-chosen]').hidden = !box;
+            // Only a filled slot is a control (it takes its piece out again).
+            slot.disabled = !box;
+            slot.setAttribute('aria-hidden', box ? 'false' : 'true');
 
-            if (pick) {
-                label.hidden = true;
-                shown.hidden = false;
-                const card = pick.closest('label');
-                const name = card.querySelector('.product-card__name').textContent.trim();
-                const kicker = card.querySelector('.product-card__kicker');
-                shown.textContent = kicker ? kicker.textContent.trim() + ' · ' + name : name;
-            } else {
-                label.hidden = false;
-                label.textContent = i18n.choose;
-                shown.hidden = true;
+            if (box) {
+                const image = slot.querySelector('[data-slot-img]');
+                image.hidden = !img;
+                if (img) image.src = img.currentSrc || img.src;
+                const name = card.querySelector('[data-piece-name]').textContent.trim();
+                slot.querySelector('[data-slot-name]').textContent = name;
+                slot.setAttribute('aria-label', i18n.remove + ': ' + name);
             }
         });
 
@@ -207,6 +176,14 @@
 
         submit.disabled = left !== 0 || 'unavailable' in submit.dataset;
     }
+
+    // A filled slot can be tapped to take that piece out again.
+    slots.forEach((slot, i) => slot.addEventListener('click', () => {
+        const box = picked[i];
+        if (!box) return;
+        box.checked = false;
+        sync();
+    }));
 
     boxes.forEach((b) => b.addEventListener('change', sync));
     sync();
