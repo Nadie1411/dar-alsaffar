@@ -28,6 +28,13 @@ final class PricedLine
         public readonly int $quantityDiscountFils = 0,
         /** Whether the quantity tier this line reached waives delivery. */
         public readonly bool $freeDelivery = false,
+        /**
+         * The products picked as the pieces of a set, one of each per unit of
+         * the line — their stock is what the line takes off the shelf.
+         *
+         * @var array<int,Product>
+         */
+        public readonly array $pieces = [],
     ) {}
 
     /** What the line costs after any quantity-tier discount. */

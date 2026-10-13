@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
-    'product_id', 'name_ar', 'name_en', 'layout', 'is_required',
+    'product_id', 'name_ar', 'name_en', 'layout', 'is_required', 'is_builder',
     'min_choices', 'max_choices', 'sort_order', 'is_active', 'overzaki_id',
 ])]
 class OptionGroup extends Model
@@ -27,6 +27,7 @@ class OptionGroup extends Model
     {
         return [
             'is_required' => 'boolean',
+            'is_builder' => 'boolean',
             'is_active' => 'boolean',
             'min_choices' => 'integer',
             'max_choices' => 'integer',
@@ -40,6 +41,16 @@ class OptionGroup extends Model
     public function choosesSeveral(): bool
     {
         return $this->layout === self::LAYOUT_CHECKBOX && $this->max_choices > 1;
+    }
+
+    /**
+     * Whether a shopper has to fill this group in before the product can be
+     * bought. A "choose several" group only marks a ready-made package and is
+     * never asked for; a set the shopper builds always is.
+     */
+    public function mustBeFilledIn(): bool
+    {
+        return $this->is_builder || ($this->is_required && ! $this->choosesSeveral());
     }
 
     public function product(): BelongsTo

@@ -101,6 +101,39 @@
                 </div>
             </section>
 
+            {{-- ---- a set the customer builds ----------------------------- --}}
+            <section class="card">
+                <div class="card__head"><h2>{{ __('panel.products.setTitle') }}</h2></div>
+                <div class="card__body stack" style="--gap:14px">
+                    <p class="muted small">{{ __('panel.products.setHint') }}</p>
+
+                    <x-panel.switch name="set[enabled]" :label="__('panel.products.setEnable')" :checked="$set['enabled']"
+                                    data-reveals="#set-fields"/>
+
+                    <div class="stack" id="set-fields" style="--gap:14px" @if (! $set['enabled']) hidden @endif>
+                        <x-panel.input name="set[size]" type="number" min="2" max="{{ \App\Http\Requests\Panel\ProductRequest::MOST_PIECES }}"
+                                       :label="__('panel.products.setSize')" :value="$set['size']" ltr :hint="__('panel.products.setSizeHint')"/>
+
+                        <div class="field-p">
+                            <span class="field-p__label">{{ __('panel.products.setPieces') }}</span>
+                            <input class="in" type="search" placeholder="{{ __('panel.common.search') }}" data-filter="#set-pieces" aria-label="{{ __('panel.common.search') }}">
+                            <div class="stack" id="set-pieces" style="--gap:8px; max-block-size: 280px; overflow-y: auto; margin-block-start:10px">
+                                @foreach ($pieceChoices as $choice)
+                                    <label class="check" data-filter-item>
+                                        <input type="checkbox" name="set[pieces][]" value="{{ $choice->id }}" @checked(in_array($choice->id, $set['pieces'], true))>
+                                        {{ app()->getLocale() === 'ar' ? ($choice->name_ar ?: $choice->name_en) : ($choice->name_en ?: $choice->name_ar) }}
+                                        @unless ($choice->is_active)<span class="muted small">({{ __('panel.products.setPieceHidden') }})</span>@endunless
+                                    </label>
+                                @endforeach
+                            </div>
+                            @error('set.pieces')<span class="field-p__error">{{ $message }}</span>@enderror
+                            @error('set.pieces.*')<span class="field-p__error">{{ $message }}</span>@enderror
+                            <span class="field-p__hint">{{ __('panel.products.setPiecesHint') }}</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             {{-- ---- option groups ----------------------------------------- --}}
             <section class="card">
                 <div class="card__head"><h2>{{ __('panel.products.options') }}</h2></div>

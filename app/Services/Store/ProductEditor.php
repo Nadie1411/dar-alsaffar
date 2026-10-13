@@ -49,6 +49,7 @@ class ProductEditor
             $product->categories()->sync(array_map('intval', $data['categories'] ?? []));
             $this->syncRelated($product, $data['related'] ?? []);
             $this->syncOptions($product, $data['options'] ?? []);
+            $this->syncSet($product, $data['set'] ?? []);
             $this->syncTiers($product, $data['tiers'] ?? []);
 
             return $product;
@@ -242,7 +243,9 @@ class ProductEditor
      */
     protected function syncOptions(Product $product, array $rows): void
     {
-        $existing = $product->optionGroups()->get()->keyBy('id');
+        // The group a customer builds a set from has its own part of the form;
+        // an id sent here can never reach it.
+        $existing = $product->optionGroups()->where('is_builder', false)->get()->keyBy('id');
         $kept = [];
 
         foreach (array_values($rows) as $position => $row) {
@@ -266,7 +269,74 @@ class ProductEditor
             $this->syncValues($group, $row['values'] ?? []);
         }
 
-        $product->optionGroups()->whereNotIn('id', $kept)->delete();
+        $product->optionGroups()->where('is_builder', false)->whereNotIn('id', $kept)->delete();
+    }
+
+    /**
+     * The set a customer builds: one required "choose exactly N" group whose
+     * values are the chosen products. Switching it off takes the group away and
+     * leaves an ordinary product. The set's price is the product's own price —
+     * the pieces add nothing to it.
+     *
+     * @param  array<string,mixed>  $set  `enabled`, `size` and the ids of the `pieces`
+     */
+    protected function syncSet(Product $product, array $set): void
+    {
+        $group = $product->optionGroups()->where('is_builder', true)->first();
+
+        if (! ($set['enabled'] ?? false)) {
+            $group?->delete();
+
+            return;
+        }
+
+        $size = (int) $set['size'];
+
+        $group ??= new OptionGroup;
+        $group->fill([
+            'name_ar' => 'اختياراتك',
+            'name_en' => 'Your picks',
+            'layout' => OptionGroup::LAYOUT_CHECKBOX,
+            'is_required' => true,
+            'is_builder' => true,
+            'min_choices' => $size,
+            'max_choices' => $size,
+            'sort_order' => 0,
+            'is_active' => true,
+        ]);
+        $group->product_id = $product->id;
+        $group->save();
+
+        $ids = array_values(array_unique(array_map('intval', $set['pieces'] ?? [])));
+        $pieces = Product::query()->whereKey($ids)->get()->keyBy('id');
+        $existing = $group->values()->get()->keyBy('product_id');
+        $kept = [];
+
+        foreach ($ids as $position => $id) {
+            $piece = $pieces->get($id);
+
+            if ($piece === null) {
+                continue;
+            }
+
+            $value = $existing->get($id) ?? new OptionValue;
+            $value->fill([
+                'product_id' => $id,
+                // Only a fallback: what the shopper sees is read from the product.
+                'name_ar' => $piece->name_ar,
+                'name_en' => $piece->name_en,
+                'price_fils' => 0,
+                'image' => null,
+                'sort_order' => $position,
+                'is_active' => true,
+            ]);
+            $value->option_group_id = $group->id;
+            $value->save();
+
+            $kept[] = $value->id;
+        }
+
+        $group->values()->whereNotIn('id', $kept)->delete();
     }
 
     /**

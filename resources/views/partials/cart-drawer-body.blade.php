@@ -45,6 +45,8 @@
                         @endif
                     </div>
 
+                    <x-line-choices :options="$line['options']"/>
+
                     @if (! $line['available'] && $line['message'])
                         <p class="field__error">{{ $line['message'] }}</p>
                     @endif

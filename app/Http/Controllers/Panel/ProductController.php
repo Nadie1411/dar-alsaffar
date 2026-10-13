@@ -13,6 +13,7 @@ use App\Support\PanelFormat;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 class ProductController extends Controller
@@ -159,6 +160,8 @@ class ProductController extends Controller
             'selectedCategories' => collect(old('categories', $product->categories->modelKeys()))->map(fn ($id) => (int) $id)->all(),
             'selectedRelated' => collect(old('related', $product->related->modelKeys()))->map(fn ($id) => (int) $id)->all(),
             'optionRows' => old('options') !== null ? array_values(old('options')) : $this->optionRows($product),
+            'set' => $this->setFields($product),
+            'pieceChoices' => $this->pieceChoices($product),
             'tierRows' => old('tiers') !== null ? array_values(old('tiers')) : $this->tierRows($product),
             'price' => old('price', PanelFormat::amount($product->sell_price_fils)),
             'discountAmount' => old('discount_amount', $product->discount_fils > 0 ? PanelFormat::amount($product->discount_fils) : ''),
@@ -169,10 +172,43 @@ class ProductController extends Controller
         ];
     }
 
+    /**
+     * The set the customer builds, as the form shows it: what was typed after a
+     * failed save, otherwise what the product has.
+     *
+     * @return array{enabled:bool,size:int|string,pieces:array<int,int>}
+     */
+    protected function setFields(Product $product): array
+    {
+        $group = $product->optionGroups->firstWhere('is_builder', true);
+
+        return [
+            'enabled' => (bool) old('set.enabled', $group !== null),
+            'size' => old('set.size', $group?->max_choices ?? 3),
+            'pieces' => collect(old('set.pieces', $group?->values->pluck('product_id')->filter()->all() ?? []))
+                ->map(fn ($id) => (int) $id)
+                ->all(),
+        ];
+    }
+
+    /**
+     * Every other product a set could be filled with — not another set.
+     *
+     * @return Collection<int,Product>
+     */
+    protected function pieceChoices(Product $product): Collection
+    {
+        return Product::query()
+            ->when($product->exists, fn (Builder $query) => $query->whereKeyNot($product->id))
+            ->whereDoesntHave('optionGroups', fn (Builder $query) => $query->where('is_builder', true))
+            ->orderBy('name_ar')
+            ->get(['id', 'name_ar', 'name_en', 'is_active']);
+    }
+
     /** @return array<int,array<string,mixed>> */
     protected function optionRows(Product $product): array
     {
-        return $product->optionGroups->map(fn (OptionGroup $group) => [
+        return $product->optionGroups->reject(fn (OptionGroup $group) => $group->is_builder)->values()->map(fn (OptionGroup $group) => [
             'id' => $group->id,
             'name_ar' => $group->name_ar,
             'name_en' => $group->name_en,

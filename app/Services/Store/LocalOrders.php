@@ -220,15 +220,18 @@ class LocalOrders implements Orders
     /**
      * Take what the order needs off the shelf. Each product is decremented
      * with a conditional update, so two shoppers racing for the last bottle
-     * cannot both get it: whoever loses finds no row to update.
+     * cannot both get it: whoever loses finds no row to update. The pieces of
+     * a set count too, one per unit of the set.
      */
     protected function takeStock(PricedCart $priced): void
     {
         $needed = [];
 
         foreach ($priced->lines as $line) {
-            if ($line->product !== null && $line->product->track_stock) {
-                $needed[$line->product->id] = ($needed[$line->product->id] ?? 0) + $line->quantity;
+            foreach ([$line->product, ...$line->pieces] as $product) {
+                if ($product !== null && $product->track_stock) {
+                    $needed[$product->id] = ($needed[$product->id] ?? 0) + $line->quantity;
+                }
             }
         }
 
@@ -448,6 +451,7 @@ class LocalOrders implements Orders
                     'title' => $item->localizedMap('name'),
                 ],
                 'quantity' => $item->quantity,
+                'options' => $item->options ?? [],
                 'totalPrice' => $dinars($item->total_fils),
                 'totalPriceAfterDiscount' => $dinars($item->total_fils),
                 'symbol' => Money::KWD,

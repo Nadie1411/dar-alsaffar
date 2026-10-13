@@ -363,8 +363,10 @@ class Product implements Arrayable
                 $values[] = [
                     'id' => (string) ($value['_id'] ?? ''),
                     'name' => Loc::text($value['name'] ?? null),
+                    'kicker' => Loc::text($value['kicker'] ?? null),
                     'image' => $value['image'] ?? null,
                     'price' => (float) ($value['price'] ?? 0),
+                    'soldOut' => (bool) ($value['soldOut'] ?? false),
                 ];
             }
 
@@ -380,6 +382,7 @@ class Product implements Arrayable
                 'name' => Loc::text($group['name'] ?? null),
                 'layout' => (string) ($group['layout'] ?? 'radio'),
                 'required' => (bool) ($group['isRequired'] ?? false),
+                'builder' => (bool) ($group['isBuilder'] ?? false),
                 'min' => $min,
                 'max' => $max,
                 'values' => $values,
@@ -404,6 +407,53 @@ class Product implements Arrayable
         }
 
         return false;
+    }
+
+    /**
+     * True when the shopper builds this product themselves: it is a set, and
+     * the pieces are for them to pick (on the set's own page) before it can be
+     * bought. Only this store's own catalogue has such sets.
+     */
+    public function isSetBuilder(): bool
+    {
+        return $this->setGroup() !== null;
+    }
+
+    /**
+     * The group the shopper picks a set's pieces from: its id, name, the pieces
+     * (`values`) and how many to pick (`max`).
+     *
+     * @return array<string,mixed>|null
+     */
+    public function setGroup(): ?array
+    {
+        foreach ($this->options() as $group) {
+            if ($group['builder']) {
+                return $group;
+            }
+        }
+
+        return null;
+    }
+
+    /** How many pieces go into the set, or zero when it is not one the shopper builds. */
+    public function setSize(): int
+    {
+        return $this->setGroup()['max'] ?? 0;
+    }
+
+    /** A set can only be bought while there are enough pieces left to fill it. */
+    public function canBuildSet(): bool
+    {
+        $group = $this->setGroup();
+
+        if ($group === null) {
+            return false;
+        }
+
+        $left = count(array_filter($group['values'], fn (array $value) => ! $value['soldOut']));
+
+        return $left >= $group['max'];
     }
 
     /** @param  array<string,mixed>  $group  one entry of {@see options()} */

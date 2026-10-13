@@ -130,6 +130,16 @@
     if (event.target.matches('select[data-switch]')) { applySwitch(event.target); }
   });
 
+  /* ---- a switch that shows the fields it governs ------------------------------------ */
+
+  document.addEventListener('change', function (event) {
+    var box = event.target;
+    if (!box.matches('input[data-reveals]')) { return; }
+
+    var target = $(box.getAttribute('data-reveals'));
+    if (target) { target.hidden = !box.checked; }
+  });
+
   /* ---- type to narrow a long list of checkboxes ------------------------------------------- */
 
   document.addEventListener('input', function (event) {

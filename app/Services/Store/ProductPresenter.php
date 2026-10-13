@@ -26,7 +26,7 @@ class ProductPresenter
      * Load everything the presenter reads in one go. Presenting a product that
      * has not had these loaded would run a query per relation per product.
      */
-    public const RELATIONS = ['images', 'categories', 'optionGroups.values', 'quantityTiers'];
+    public const RELATIONS = ['images', 'categories', 'optionGroups.values.piece.categories', 'quantityTiers'];
 
     /**
      * @return array<string,mixed>
@@ -134,15 +134,18 @@ class ProductPresenter
             'name' => $group->localizedMap('name'),
             'layout' => $group->layout,
             'isRequired' => $group->is_required,
+            'isBuilder' => $group->is_builder,
             'minimumChoises' => $group->min_choices,
             'maximumChoises' => $group->max_choices,
             'isDelete' => ! $group->is_active,
             'values' => $group->values->map(fn (OptionValue $value) => [
                 '_id' => (string) $value->id,
-                'name' => $value->localizedMap('name'),
-                'image' => Media::url($value->image),
+                'name' => $value->nameMap(),
+                'kicker' => $value->kickerMap(),
+                'image' => Media::url($value->imagePath()),
                 'price' => Money::fromFils($value->price_fils),
-                'isActive' => $value->is_active,
+                'isActive' => $value->isSelectable(),
+                'soldOut' => $value->isSoldOut(),
                 'isDelete' => false,
             ])->values()->all(),
         ];
