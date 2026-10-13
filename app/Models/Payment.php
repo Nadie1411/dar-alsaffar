@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable([
     'order_id', 'provider', 'reference', 'state', 'amount_fils', 'currency', 'method',
-    'mf_invoice_id', 'mf_payment_id', 'mf_payment_url', 'mf_method',
+    'mf_invoice_id', 'mf_session_id', 'mf_payment_id', 'mf_payment_url', 'mf_method',
     'mf_transaction_id', 'mf_reference_id', 'mf_track_id',
     'failure_reason', 'anomaly', 'anomaly_reviewed_at', 'anomaly_reviewed_by',
     'expires_at', 'paid_at', 'verified_at',

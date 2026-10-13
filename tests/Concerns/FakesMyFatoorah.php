@@ -39,6 +39,7 @@ trait FakesMyFatoorah
 
         Http::fake($overrides + [
             self::MF.'/v3/payments' => Http::response($this->fixture('myfatoorah/create-payment'), 201),
+            self::MF.'/v3/sessions' => Http::response($this->createdSession('KWT-SESSION-DEFAULT'), 201),
             self::MF.'/v3/payment-methods' => Http::response($this->fixture('myfatoorah/payment-methods')),
         ]);
     }
@@ -56,6 +57,38 @@ trait FakesMyFatoorah
         data_set($created, 'Data.PaymentURL', 'https://demo.MyFatoorah.com/KWT/ie/invoice-'.$invoiceId);
 
         return $created;
+    }
+
+    /**
+     * MyFatoorah's answer to opening a session for the Apple Pay button, with
+     * its own id: every real session has a different one.
+     *
+     * @return array<string,mixed>
+     */
+    protected function createdSession(string $sessionId): array
+    {
+        $created = $this->fixture('myfatoorah/create-session');
+        data_set($created, 'Data.SessionId', $sessionId);
+
+        return $created;
+    }
+
+    /**
+     * What "get session details" answers for a session nobody has paid on yet,
+     * or — with `paid` — one that was paid on, changed as the test needs.
+     *
+     * @param  array<string,mixed>  $changes  dotted paths into the response's Data
+     * @return array<string,mixed>
+     */
+    protected function sessionDetails(string $name = 'unused', array $changes = []): array
+    {
+        $details = $this->fixture('myfatoorah/session-details-'.$name);
+
+        foreach ($changes as $path => $value) {
+            data_set($details, 'Data.'.$path, $value);
+        }
+
+        return $details;
     }
 
     /**

@@ -126,6 +126,7 @@
                         <div><dt>{{ __('panel.payments.provider') }}</dt><dd>MyFatoorah</dd></div>
                         <div><dt>{{ __('panel.payments.endpoint') }}</dt><dd><span class="ltr">{{ $gateway['host'] }}</span></dd></div>
                         <div><dt>{{ __('panel.payments.apiKey') }}</dt><dd>{{ $gateway['hasKey'] ? __('panel.payments.keySet') : __('panel.payments.keyMissing') }}@if ($gateway['hasKey']) <span class="muted small">({{ __('panel.gateway.sources.'.$gateway['keySource']) }})</span>@endif</dd></div>
+                        <div><dt>{{ __('panel.payments.applePay') }}</dt><dd>{{ $gateway['applePayOnSite'] ? __('panel.payments.applePaySite') : __('panel.payments.applePayHosted') }}</dd></div>
                         <div><dt>{{ __('panel.payments.webhookSecret') }}</dt><dd>{{ $gateway['secretSet'] ? __('panel.payments.keySet') : __('panel.payments.keyMissing') }}@if ($gateway['secretSet']) <span class="muted small">({{ __('panel.gateway.sources.'.$gateway['secretSource']) }})</span>@endif</dd></div>
                     </dl>
 

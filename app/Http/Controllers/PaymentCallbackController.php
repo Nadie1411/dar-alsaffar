@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Contracts\Store\Cart;
 use App\Services\Store\Payments\MyFatoorahException;
-use App\Services\Store\Payments\PaymentOutcome;
+use App\Services\Store\Payments\PaymentReturn;
 use App\Services\Store\Payments\PaymentService;
 use App\Support\Nav;
 use Illuminate\Http\Request;
@@ -20,7 +19,7 @@ class PaymentCallbackController extends Controller
 {
     public function __construct(
         protected PaymentService $payments,
-        protected Cart $cart,
+        protected PaymentReturn $return,
     ) {}
 
     public function __invoke(Request $request, string $locale)
@@ -41,26 +40,6 @@ class PaymentCallbackController extends Controller
             return redirect(Nav::url('checkout/pending/'.session('payment.order')));
         }
 
-        $number = $outcome->payment?->order?->number;
-
-        return match (true) {
-            // Paid, with nothing left for a person to look at.
-            $outcome->isPaid() && $outcome->payment->anomaly === null => $this->paid($number),
-            // Undecided — or paid with something a person must resolve first.
-            $outcome->result === PaymentOutcome::PENDING || $outcome->isPaid() => redirect(Nav::url('checkout/pending/'.$number)),
-            default => redirect(Nav::url('checkout/failed', $number ? ['order' => $number] : [])),
-        };
-    }
-
-    protected function paid(string $number)
-    {
-        // The basket was kept until now, so an abandoned payment page cost the
-        // shopper nothing. Cleared only in the session that placed the order.
-        if (session('payment.order') === $number) {
-            $this->cart->clear();
-            session()->forget('payment.order');
-        }
-
-        return redirect(Nav::url('checkout/thanks/'.$number));
+        return redirect($this->return->destination($outcome));
     }
 }

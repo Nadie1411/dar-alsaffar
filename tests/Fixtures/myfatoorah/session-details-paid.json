@@ -1,0 +1,24 @@
+{
+  "IsSuccess": true,
+  "Message": "",
+  "ValidationErrors": null,
+  "Data": {
+    "SessionExpiry": "2099-01-01T00:00:00Z",
+    "IsUsed": true,
+    "OperationType": "PAY",
+    "Order": {"Amount": 40, "Currency": "KWD", "ExternalIdentifier": "REFERENCE-PLACEHOLDER"},
+    "Customer": {"Reference": "DS-100001"},
+    "Card": null,
+    "TransactionResult": {
+      "Invoice": {"Id": "6148108", "Status": "PAID"},
+      "Transaction": {
+        "Status": "SUCCESS",
+        "PaymentId": "07076389491322460173",
+        "PaymentMethod": "Apple Pay",
+        "AuthorizationId": "102585",
+        "TransactionDate": "2025-12-24T14:51:06.5630000Z",
+        "Error": {"Code": "", "Message": ""}
+      }
+    }
+  }
+}

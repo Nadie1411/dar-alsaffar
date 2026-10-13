@@ -1330,3 +1330,25 @@
 .pay-trust svg { flex: none; color: var(--emerald-700); }
 .pay-trust[hidden] { display: none; }
 
+
+/* ---- Apple Pay on the shop's own page -----------------------------------
+   MyFatoorah draws the button itself, in a frame, at the size it is told; this
+   only gives it room, with the order it pays for above it. */
+.apple-pay { display: grid; gap: var(--space-4); max-inline-size: 26rem; margin-inline: auto; }
+.apple-pay__summary {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  text-align: start;
+}
+.apple-pay__summary div { display: flex; justify-content: space-between; gap: var(--space-3); }
+.apple-pay__summary dt { color: var(--text-secondary); }
+.apple-pay__summary dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+.apple-pay__button { min-block-size: 48px; }
+.apple-pay__status { margin: 0; min-block-size: 1.5em; font-size: var(--step-small); line-height: 1.6; color: var(--text-secondary); }
+.apple-pay__status[data-tone="error"] { color: var(--danger); }
+.apple-pay__actions { display: flex; flex-wrap: wrap; gap: var(--space-3); justify-content: center; }

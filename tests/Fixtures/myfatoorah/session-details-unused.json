@@ -1,0 +1,14 @@
+{
+  "IsSuccess": true,
+  "Message": "",
+  "ValidationErrors": null,
+  "Data": {
+    "SessionExpiry": "2099-01-01T00:00:00Z",
+    "IsUsed": false,
+    "OperationType": "PAY",
+    "Order": {"Amount": 40, "Currency": "KWD", "ExternalIdentifier": "REFERENCE-PLACEHOLDER"},
+    "Customer": {"Reference": "DS-100001"},
+    "Card": null,
+    "TransactionResult": null
+  }
+}

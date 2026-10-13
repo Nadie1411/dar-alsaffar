@@ -239,7 +239,7 @@
                                 <p class="payment-methods__label">{{ __('storefront.checkout.paymentMethodLabel') }}</p>
                                 <div class="payment-methods__grid">
                                     @foreach ($methods as $method)
-                                        <label class="pay-method">
+                                        <label class="pay-method" @if ($applePayOnSite && $method['id'] === 'APPLE_PAY') data-apple-pay @endif>
                                             <input type="radio" name="paymentMethod" value="{{ $method['id'] }}"
                                                    @checked($old('paymentMethod', $methods[0]['id'] ?? '') === $method['id'])>
                                             <span class="pay-method__logo"><x-pay-logo :type="$method['type']" :height="24"/></span>
@@ -367,6 +367,19 @@
 
     city.addEventListener('change', loadAreas);
     if (city.value) loadAreas();
+
+    // Apple Pay is paid with a button on this site, which only works on an Apple
+    // device: everyone else is not offered it, and keeps a choice that is ticked.
+    if (!('ApplePaySession' in window)) {
+        document.querySelectorAll('[data-apple-pay]').forEach((tile) => {
+            const wasChosen = tile.querySelector('input')?.checked;
+            tile.remove();
+            if (wasChosen) {
+                const first = document.querySelector('[name="paymentMethod"]');
+                if (first) first.checked = true;
+            }
+        });
+    }
 
     // Card method choices only matter when paying online.
     const methods = document.getElementById('payment-methods');

@@ -222,4 +222,59 @@ class MyFatoorahClientTest extends TestCase
 
         $this->assertSame([], $this->client()->invoiceTransactions('0'));
     }
+
+    public function test_opening_a_session_posts_to_v3_and_returns_only_its_id(): void
+    {
+        $this->fakeMyFatoorah();
+
+        $session = $this->client()->createSession(['PaymentMode' => 'COMPLETE_PAYMENT', 'Order' => ['Amount' => 40]]);
+
+        $this->assertSame(['sessionId' => 'KWT-SESSION-DEFAULT'], $session);
+        Http::assertSent(fn (Request $request) => $request->url() === 'https://'.self::MF.'/v3/sessions'
+            && $request->hasHeader('Authorization', 'Bearer '.self::MF_KEY)
+            && $request['Order']['Amount'] === 40);
+    }
+
+    public function test_a_session_answer_without_an_id_is_refused(): void
+    {
+        $this->fakeMyFatoorah([self::MF.'/v3/sessions' => Http::response(['IsSuccess' => true, 'Data' => ['SessionId' => '']], 201)]);
+
+        $this->expectException(MyFatoorahException::class);
+
+        $this->client()->createSession(['PaymentMode' => 'COMPLETE_PAYMENT', 'Order' => ['Amount' => 40]]);
+    }
+
+    public function test_session_details_come_back_as_the_data_object_and_an_unknown_session_is_null(): void
+    {
+        $this->fakeMyFatoorah([
+            self::MF.'/v3/sessions/KWT-1' => Http::response($this->sessionDetails('paid')),
+            self::MF.'/v3/sessions/KWT-2' => Http::response(['IsSuccess' => false, 'Message' => 'Invalid data'], 400),
+        ]);
+
+        $details = $this->client()->sessionDetails('KWT-1');
+
+        $this->assertTrue($details['IsUsed']);
+        $this->assertSame('07076389491322460173', $details['TransactionResult']['Transaction']['PaymentId']);
+        $this->assertNull($this->client()->sessionDetails('KWT-2'));
+    }
+
+    public function test_registering_the_domain_for_apple_pay_sends_the_bare_domain_to_v2(): void
+    {
+        $this->fakeMyFatoorah([self::MF.'/v2/RegisterApplePayDomain' => Http::response(['IsSuccess' => true, 'Message' => 'OK', 'ValidationErrors' => null, 'Data' => null])]);
+
+        $this->client()->registerApplePayDomain('daralsaffar.shop');
+
+        Http::assertSent(fn (Request $request) => $request->url() === 'https://'.self::MF.'/v2/RegisterApplePayDomain'
+            && $request->data() === ['DomainName' => 'daralsaffar.shop']);
+    }
+
+    public function test_a_domain_my_fatoorah_refuses_is_an_exception(): void
+    {
+        $this->fakeMyFatoorah([self::MF.'/v2/RegisterApplePayDomain' => Http::response(['IsSuccess' => false, 'Message' => 'Make sure the verification file is valid and accessible'], 400)]);
+
+        $this->expectException(MyFatoorahException::class);
+        $this->expectExceptionMessage('verification file');
+
+        $this->client()->registerApplePayDomain('daralsaffar.shop');
+    }
 }

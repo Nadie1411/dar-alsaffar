@@ -179,7 +179,8 @@ class LocalOrders implements Orders
     }
 
     /**
-     * Send an order that is to be paid online to MyFatoorah's payment page.
+     * Send an order that is to be paid online to MyFatoorah's payment page, or
+     * to the Apple Pay button on this shop's own page.
      * The basket is kept until the payment is confirmed, so a shopper who
      * closes the page can come back and pay without starting again.
      *
@@ -196,6 +197,18 @@ class LocalOrders implements Orders
             return [
                 'ok' => true, 'kind' => 'confirmed', 'paymentUrl' => null,
                 'orderId' => $order->number, 'message' => null, 'clearCart' => true,
+            ];
+        }
+
+        // Apple Pay is paid with a button on this shop's own page. That page opens
+        // the payment itself, so a session that cannot be had there is met with a
+        // way to pay otherwise, not with an order that has already been cancelled.
+        if ($this->payments->takesOnSite($method)) {
+            session()->put('payment.order', $order->number);
+
+            return [
+                'ok' => true, 'kind' => 'redirect', 'paymentUrl' => Nav::url('checkout/apple-pay/'.$order->number),
+                'orderId' => $order->number, 'message' => null, 'clearCart' => false,
             ];
         }
 
