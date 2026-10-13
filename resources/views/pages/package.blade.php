@@ -111,7 +111,7 @@
 
             <div class="bundle-bar">
                 <x-price :product="$product"/>
-                <button class="btn btn--on-dark" type="submit" data-bundle-submit disabled
+                <button class="btn" type="submit" data-bundle-submit disabled
                         @unless ($available) data-unavailable @endunless>
                     {{ __('storefront.bundle.addBundle') }}
                 </button>

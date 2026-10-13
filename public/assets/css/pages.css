@@ -642,27 +642,30 @@
 }
 @media (min-width: 768px) { .set-stage__count { display: none; } }
 
-/* The bar that stays in view: the price, and the way to add the set. */
+/* The bar that stays in view: the price, and the same green button as any other add to cart. */
 .bundle-bar {
   position: sticky;
   inset-block-end: 0;
   z-index: 40;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: var(--space-4);
   margin-block-start: var(--space-4);
-  padding: var(--space-3) var(--space-4);
+  /* Edge to edge, like the product page's bar. */
+  margin-inline: calc(var(--gutter) * -1);
+  padding: var(--space-3) var(--gutter);
   padding-block-end: max(var(--space-3), env(safe-area-inset-bottom));
-  background: var(--ink-900);
-  color: var(--cream-400);
-  border-radius: var(--radius-md);
-  box-shadow: 0 -1px 0 var(--gold-500) inset;
+  background: rgba(253, 251, 247, 0.96);
+  backdrop-filter: blur(10px);
+  border-block-start: 1px solid var(--line-soft);
 }
+.bundle-bar .price { flex: none; white-space: nowrap; }
+.bundle-bar .btn { flex: 1; min-inline-size: 0; line-height: 1.3; }
 /* On wider screens the round chat button floats over the bar's start corner, so the content starts beside it. */
-@media (min-width: 900px) { .bundle-bar { padding-inline-start: 88px; } }
-.bundle-bar .price, .bundle-bar .price__now { color: var(--cream-400); white-space: nowrap; }
-.bundle-bar .btn { flex: 1; min-inline-size: 0; max-inline-size: 280px; padding-inline: var(--space-3); line-height: 1.3; }
+@media (min-width: 900px) {
+  .bundle-bar { padding-inline-start: calc(var(--gutter) + 72px); }
+  .bundle-bar .btn { flex: 0 1 360px; margin-inline-start: auto; }
+}
 
 /* What the shopper chose on a bag line: a size, the pieces of a set. */
 .line-choices {
