@@ -1,0 +1,13 @@
+{
+  "IsSuccess": true,
+  "Message": "",
+  "ValidationErrors": null,
+  "Data": {
+    "SessionId": "KWT-68814db6-7510-4005-ada9-408aae9f373c",
+    "SessionExpiry": "2099-01-01T00:00:00Z",
+    "EncryptionKey": "made-up-key-not-used-by-this-shop",
+    "OperationType": "PAY",
+    "Order": {"Amount": 40, "Currency": "KWD", "ExternalIdentifier": "REFERENCE-PLACEHOLDER"},
+    "Customer": {"Reference": "DS-100001", "Cards": []}
+  }
+}

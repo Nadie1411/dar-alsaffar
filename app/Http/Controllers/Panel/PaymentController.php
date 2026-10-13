@@ -192,6 +192,7 @@ class PaymentController extends Controller
             'switchedOn' => $this->gatewayConfig->enabled(),
             'host' => parse_url($url, PHP_URL_HOST) ?: $url,
             'sandbox' => str_contains($url, 'apitest'),
+            'applePayOnSite' => $this->gatewayConfig->takesApplePayOnSite(),
             'secretSet' => $this->gatewayConfig->secretSource() !== GatewayConfig::SOURCE_NONE,
             'secretSource' => $this->gatewayConfig->secretSource(),
             'unreadable' => $this->gatewayConfig->hasUnreadableSecret(),

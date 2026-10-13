@@ -58,6 +58,52 @@
                     <x-panel.switch name="enabled" :label="__('panel.gateway.enabled')" :checked="old('enabled', $enabled)" :hint="__('panel.gateway.enabledHint')"/>
                 </div>
             </section>
+
+            <section class="card" id="apple-pay">
+                <div class="card__head"><h2>{{ __('panel.gateway.applePay.title') }}</h2></div>
+                <div class="card__body stack" style="--gap:18px">
+                    <p class="alert-p alert-p--info">
+                        <x-panel.icon name="payments" :size="18"/>
+                        <span>{{ __('panel.gateway.applePay.intro') }}</span>
+                    </p>
+
+                    <ol class="steps-p">
+                        <li>{{ __('panel.gateway.applePay.step1') }}</li>
+                        <li>{{ __('panel.gateway.applePay.step2', ['url' => $applePay['fileUrl']]) }}</li>
+                        <li>{{ __('panel.gateway.applePay.step3', ['host' => $applePay['host']]) }}</li>
+                        <li>{{ __('panel.gateway.applePay.step4') }}</li>
+                    </ol>
+
+                    <x-panel.textarea name="apple_pay_domain_file" :label="__('panel.gateway.applePay.file')"
+                                      :value="old('apple_pay_domain_file', $applePay['file'])" rows="4" dir="ltr" spellcheck="false" autocapitalize="off"
+                                      :hint="__('panel.gateway.applePay.fileHint')"/>
+
+                    <dl class="kv">
+                        <div><dt>{{ __('panel.gateway.applePay.fileStatus') }}</dt><dd>{{ $applePay['file'] !== '' ? __('panel.gateway.applePay.fileSaved') : __('panel.gateway.applePay.fileMissing') }}</dd></div>
+                        <div><dt>{{ __('panel.gateway.applePay.registeredStatus') }}</dt>
+                            <dd>
+                                @if ($applePay['registeredAt'])
+                                    <span class="ltr">{{ $applePay['registeredDomain'] }}</span> · {{ \App\Support\PanelFormat::dateTime($applePay['registeredAt']) }}
+                                @else
+                                    {{ __('panel.gateway.applePay.notRegistered') }}
+                                @endif
+                            </dd>
+                        </div>
+                    </dl>
+
+                    <div class="row">
+                        <button class="btn-p btn-p--ghost" type="submit" form="apple-pay-register" @disabled($applePay['file'] === '')>{{ __('panel.gateway.applePay.register', ['host' => $applePay['host']]) }}</button>
+                    </div>
+                    <span class="field-p__hint">{{ __('panel.gateway.applePay.registerHint') }}</span>
+
+                    @unless ($applePay['scriptKnown'])
+                        <p class="alert-p alert-p--warn"><x-panel.icon name="alert" :size="18"/><span>{{ __('panel.gateway.applePay.scriptUnknown') }}</span></p>
+                    @endunless
+
+                    <x-panel.switch name="apple_pay_on_site" :label="__('panel.gateway.applePay.switch')" :checked="old('apple_pay_on_site', $applePay['onSite'])" :hint="__('panel.gateway.applePay.switchHint')"/>
+                    @error('apple_pay_on_site')<span class="field-p__error">{{ $message }}</span>@enderror
+                </div>
+            </section>
         </div>
 
         <div class="stack">
@@ -75,5 +121,10 @@
                 <p class="muted small">{{ __('panel.gateway.lastSaved', ['date' => \App\Support\PanelFormat::dateTime($savedAt)]) }}@if ($savedBy) · {{ __('panel.common.by', ['name' => $savedBy]) }}@endif</p>
             @endif
         </div>
+    </form>
+
+    {{-- Its own form, so registering does not also send the keys and the password. --}}
+    <form id="apple-pay-register" method="POST" action="{{ route('panel.payments.gateway.apple-pay.register') }}">
+        @csrf
     </form>
 @endsection

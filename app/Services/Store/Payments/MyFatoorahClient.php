@@ -53,6 +53,70 @@ class MyFatoorahClient
     }
 
     /**
+     * Open a session for MyFatoorah's embedded payment button, which shows on
+     * this shop's own page instead of MyFatoorah's. A session pays once.
+     *
+     * Not retried, for the same reason createPayment() is not.
+     *
+     * @param  array<string,mixed>  $payload
+     * @return array{sessionId:string}
+     */
+    public function createSession(array $payload): array
+    {
+        $response = $this->send(fn (PendingRequest $request) => $request->post('/v3/sessions', $payload));
+
+        $sessionId = (string) ($this->dataOf($response, 'create session')['SessionId'] ?? '');
+
+        if ($sessionId === '') {
+            throw new MyFatoorahException('MyFatoorah did not return a session.');
+        }
+
+        return ['sessionId' => $sessionId];
+    }
+
+    /**
+     * What became of a session: whether it was used, when it runs out and, once
+     * it was paid on, the invoice and payment that came of it. The one way to
+     * learn the payment id of an embedded payment, since the shopper's browser
+     * is never trusted to say.
+     *
+     * Safe to repeat, so a brief outage is retried.
+     *
+     * @return array<string,mixed>|null null when MyFatoorah has no such session
+     */
+    public function sessionDetails(string $sessionId): ?array
+    {
+        $response = $this->send(
+            fn (PendingRequest $request) => $request->retry(
+                [500, 1500],
+                0,
+                fn (Throwable $e) => $e instanceof ConnectionException
+                    || ($e instanceof RequestException && $e->response->serverError()),
+                throw: false,
+            )->get('/v3/sessions/'.rawurlencode($sessionId))
+        );
+
+        if ($response->status() === 400 || $response->status() === 404) {
+            return null;
+        }
+
+        return $this->dataOf($response, 'session details');
+    }
+
+    /**
+     * Tell MyFatoorah that this domain may show Apple Pay. The domain's
+     * verification file has to be reachable on it first.
+     *
+     * @throws MyFatoorahException when MyFatoorah says no
+     */
+    public function registerApplePayDomain(string $domain): void
+    {
+        $response = $this->send(fn (PendingRequest $request) => $request->post('/v2/RegisterApplePayDomain', ['DomainName' => $domain]));
+
+        $this->dataOf($response, 'register Apple Pay domain');
+    }
+
+    /**
      * The payment's details, straight from MyFatoorah — what a redirect or a
      * webhook claims is never taken on trust; this is what decides.
      *

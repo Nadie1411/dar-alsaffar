@@ -3,6 +3,7 @@
 namespace App\Services\Store\Payments;
 
 use App\Models\GatewayCredential;
+use Carbon\CarbonInterface;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Database\QueryException;
 
@@ -59,6 +60,54 @@ class GatewayConfig
         $saved = $this->saved()?->enabled;
 
         return $saved ?? (bool) config('myfatoorah.enabled');
+    }
+
+    /** Whether the owner has switched the Apple Pay button on the shop's own page on. */
+    public function applePayOnSite(): bool
+    {
+        return $this->saved()?->apple_pay_on_site ?? (bool) config('myfatoorah.apple_pay_on_site');
+    }
+
+    public function applePayOnSiteSource(): string
+    {
+        return $this->saved()?->apple_pay_on_site === null ? self::SOURCE_ENVIRONMENT : self::SOURCE_PANEL;
+    }
+
+    /**
+     * The script that draws MyFatoorah's embedded button: the one that belongs
+     * to the endpoint in use, and null for an address that is not on the list.
+     */
+    public function sdkUrl(): ?string
+    {
+        $environment = array_search(rtrim($this->apiUrl(), '/'), (array) config('myfatoorah.endpoints'), true);
+        $url = $environment === false ? null : config('myfatoorah.sdk.'.$environment);
+
+        return is_string($url) && str_starts_with($url, 'https://') ? $url : null;
+    }
+
+    /** Whether Apple Pay is taken on the shop's own page: switched on, and the button's script is known. */
+    public function takesApplePayOnSite(): bool
+    {
+        return $this->applePayOnSite() && $this->sdkUrl() !== null;
+    }
+
+    /** The domain verification file as an owner pasted it, or null when there is none. */
+    public function applePayDomainFile(): ?string
+    {
+        $file = $this->saved()?->apple_pay_domain_file;
+
+        return is_string($file) && trim($file) !== '' ? $file : null;
+    }
+
+    /** The domain MyFatoorah last agreed to show Apple Pay on, and when. */
+    public function applePayDomain(): ?string
+    {
+        return $this->saved()?->apple_pay_domain;
+    }
+
+    public function applePayRegisteredAt(): ?CarbonInterface
+    {
+        return $this->saved()?->apple_pay_registered_at;
     }
 
     /** Where the key in use comes from: the panel, the server's environment, or nowhere. */

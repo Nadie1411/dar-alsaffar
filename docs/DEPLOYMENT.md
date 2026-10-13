@@ -260,6 +260,11 @@ decides when to switch. Nothing below needs the site to go down.
    and copy it into `MYFATOORAH_WEBHOOK_SECRET`; make sure the methods wanted (KNET,
    cards, Apple Pay, Google Pay) are enabled for the account. The panel's
    *Payments → Test the MyFatoorah connection* lists what the account has enabled.
+   Apple Pay is then offered on MyFatoorah's own payment page. To show the Apple Pay
+   *button on the shop's own page* instead, follow the owner steps under *Payments →
+   Manage payment keys → Apple Pay on the site* (verification file from
+   tech@myfatoorah.com, register the domain from the live address, then switch it on);
+   the sandbox and the live account each need their own file and registration.
 6. **Rehearse on a copy**, with the sandbox key, before real customers see anything:
    ```bash
    cp -r storage /tmp/rehearsal-storage

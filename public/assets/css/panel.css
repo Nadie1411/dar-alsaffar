@@ -332,6 +332,7 @@ html[dir="rtl"] .sel { background-position: left 12px center; }
 
 /* ---- key/value lists ---------------------------------------------------------------------- */
 
+.steps-p { display: grid; gap: 6px; margin: 0; padding-inline-start: 1.25em; font-size: 14px; line-height: 1.6; color: var(--panel-text-2); }
 .kv { display: grid; gap: 12px; margin: 0; }
 .kv > div { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; }
 .kv dt { color: var(--panel-text-2); font-size: 14px; }

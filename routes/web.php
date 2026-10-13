@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ApplePayDomainFileController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BundleController;
 use App\Http\Controllers\CartController;
@@ -66,6 +67,12 @@ Route::get('/sw.js', fn () => response()->file(resource_path('sw.js'), [
     'Cache-Control' => 'no-cache, must-revalidate',
 ]))->name('sw');
 
+// What Apple (through MyFatoorah) looks for to learn that this domain may show
+// Apple Pay. It is the text an owner pasted into the admin panel, served as it
+// was pasted; there is nothing at this address until they do.
+Route::get('/.well-known/apple-developer-merchantid-domain-association', ApplePayDomainFileController::class)
+    ->name('apple-pay.domain-file');
+
 Route::get('/', fn () => redirect('/'.SetLocale::DEFAULT));
 
 // Legacy unprefixed paths keep their link equity.
@@ -111,6 +118,9 @@ Route::prefix('{locale}')
         Route::get('/checkout/failed', [CheckoutController::class, 'failed'])->name('checkout.failed');
         Route::get('/checkout/pending/{number?}', [CheckoutController::class, 'pending'])->name('checkout.pending');
         Route::get('/checkout/pay/{number}', [CheckoutController::class, 'pay'])->name('checkout.pay');
+        Route::get('/checkout/apple-pay/{number}', [CheckoutController::class, 'applePay'])->name('checkout.apple-pay');
+        Route::post('/checkout/apple-pay/{number}/confirm', [CheckoutController::class, 'applePayConfirm'])
+            ->middleware('throttle:20,1')->name('checkout.apple-pay.confirm');
         Route::get('/payment/return', PaymentCallbackController::class)->name('payment.return');
 
         // ---- wishlist ----------------------------------------------------

@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\GatewayCredential;
 use App\Services\Store\ActivityLogger;
 use App\Services\Store\Payments\GatewayConfig;
+use App\Services\Store\Payments\MyFatoorahClient;
+use App\Services\Store\Payments\MyFatoorahException;
+use App\Services\Store\Payments\MyFatoorahUnavailable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -26,6 +29,7 @@ class GatewayController extends Controller
 {
     public function __construct(
         protected GatewayConfig $gateway,
+        protected MyFatoorahClient $client,
         protected ActivityLogger $log,
     ) {}
 
@@ -42,6 +46,15 @@ class GatewayController extends Controller
             'secretSource' => $this->gateway->secretSource(),
             'unreadable' => $this->gateway->hasUnreadableSecret(),
             'enabled' => $this->gateway->enabled(),
+            'applePay' => [
+                'onSite' => $this->gateway->applePayOnSite(),
+                'scriptKnown' => $this->gateway->sdkUrl() !== null,
+                'file' => $this->gateway->applePayDomainFile() ?? '',
+                'fileUrl' => route('apple-pay.domain-file'),
+                'host' => request()->getHost(),
+                'registeredDomain' => $this->gateway->applePayDomain(),
+                'registeredAt' => $this->gateway->applePayRegisteredAt(),
+            ],
             'savedAt' => $saved?->updated_at,
             'savedBy' => $saved?->updater?->name,
         ]);
@@ -60,6 +73,9 @@ class GatewayController extends Controller
             'clear_api_key' => ['nullable', 'boolean'],
             'clear_webhook_secret' => ['nullable', 'boolean'],
             'enabled' => ['nullable', 'boolean'],
+            'apple_pay_on_site' => ['nullable', 'boolean'],
+            // Plain text Apple's file is made of: refused if it is anything else, since it is served to the public.
+            'apple_pay_domain_file' => ['nullable', 'string', 'max:20000', 'regex:/^[\x09\x0A\x0D\x20-\x7E]+$/'],
             'current_password' => ['required', 'string', 'current_password:staff'],
         ]);
 
@@ -91,6 +107,33 @@ class GatewayController extends Controller
             $changes['enabled'] = $enabled;
         }
 
+        // A browser sends a text box's line breaks as CRLF; the file is kept with plain ones.
+        $file = filled($data['apple_pay_domain_file'] ?? null) ? str_replace("\r\n", "\n", $data['apple_pay_domain_file']) : null;
+
+        if ($file !== $credential->apple_pay_domain_file) {
+            $credential->apple_pay_domain_file = $file;
+            // What was registered was registered with the old file.
+            $credential->apple_pay_domain = null;
+            $credential->apple_pay_registered_at = null;
+            $changes['apple_pay_domain_file'] = $file === null ? 'removed' : 'changed';
+        }
+
+        $onSite = $request->boolean('apple_pay_on_site');
+        $wasOnSite = $this->gateway->applePayOnSite();
+        $registered = $credential->apple_pay_domain_file !== null && $credential->apple_pay_registered_at !== null;
+
+        // A button on this site that MyFatoorah has not been told about would only ever fail. That is
+        // checked when it is being switched on, and again when the owner saved it on and has since
+        // changed the file; a switch left on in the server's own setting is not held to it.
+        if ($onSite && ! $registered && ($onSite !== $wasOnSite || $credential->apple_pay_on_site === true)) {
+            return back()->withInput()->withErrors(['apple_pay_on_site' => __('panel.gateway.applePay.needRegistered')]);
+        }
+
+        if ($onSite !== $wasOnSite) {
+            $credential->apple_pay_on_site = $onSite;
+            $changes['apple_pay_on_site'] = $onSite;
+        }
+
         $credential->updated_by = $staff->id;
         $credential->save();
 
@@ -105,5 +148,50 @@ class GatewayController extends Controller
         }
 
         return redirect()->route('panel.payments.index')->with('status', __('panel.gateway.saved'));
+    }
+
+    /**
+     * Tell MyFatoorah that this site's domain may show Apple Pay. It looks for
+     * the verification file on the domain, so the file has to be saved first.
+     * The domain is the one the owner is on right now: the live shop's, when
+     * they do this from there.
+     */
+    public function registerApplePayDomain(Request $request): RedirectResponse
+    {
+        if ($this->gateway->applePayDomainFile() === null) {
+            return back()->with('warning', __('panel.gateway.applePay.needFile'));
+        }
+
+        if (! $this->client->isConfigured()) {
+            return back()->with('warning', __('panel.payments.notConfigured'));
+        }
+
+        $host = strtolower($request->getHost());
+
+        // A real domain name, nothing else: it is what MyFatoorah is told to trust.
+        if (preg_match('/^(?=.{4,190}$)[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/', $host) !== 1 || filter_var($host, FILTER_VALIDATE_IP) !== false) {
+            return back()->with('warning', __('panel.gateway.applePay.badHost', ['host' => $host]));
+        }
+
+        try {
+            $this->client->registerApplePayDomain($host);
+        } catch (MyFatoorahUnavailable) {
+            return back()->with('warning', __('panel.payments.unreachable'));
+        } catch (MyFatoorahException) {
+            return back()->with('warning', __('panel.gateway.applePay.refused', ['host' => $host]));
+        }
+
+        $staff = $request->user('staff');
+
+        GatewayCredential::query()->where('provider', GatewayCredential::MYFATOORAH)->update([
+            'apple_pay_domain' => $host,
+            'apple_pay_registered_at' => now(),
+            'updated_by' => $staff->id,
+        ]);
+        $this->gateway->refresh();
+
+        $this->log->record($staff, 'payment.apple_pay_domain_registered', null, ['domain' => $host], 'MyFatoorah');
+
+        return back()->with('status', __('panel.gateway.applePay.registered', ['host' => $host]));
     }
 }

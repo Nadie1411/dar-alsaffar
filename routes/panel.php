@@ -104,6 +104,7 @@ Route::prefix('panel')->name('panel.')->middleware(['panel.enabled', 'panel.loca
         Route::middleware('panel.module:gateway')->prefix('payments/gateway')->name('payments.gateway.')->group(function () {
             Route::get('/', [GatewayController::class, 'edit'])->name('edit');
             Route::put('/', [GatewayController::class, 'update'])->middleware('throttle:10,1')->name('update');
+            Route::post('/apple-pay/register', [GatewayController::class, 'registerApplePayDomain'])->middleware('throttle:10,1')->name('apple-pay.register');
         });
 
         Route::middleware('panel.module:payments')->prefix('payments')->name('payments.')->group(function () {

@@ -272,6 +272,20 @@ return [
         'thanksText'   => 'We have received your order and will be in touch to confirm delivery.',
         'orderNumber'  => 'Order number',
         'trackOrder'   => 'Track order',
+        'applePay'     => [
+            'title'       => 'Pay with Apple Pay',
+            'intro'       => 'Your order is placed and waiting for payment. Tap the button to pay with Apple Pay.',
+            'total'       => 'Total to pay',
+            'loading'     => 'Getting Apple Pay ready…',
+            'slow'        => 'Apple Pay is taking a while to appear. You can wait, or pay another way.',
+            'checking'    => 'Confirming your payment…',
+            'failed'      => 'The payment did not go through. You have not been charged. You can try again, or pay another way.',
+            'notPaid'     => 'No payment was made. You can try again, or pay another way.',
+            'unavailable' => 'Apple Pay is not available on this device. You can pay another way instead.',
+            'noSession'   => 'We could not get Apple Pay ready right now. Please try again, or pay another way.',
+            'trust'       => 'Card details are never entered on this site.',
+            'otherWay'    => 'Pay another way',
+        ],
     ],
 
     'auth' => [

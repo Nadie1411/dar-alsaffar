@@ -17,7 +17,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * serialisation, so they cannot reach a response, a log line or a job payload
  * by accident.
  */
-#[Fillable(['provider', 'api_key', 'webhook_secret', 'api_url', 'enabled', 'updated_by'])]
+#[Fillable([
+    'provider', 'api_key', 'webhook_secret', 'api_url', 'enabled',
+    'apple_pay_on_site', 'apple_pay_domain_file', 'apple_pay_domain', 'apple_pay_registered_at',
+    'updated_by',
+])]
 #[Hidden(['api_key', 'webhook_secret'])]
 class GatewayCredential extends Model
 {
@@ -32,6 +36,8 @@ class GatewayCredential extends Model
             'api_key' => 'encrypted',
             'webhook_secret' => 'encrypted',
             'enabled' => 'boolean',
+            'apple_pay_on_site' => 'boolean',
+            'apple_pay_registered_at' => 'datetime',
         ];
     }
 

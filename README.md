@@ -207,6 +207,25 @@ whichever the account has enabled), using the **v3 API**.
 - `php artisan payments:reconcile` (scheduled every five minutes) finds payments
   whose shopper never came back and whose webhook never arrived, and releases the
   order of an invoice that has run out.
+- **Apple Pay button on the shop's own page** (optional, off until set up). Instead
+  of sending the shopper to MyFatoorah's page, choosing Apple Pay places the order
+  and opens `/{locale}/checkout/apple-pay/{number}`, which draws MyFatoorah's
+  embedded button (script from `config/myfatoorah.php` → `sdk`, picked by the
+  endpoint in use). It pays through a MyFatoorah *session* (`POST /v3/sessions`,
+  amount fixed from the order). When the button says it is done, the page asks
+  `POST …/confirm`; the server then reads **our own session** from MyFatoorah
+  (`GET /v3/sessions/{id}`), takes the payment id from that answer, and settles it
+  through the same `confirm()` as every other payment — what the browser says is
+  never used. The webhook and `payments:reconcile` also find these payments, by
+  session. Everyone else (other methods, or Apple Pay with the switch off) is
+  unchanged. Setup, as an owner under *Payments → Manage payment keys*: ask
+  MyFatoorah (tech@myfatoorah.com) for the Apple Pay domain verification file and
+  to enable Apple Pay on the account (sandbox and live separately); paste the file
+  — the site serves it at `/.well-known/apple-developer-merchantid-domain-association`;
+  press *Register* from the live shop's own address (calls `POST
+  /v2/RegisterApplePayDomain`); then switch the button on. It cannot be switched on
+  before the domain is registered. `MYFATOORAH_APPLE_PAY_ON_SITE=true` does the same
+  from `.env`, for a rehearsal. Devices without Apple Pay are not offered the choice.
 
 ## Emails
 

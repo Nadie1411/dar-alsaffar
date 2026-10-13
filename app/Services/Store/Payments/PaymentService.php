@@ -11,6 +11,7 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Services\Store\OrderLifecycle;
 use App\Support\Money;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -34,9 +35,12 @@ class PaymentService
     /** @var array<int,string> the payment method names MyFatoorah's create call accepts */
     protected const METHODS = ['CARD', 'APPLE_PAY', 'GOOGLE_PAY', 'KNET'];
 
+    protected const APPLE_PAY = 'APPLE_PAY';
+
     public function __construct(
         protected MyFatoorahClient $client,
         protected OrderLifecycle $lifecycle,
+        protected GatewayConfig $gateway,
     ) {}
 
     // ------------------------------------------------------------------ start
@@ -53,15 +57,7 @@ class PaymentService
     {
         $method = $method !== null && in_array(strtoupper($method), self::METHODS, true) ? strtoupper($method) : null;
 
-        $payment = Payment::query()->create([
-            'order_id' => $order->id,
-            'reference' => (string) Str::ulid(),
-            'state' => PaymentState::Pending,
-            'amount_fils' => $order->total_fils,
-            'currency' => $order->currency,
-            'method' => $method,
-            'expires_at' => now()->addMinutes((int) config('myfatoorah.expiry_minutes')),
-        ]);
+        $payment = $this->open($order, $method);
 
         try {
             $invoice = $this->client->createPayment($this->payload($order, $payment, $method));
@@ -74,6 +70,141 @@ class PaymentService
         $payment->update(['mf_invoice_id' => $invoice['invoiceId'], 'mf_payment_url' => $invoice['paymentUrl']]);
 
         return $payment;
+    }
+
+    /**
+     * Whether a method is paid for on this shop's own page, with MyFatoorah's
+     * embedded Apple Pay button, rather than on MyFatoorah's.
+     */
+    public function takesOnSite(?string $method): bool
+    {
+        return strtoupper((string) $method) === self::APPLE_PAY && $this->gateway->takesApplePayOnSite();
+    }
+
+    /**
+     * The attempt behind the Apple Pay button on the shop's page, and the
+     * session it is paid through. A session pays once, so the one the shopper
+     * already has is kept only while it is unused and unexpired: a page that is
+     * reloaded does not pile up attempts, and a spent session is never shown again.
+     *
+     * @throws MyFatoorahException when the session could not be created
+     */
+    public function applePaySession(Order $order): Payment
+    {
+        $open = $this->pendingApplePay($order);
+
+        if ($open !== null && $this->sessionIsUnused($open)) {
+            return $open;
+        }
+
+        $payment = $this->open($order, self::APPLE_PAY);
+
+        try {
+            $session = $this->client->createSession($this->sessionPayload($order, $payment));
+        } catch (MyFatoorahException $e) {
+            $payment->update(['state' => PaymentState::Failed, 'failure_reason' => 'The Apple Pay session could not be created.']);
+
+            throw $e;
+        }
+
+        $payment->update(['mf_session_id' => $session['sessionId']]);
+
+        return $payment;
+    }
+
+    /** The order's newest Apple Pay attempt that is still waiting, if it has one. */
+    public function pendingApplePay(Order $order): ?Payment
+    {
+        return $order->payments()
+            ->where('state', PaymentState::Pending->value)
+            ->whereNotNull('mf_session_id')
+            ->latest('id')
+            ->first();
+    }
+
+    /**
+     * Ask MyFatoorah what became of an Apple Pay session and, when it was paid
+     * on, settle the order from the payment itself. The payment id comes from
+     * MyFatoorah's answer about our own session, never from the shopper's browser.
+     *
+     * @return PaymentOutcome|null null when nothing has been paid on the session (yet)
+     *
+     * @throws MyFatoorahUnavailable when MyFatoorah cannot be asked — nothing is decided, ask again later
+     * @throws MyFatoorahException when MyFatoorah refuses to answer
+     */
+    public function checkSession(Payment $payment): ?PaymentOutcome
+    {
+        $transaction = $this->sessionTransaction($payment);
+
+        if ($transaction === null) {
+            return null;
+        }
+
+        // The invoice only exists once the shopper has paid. Keeping it lets the
+        // payment be matched to this attempt even if MyFatoorah did not echo our reference.
+        if ($transaction['invoiceId'] !== null && $payment->mf_invoice_id === null) {
+            $payment->update(['mf_invoice_id' => $transaction['invoiceId']]);
+        }
+
+        return $this->confirm($transaction['paymentId']);
+    }
+
+    protected function open(Order $order, ?string $method): Payment
+    {
+        return Payment::query()->create([
+            'order_id' => $order->id,
+            'reference' => (string) Str::ulid(),
+            'state' => PaymentState::Pending,
+            'amount_fils' => $order->total_fils,
+            'currency' => $order->currency,
+            'method' => $method,
+            'expires_at' => now()->addMinutes((int) config('myfatoorah.expiry_minutes')),
+        ]);
+    }
+
+    /** Whether a session can still be paid on: not used, not run out. */
+    protected function sessionIsUnused(Payment $payment): bool
+    {
+        if ($payment->expires_at !== null && $payment->expires_at->isPast()) {
+            return false;
+        }
+
+        try {
+            $details = $this->client->sessionDetails((string) $payment->mf_session_id);
+        } catch (MyFatoorahException) {
+            return false;
+        }
+
+        if ($details === null || filter_var($details['IsUsed'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
+            return false;
+        }
+
+        $expiry = Carbon::make($details['SessionExpiry'] ?? null);
+
+        return $expiry === null || $expiry->isFuture();
+    }
+
+    /**
+     * The payment made on a session, if there is one.
+     *
+     * @return array{paymentId:string,invoiceId:?string}|null
+     */
+    protected function sessionTransaction(Payment $payment): ?array
+    {
+        if ($payment->mf_session_id === null) {
+            return null;
+        }
+
+        $details = $this->client->sessionDetails($payment->mf_session_id);
+        $paymentId = (string) data_get($details, 'TransactionResult.Transaction.PaymentId', '');
+
+        if ($paymentId === '') {
+            return null;
+        }
+
+        $invoiceId = (string) data_get($details, 'TransactionResult.Invoice.Id', '');
+
+        return ['paymentId' => $paymentId, 'invoiceId' => $invoiceId === '' ? null : $invoiceId];
     }
 
     /**
@@ -94,11 +225,6 @@ class PaymentService
      */
     protected function payload(Order $order, Payment $payment, ?string $method): array
     {
-        $dial = (string) config('brand.country.dial');
-        $digits = ltrim($order->customer_phone, '+');
-        $local = str_starts_with($digits, $dial) ? substr($digits, strlen($dial)) : $digits;
-        $locale = $order->locale === 'en' ? 'en-KW' : SetLocale::DEFAULT;
-
         $payload = [
             'Order' => [
                 'Amount' => Money::fromFils($payment->amount_fils),
@@ -107,16 +233,8 @@ class PaymentService
                 // payment is matched to this attempt.
                 'ExternalIdentifier' => $payment->reference,
             ],
-            'Customer' => array_filter([
-                'Name' => $order->customer_name,
-                'Mobile' => ['CountryCode' => '+'.$dial, 'Number' => $local],
-                'Email' => $order->customer_email,
-                'Reference' => $order->number,
-            ]),
-            'IntegrationUrls' => [
-                'Redirection' => $this->callbackUrl('payment.return', ['locale' => $locale]),
-                'Webhook' => $this->callbackUrl('webhooks.myfatoorah'),
-            ],
+            'Customer' => $this->customer($order),
+            'IntegrationUrls' => $this->integrationUrls($order),
             'Language' => $order->locale === 'en' ? 'EN' : 'AR',
             'PaymentExpiry' => $payment->expires_at->clone()->utc()->format('Y-m-d\TH:i:s\Z'),
             'MetaData' => ['UDF1' => $order->number],
@@ -127,6 +245,59 @@ class PaymentService
         }
 
         return $payload;
+    }
+
+    /**
+     * What opens a session for the Apple Pay button on the shop's page. The
+     * amount is the attempt's, fixed when the order was priced.
+     *
+     * @return array<string,mixed>
+     */
+    protected function sessionPayload(Order $order, Payment $payment): array
+    {
+        return [
+            'PaymentMode' => 'COMPLETE_PAYMENT',
+            'Order' => [
+                'Amount' => Money::fromFils($payment->amount_fils),
+                'Currency' => $payment->currency,
+                'ExternalIdentifier' => $payment->reference,
+            ],
+            'SupportedPaymentMethods' => ['applepay'],
+            'Customer' => $this->customer($order),
+            'IntegrationUrls' => $this->integrationUrls($order),
+            'Language' => $order->locale === 'en' ? 'EN' : 'AR',
+            'MetaData' => ['UDF1' => $order->number],
+        ];
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    protected function customer(Order $order): array
+    {
+        $dial = (string) config('brand.country.dial');
+        $digits = ltrim($order->customer_phone, '+');
+        $local = str_starts_with($digits, $dial) ? substr($digits, strlen($dial)) : $digits;
+
+        return array_filter([
+            'Name' => $order->customer_name,
+            'Mobile' => ['CountryCode' => '+'.$dial, 'Number' => $local],
+            'Email' => $order->customer_email,
+            'Reference' => $order->number,
+        ]);
+    }
+
+    /**
+     * @return array{Redirection:string,Webhook:string}
+     */
+    protected function integrationUrls(Order $order): array
+    {
+        $locale = $order->locale === 'en' ? 'en-KW' : SetLocale::DEFAULT;
+
+        return [
+            'Redirection' => $this->callbackUrl('payment.return', ['locale' => $locale]),
+            'Webhook' => $this->callbackUrl('webhooks.myfatoorah'),
+        ];
     }
 
     /**
@@ -441,6 +612,11 @@ class PaymentService
      */
     protected function locate(Payment $payment): ?string
     {
+        // An Apple Pay attempt has no invoice until it is paid; its session says what became of it.
+        if ($payment->mf_session_id !== null) {
+            return $this->sessionTransaction($payment)['paymentId'] ?? null;
+        }
+
         if ($payment->mf_invoice_id === null) {
             return null;
         }

@@ -5,13 +5,19 @@ namespace App\Http\Controllers;
 use App\Contracts\Store\Cart;
 use App\Contracts\Store\Orders;
 use App\Enums\OrderStatus;
+use App\Enums\PaymentStatus;
 use App\Models\Order;
 use App\Services\Overzaki\CartQuote;
 use App\Services\Settings;
+use App\Services\Store\Payments\GatewayConfig;
 use App\Services\Store\Payments\MyFatoorahException;
+use App\Services\Store\Payments\PaymentOutcome;
+use App\Services\Store\Payments\PaymentReturn;
 use App\Services\Store\Payments\PaymentService;
+use App\Support\Money;
 use App\Support\Nav;
 use App\Support\Shopper;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -23,6 +29,8 @@ class CheckoutController extends Controller
         protected Orders $orders,
         protected Settings $settings,
         protected PaymentService $payments,
+        protected PaymentReturn $return,
+        protected GatewayConfig $gateway,
     ) {}
 
     public function index()
@@ -53,6 +61,9 @@ class CheckoutController extends Controller
             'addons' => $this->orders->addonsEnabled() ? $this->orders->serviceAddons() : [],
             'addonsRequired' => $this->orders->addonsRequired(),
             'codEnabled' => $this->codOffered($quote),
+            // Apple Pay only works on an Apple device, so when it is paid with the
+            // button on this site the choice is hidden from everyone else.
+            'applePayOnSite' => $this->payments->takesOnSite('APPLE_PAY'),
         ]);
     }
 
@@ -185,10 +196,95 @@ class CheckoutController extends Controller
     }
 
     /**
+     * The page with the Apple Pay button, for an order placed with Apple Pay and
+     * not yet paid. The button is MyFatoorah's, drawn here; what it takes is
+     * checked with MyFatoorah afterwards (applePayConfirm), not believed.
+     */
+    public function applePay(string $locale, string $number)
+    {
+        $order = $this->ownOrder($number);
+
+        abort_if($order === null, 404);
+
+        // Back on this page after paying, say from the browser's back button.
+        if ($order->payment_status === PaymentStatus::Paid) {
+            return redirect(Nav::url('checkout/thanks/'.$order->number));
+        }
+
+        abort_if($order->status !== OrderStatus::PendingPayment || ! $this->gateway->takesApplePayOnSite(), 404);
+
+        try {
+            // A shopper who paid and then reloaded must be taken on, not offered a second payment.
+            $earlier = $this->payments->pendingApplePay($order);
+            $outcome = $earlier === null ? null : $this->payments->checkSession($earlier);
+
+            if ($outcome !== null && ($outcome->isPaid() || $outcome->result === PaymentOutcome::PENDING)) {
+                return redirect($this->return->destination($outcome));
+            }
+
+            $payment = $this->payments->applePaySession($order);
+        } catch (MyFatoorahException) {
+            $payment = null;
+        }
+
+        session()->put('payment.order', $order->number);
+
+        return view('pages.apple-pay', [
+            'order' => $order,
+            'total' => Money::format(Money::fromFils($order->total_fils), Money::KWD),
+            'sessionId' => $payment?->mf_session_id,
+            'sdkUrl' => $this->gateway->sdkUrl(),
+            'confirmUrl' => Nav::url('checkout/apple-pay/'.$order->number.'/confirm'),
+            'otherWayUrl' => Nav::url('checkout/pay/'.$order->number),
+        ]);
+    }
+
+    /**
+     * Called by the page once the Apple Pay button says it is done. What it said
+     * is not looked at: MyFatoorah is asked about our own session, and the shopper
+     * is sent where the answer says.
+     */
+    public function applePayConfirm(string $locale, string $number): JsonResponse
+    {
+        $order = $this->ownOrder($number);
+
+        abort_if($order === null, 404);
+
+        $payment = $order->payments()->whereNotNull('mf_session_id')->latest('id')->first();
+
+        abort_if($payment === null, 404);
+
+        try {
+            $outcome = $this->payments->checkSession($payment);
+        } catch (MyFatoorahException) {
+            // MyFatoorah could not be asked. Nothing is decided; the webhook or
+            // the reconcile job will settle it, and the shopper is told so.
+            return response()->json(['result' => PaymentOutcome::PENDING, 'redirect' => Nav::url('checkout/pending/'.$order->number)]);
+        }
+
+        if ($outcome === null) {
+            return response()->json(['result' => 'unpaid']);
+        }
+
+        return response()->json(['result' => $outcome->result, 'redirect' => $this->return->destination($outcome)]);
+    }
+
+    /**
      * An order still waiting for its payment, if the person asking is the one
      * who placed it: the same browser session, or the signed-in account.
      */
     protected function payableOrder(string $number): ?Order
+    {
+        $order = $this->ownOrder($number);
+
+        return $order !== null && $order->status === OrderStatus::PendingPayment ? $order : null;
+    }
+
+    /**
+     * An order, if the person asking is the one who placed it: the same browser
+     * session, or the signed-in account — whatever has become of it since.
+     */
+    protected function ownOrder(string $number): ?Order
     {
         if ($number === '') {
             return null;
@@ -196,7 +292,7 @@ class CheckoutController extends Controller
 
         $order = Order::query()->where('number', $number)->first();
 
-        if ($order === null || $order->status !== OrderStatus::PendingPayment) {
+        if ($order === null) {
             return null;
         }
 

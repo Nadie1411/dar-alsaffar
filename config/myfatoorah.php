@@ -40,6 +40,24 @@ return [
         'sandbox' => 'https://apitest.myfatoorah.com',
     ],
 
+    // The script that draws MyFatoorah's embedded payment button on the shop's own
+    // page, for each of the environments above. Never typed in: it is whichever
+    // one belongs to the endpoint in use, so the page cannot be made to load a
+    // script from anywhere else.
+    'sdk' => [
+        'kuwait' => 'https://portal.myfatoorah.com/sessions/v1/session.js',
+        'uae' => 'https://ae.myfatoorah.com/sessions/v1/session.js',
+        'saudi' => 'https://sa.myfatoorah.com/sessions/v1/session.js',
+        'qatar' => 'https://qa.myfatoorah.com/sessions/v1/session.js',
+        'egypt' => 'https://eg.myfatoorah.com/sessions/v1/session.js',
+        'sandbox' => 'https://demo.myfatoorah.com/sessions/v1/session.js',
+    ],
+
+    // Show the Apple Pay button on the shop's own page instead of sending the
+    // shopper to MyFatoorah's. Needs the domain verified and registered first
+    // (admin panel → Payments → Manage payment keys), so it starts off.
+    'apple_pay_on_site' => (bool) env('MYFATOORAH_APPLE_PAY_ON_SITE', false),
+
     // The secret key from the portal's Webhook Settings. When set, a webhook
     // without a valid signature is refused.
     'webhook_secret' => env('MYFATOORAH_WEBHOOK_SECRET'),
