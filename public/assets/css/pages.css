@@ -1135,6 +1135,27 @@
   color: var(--text-on-dark-muted);
 }
 
+.footer__credit {
+  margin: var(--space-3) 0 0;
+  text-align: center;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--text-on-dark-muted);
+  overflow-wrap: anywhere;
+}
+.footer__credit img {
+  display: inline-block;
+  inline-size: 5px;
+  block-size: 5px;
+  vertical-align: middle;
+  margin-inline: 3px;
+}
+.footer__credit a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .payments { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
 .payments__logo {
   display: grid;

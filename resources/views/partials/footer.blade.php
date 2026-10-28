@@ -115,5 +115,7 @@
                 <a href="{{ Nav::switchTo('en-KW') }}" aria-current="{{ $localeCode === 'en-KW' ? 'true' : 'false' }}"><span>English</span></a>
             </span>
         </div>
+
+        <p class="footer__credit" dir="ltr">Powered by <img src="https://bluecodekw.com/uploads/favicon-custom.png" width="5" height="5" alt="" aria-hidden="true" loading="lazy"> <a href="https://wa.me/96550894216" target="_blank" rel="noopener noreferrer">bluecodekw.com</a> 2026</p>
     </div>
 </footer>
